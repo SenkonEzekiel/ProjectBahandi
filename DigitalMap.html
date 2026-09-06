@@ -1,0 +1,1235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Bahandi - Interactive Map</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;700&family=Urbanist:wght@300;400;700;900&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@300;400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Component Stylesheets -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/FdStyle.css">
+    <link rel="stylesheet" href="css/FfStyle.css">
+    <link rel="stylesheet" href="css/HscStyle.css">
+    <link rel="stylesheet" href="css/HsStyle.css">
+    <link rel="stylesheet" href="css/PgStyle.css">
+    <link rel="stylesheet" href="css/QrStyle.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .app-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        #map {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>
+    <header class="main-header header">
+        <div class="brand header-left">
+            <div class="brand-mark" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2 L20 8 L12 22 L4 8 Z"/>
+                    <circle cx="12" cy="9" r="2.5" fill="currentColor" stroke="none"/>
+                </svg>
+            </div>
+            <div class="brand-text">
+                <span class="brand-name logo-main">project<span class="dot">bahandi</span><span class="tld domain">.com</span></span>
+                <span class="brand-badge subtitle">Molo Cultural GIS</span>
+            </div>
+        </div>
+        <nav class="nav-links">
+            <a href="index.html" class="nav-link">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12 L12 4 L21 12"/><path d="M5 10 V20 h14 V10"/></svg>
+                Home
+            </a>
+            <a href="DigitalMap.html" class="nav-link active active-nav">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 8 3 16 6 23 3 23 18 16 21 8 18 1 21"/><line x1="8" y1="3" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="21"/></svg>
+                Interactive Map
+            </a>
+            <a href="about.html" class="nav-link">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="13"/><circle cx="12" cy="16.5" r="0.8" fill="currentColor"/></svg>
+                About
+            </a>
+            <a href="contact.html" class="nav-link">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5 h16 v14 H4 Z"/><path d="M4 7 L12 13 L20 7"/></svg>
+                Contact
+            </a>
+        </nav>
+        <div class="header-right">
+            <button type="button" class="icon-btn nav-menu-toggle" id="nav-menu-toggle" title="Menu" aria-label="Toggle navigation" aria-expanded="false">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+            </button>
+            <div class="search" id="search">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg>
+                <input id="search-input" type="search" placeholder="Search landmarks, streets…" autocomplete="off" />
+                <span class="kbd">⌘K</span>
+                <div class="cmd" id="search-cmd"></div>
+            </div>
+            <button type="button" class="icon-btn" id="theme-toggle" title="Theme">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8 A9 9 0 1 1 11.2 3 A7 7 0 0 0 21 12.8 Z"/></svg>
+            </button>
+            <button type="button" class="icon-btn" id="lang-toggle" title="Language">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12 h18"/><path d="M12 3 c3 3 4.5 6 4.5 9 s-1.5 6 -4.5 9"/><path d="M12 3 c-3 3 -4.5 6 -4.5 9 s1.5 6 4.5 9"/></svg>
+            </button>
+            <div class="stats-pill" title="Landmarks displayed">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 C7.5 2 4 5.5 4 10 c0 6 8 12 8 12 s8 -6 8 -12 c0 -4.5 -3.5 -8 -8 -8 Z"/><circle cx="12" cy="10" r="3"/></svg>
+                <span><b id="pin-count">0</b> Landmarks</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="app-container">
+        <!-- Filter Panel -->
+        <div id="filter-control-panel" class="filter-control-panel">
+            <header class="fp-head">
+                <div class="fp-title">
+                    <span class="kicker">Layer Controls</span>
+                    <h3>Filter Landmarks</h3>
+                </div>
+                <div class="fp-actions">
+                    <button type="button" class="fp-btn" id="fp-reset" title="Reset" aria-label="Reset filters">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12 a9 9 0 1 0 3 -6.7"/><polyline points="3 3 3 9 9 9"/></svg>
+                    </button>
+                    <button type="button" class="fp-btn" id="fp-collapse" title="Collapse panel" aria-label="Collapse filter panel">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                    </button>
+                </div>
+            </header>
+
+            <div class="fp-body">
+                <div class="filter-group fp-section">
+                    <label class="fp-label" for="region-select"><span>Region</span></label>
+                    <div class="fp-select-wrap">
+                        <select id="region-select">
+                            <option value="molo">Molo, Iloilo City</option>
+                            <option value="jaro">Jaro, Iloilo City</option>
+                            <option value="city-proper">City Proper</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="filter-group fp-section">
+                    <label class="fp-label" for="category-select">
+                        <span>Categories</span>
+                        <span class="count" id="fp-cat-count">4 · all</span>
+                    </label>
+                    <select id="category-select" class="fp-sr-select">
+                        <option value="all">All Landmarks</option>
+                        <option value="church">Churches / Religious</option>
+                        <option value="mansion">Ancestral Houses</option>
+                        <option value="plaza">Plazas & Parks</option>
+                        <option value="food">Culinary Sites</option>
+                    </select>
+                    <div class="fp-chips" role="group" aria-label="Landmark categories">
+                        <button type="button" class="fp-chip active" data-cat="mansion">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21 h18"/><path d="M5 21 V10"/><path d="M19 21 V10"/><path d="M9 21 V13"/><path d="M15 21 V13"/><path d="M2 10 L12 3 L22 10"/></svg>
+                            Ancestral Houses
+                        </button>
+                        <button type="button" class="fp-chip active" data-cat="church">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 L4 8 v12 h16 V8 Z"/><path d="M12 3 v5"/><path d="M10 8 h4"/><path d="M9 20 v-6 h6 v6"/></svg>
+                            Churches
+                        </button>
+                        <button type="button" class="fp-chip active" data-cat="plaza">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3 v18"/><path d="M3 12 h18"/></svg>
+                            Plazas &amp; Parks
+                        </button>
+                        <button type="button" class="fp-chip" data-cat="food">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4 v16"/><path d="M5 4 c3 0 3 5 0 6 c-3 -1 -3 -6 0 -6 Z"/><path d="M13 4 v7 c0 1.5 1 2 3 2 v7"/><path d="M19 4 v7"/></svg>
+                            Culinary Sites
+                        </button>
+                    </div>
+                </div>
+
+                <div class="fp-section">
+                    <div class="fp-label"><span>Overlays</span></div>
+                    <div class="fp-toggle-row">
+                        <button type="button" class="fp-toggle on" data-toggle="labels">
+                            <span class="lbl">Show pin labels</span>
+                            <span class="switch" aria-hidden="true"></span>
+                        </button>
+                        <button type="button" class="fp-toggle on" data-toggle="pulse">
+                            <span class="lbl">Pulse rings on pins</span>
+                            <span class="switch" aria-hidden="true"></span>
+                        </button>
+                        <button type="button" class="fp-toggle" data-toggle="bounds">
+                            <span class="lbl">Heritage boundaries</span>
+                            <span class="switch" aria-hidden="true"></span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="fp-foot">
+                    <button class="filter-btn-placeholder fp-primary" type="button" id="fp-apply">
+                        Apply Filters
+                    </button>
+                    <button type="button" class="fp-ghost" id="fp-reset-foot">Reset</button>
+                </div>
+            </div>
+        </div>
+
+        <button type="button" class="fp-reopen" id="fp-reopen" title="Show filter panel" aria-label="Show filter panel">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6 h16"/><path d="M7 12 h13"/><path d="M10 18 h10"/></svg>
+        </button>
+
+        <!-- Map Canvas Area -->
+        <div id="map"></div>
+
+        <!-- Hover Preview Card -->
+        <div id="map-preview-card" class="preview-card hidden">
+            <div class="preview-card-content">
+                <span id="preview-tag-text" class="preview-tag">Category</span>
+                <h4 id="preview-title-text">Landmark Name</h4>
+                <p>Click pin to expand details...</p>
+            </div>
+        </div>
+
+        <!-- Main Info Sidebar -->
+        <div id="info-sidebar" class="sidebar collapsed">
+            <div class="sidebar-header">
+                <button type="button" class="close-btn" onclick="closeSidebar()" aria-label="Close sidebar">✕</button>
+            </div>
+
+            <div class="sidebar-image-container">
+                <img id="landmark-image" src="" alt="Landmark Image" />
+            </div>
+
+            <div class="sidebar-body">
+                <h2 id="landmark-title">Select a Landmark</h2>
+                <p id="landmark-description" class="short-description">
+                    Select a pin on the map to view quick details.
+                </p>
+            </div>
+
+            <div class="sidebar-footer">
+                <span class="footer-label">Explore!</span>
+                <div class="mini-button-row">
+                    
+                    <!-- BUTTON 1: Full Details (FD) -->
+                    <div class="mini-btn-wrapper">
+                        <button type="button" class="mini-btn" onclick="openFrame('FD')">
+                            <img src="assets/SidebarComp/v4-FD.png" alt="Full Details" class="mini-btn-icon"> 
+                        </button>
+                        <div class="btn-flyout">
+                            <strong>Full Details</strong>
+                            <span>Click to view complete history and details.</span>
+                        </div>
+                    </div>
+
+                    <!-- BUTTON 2: Fun Facts (FF) -->
+                    <div class="mini-btn-wrapper">
+                        <button type="button" class="mini-btn" onclick="openFrame('FF')">
+                            <img src="assets/SidebarComp/v4-FF.png" alt="Fun Facts" class="mini-btn-icon"> 
+                        </button>
+                        <div class="btn-flyout">
+                            <strong>Fun Facts</strong>
+                            <span>Discover interesting trivia about this landmark.</span>
+                        </div>
+                    </div>
+
+                    <!-- BUTTON 3: Heritage Citation (HSC) -->
+                    <div class="mini-btn-wrapper">
+                        <button type="button" class="mini-btn" onclick="openFrame('HSC')">
+                            <img src="assets/SidebarComp/v4-HSC.png" alt="Heritage Citation" class="mini-btn-icon"> 
+                        </button>
+                        <div class="btn-flyout">
+                            <strong>Heritage Citation</strong>
+                            <span>View architectural significance and legal citations.</span>
+                        </div>
+                    </div>
+
+                    <!-- BUTTON 4: Heritage Status (HS) -->
+                    <div class="mini-btn-wrapper">
+                        <button type="button" class="mini-btn" onclick="openFrame('HS')">
+                            <img src="assets/SidebarComp/v4-HS.png" alt="Heritage Status" class="mini-btn-icon"> 
+                        </button>
+                        <div class="btn-flyout">
+                            <strong>Heritage Status</strong>
+                            <span>Inspect verified seal and official designation fields.</span>
+                        </div>
+                    </div>
+
+                    <!-- BUTTON 5: Play Game (PG) -->
+                    <div class="mini-btn-wrapper">
+                        <button type="button" class="mini-btn" onclick="openFrame('PG')">
+                            <img src="assets/SidebarComp/v4-PG.png" alt="Play Game" class="mini-btn-icon"> 
+                        </button>
+                        <div class="btn-flyout">
+                            <strong>Play Game</strong>
+                            <span>Explore 3D models and interactive landmark games.</span>
+                        </div>
+                    </div>
+
+                    <!-- BUTTON 6: QR Code (QR) -->
+                    <div class="mini-btn-wrapper">
+                        <button type="button" class="mini-btn" onclick="openFrame('QR')">
+                            <img src="assets/SidebarComp/v4-QR.png" alt="QR Code" class="mini-btn-icon"> 
+                        </button>
+                        <div class="btn-flyout">
+                            <strong>QR Code</strong>
+                            <span>View and scan site QR code for quick access.</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Full Details (FD) / Blueprint Panel -->
+        <div id="blueprint-panel" class="blueprint-panel">
+            <div class="bp-header">
+                <div class="bp-icon-box">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                    </svg>
+                </div>
+                <button type="button" class="bp-back-btn" onclick="backToSidebar()">← BACK TO OVERVIEW</button>
+            </div>
+
+            <div class="bp-meta-ref" id="bp-ref-code">REF · BHD-ML-0001 · FULL DETAILS</div>
+            <h2 class="bp-title" id="bp-landmark-title">Landmark <em>Name</em></h2>
+
+            <div class="bp-tabs-bar" id="bp-tabs-bar">
+                <button type="button" class="bp-tab-btn active" onclick="switchBpTab(this, 'history')">History</button>
+                <button type="button" class="bp-tab-btn" onclick="switchBpTab(this, 'architecture')">Architecture</button>
+                <button type="button" class="bp-tab-btn" onclick="switchBpTab(this, 'gallery')">Gallery</button>
+            </div>
+
+            <div id="bp-tab-content">
+                <div class="bp-section-label">Overview</div>
+                <p class="bp-description" id="bp-landmark-desc">
+                    Select a landmark pin to load full historical data.
+                </p>
+
+                <div class="bp-section-label">Data Sheet</div>
+                <div class="bp-data-sheet">
+                    <span class="bp-data-key">BUILT</span>
+                    <span class="bp-data-val" id="bp-data-built">—</span>
+                    
+                    <span class="bp-data-key">STYLE</span>
+                    <span class="bp-data-val" id="bp-data-style">—</span>
+                    
+                    <span class="bp-data-key">STATUS</span>
+                    <span class="bp-data-val" id="bp-data-status">—</span>
+                </div>
+            </div>
+
+            <div class="bp-footer">
+                <div class="bp-coordinates" id="bp-coords-text">0.0000° N · 0.0000° E</div>
+                <button type="button" class="bp-action-btn" onclick="alert('Opening Full Article Page...')">
+                    Open Full Page →
+                </button>
+            </div>
+        </div>
+
+        <!-- Fun Facts (FF) Popover Card Stack Modal -->
+        <div id="ff-popover-wrapper" class="ff-popover-wrapper">
+            <div class="ff-deck-stack">
+                <div class="ff-card-bg layer-2"></div>
+                <div class="ff-card-bg layer-1"></div>
+
+                <div class="ff-card">
+                    <div class="ff-header">
+                        <div class="ff-icon-circle">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9 18 h6"/>
+                                <path d="M10 21 h4"/>
+                                <path d="M12 3 A6 6 0 0 1 18 9 c0 3 -2 4 -3 6 h-6 c-1 -2 -3 -3 -3 -6 A6 6 0 0 1 12 3 Z"/>
+                            </svg>
+                        </div>
+                        <button type="button" class="ff-close-btn" onclick="closeFFPopover()">✕</button>
+                    </div>
+
+                    <div class="ff-counter">
+                        Fact <span id="ff-current-idx">01</span> / <span id="ff-total-count">03</span>
+                    </div>
+
+                    <h3 class="ff-title" id="ff-headline">The <em>octagonal turret</em> you can spot from the plaza...</h3>
+
+                    <div class="ff-body-box">
+                        <p class="ff-description" id="ff-body-text">
+                            Select a site to explore unique architectural trivia and historical facts.
+                        </p>
+                    </div>
+
+                    <div class="ff-tags" id="ff-tag-container">
+                        <span class="ff-tag-pill">Architecture</span>
+                        <span class="ff-tag-pill">Heritage</span>
+                    </div>
+
+                    <div class="ff-did-you-know-box">
+                        <div class="ff-dyk-label">
+                            <span>💡 Did You Know?</span>
+                        </div>
+                        <p class="ff-dyk-text" id="ff-dyk-text">
+                            It was one of the earliest prominent structures constructed in the district.
+                        </p>
+                    </div>
+
+                    <div class="ff-controls">
+                        <div class="ff-dots-pager" id="ff-dots-pager">
+                            <span class="ff-dot active"></span>
+                            <span class="ff-dot"></span>
+                            <span class="ff-dot"></span>
+                        </div>
+                        <div class="ff-nav-btns">
+                            <button type="button" class="ff-arrow-btn" onclick="navigateFF(-1)" aria-label="Previous Fact">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                            </button>
+                            <button type="button" class="ff-arrow-btn" onclick="navigateFF(1)" aria-label="Next Fact">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Heritage Structure Citation (HSC) Wide Sidebar Panel -->
+        <div id="hsc-panel" class="hsc-panel">
+            <div class="hsc-panel-header">
+                <div class="hsc-breadcrumb">
+                    HERITAGE / ARCHITECTURE / <b id="hsc-bread-tag">CITATION</b>
+                </div>
+                <button type="button" class="hsc-close-btn" onclick="closeHSCModal()" aria-label="Close sidebar">✕</button>
+            </div>
+
+            <div class="hsc-panel-content">
+                <div class="hsc-hero-banner">
+                    <img id="hsc-hero-img" src="assets/SidebarComp/v4-FD.png" alt="Heritage Landmark">
+                    <div class="hsc-hero-overlay">
+                        <span class="hsc-badge" id="hsc-hero-badge">NATIONAL HERITAGE HOUSE</span>
+                        <h3 id="hsc-hero-title">Molo Heritage Site</h3>
+                        <p id="hsc-hero-sub">DISTRICT OF MOLO · ILOILO CITY</p>
+                    </div>
+                </div>
+
+                <h2 class="hsc-editorial-title" id="hsc-modal-title">
+                    Architectural <em>Statement</em>
+                </h2>
+
+                <div class="hsc-pill-tabs">
+                    <button type="button" class="hsc-pill-btn active" onclick="switchHSCTab(this, 'statement')">Statement</button>
+                    <button type="button" class="hsc-pill-btn" onclick="switchHSCTab(this, 'significance')">Significance</button>
+                    <button type="button" class="hsc-pill-btn" onclick="switchHSCTab(this, 'citation')">Citation</button>
+                </div>
+
+                <div class="hsc-body-box">
+                    <p class="hsc-dropcap-para" id="hsc-main-paragraph">
+                        Select a landmark from the interactive map to inspect its full heritage citation, architectural significance, and official declaration references.
+                    </p>
+                    <p class="hsc-placeholder-box" id="hsc-sec-paragraph">
+                        Additional preservation metadata and detailed citation records will render here when a site is actively loaded.
+                    </p>
+                </div>
+            </div>
+
+            <div class="hsc-panel-footer">
+                <div class="hsc-chips-group">
+                    <div class="hsc-chip">DESIGNATION: <b id="hsc-chip-designation">NHCP MARKER</b></div>
+                    <div class="hsc-chip">PERIOD: <b id="hsc-chip-era">19TH CENTURY</b></div>
+                </div>
+                <a href="#" class="hsc-cite-link" id="hsc-cite-link" onclick="alert('Opening official citation record...')">
+                    VIEW ARCHIVE →
+                </a>
+            </div>
+        </div>
+
+        <!-- Heritage Status (HS) Certificate Modal Overlay -->
+        <div id="hs-overlay" class="hs-overlay">
+            <div class="hs-certificate-card">
+                <button type="button" class="hs-close-btn" onclick="closeHSModal()" aria-label="Close modal">✕</button>
+                <div class="hs-inner-border">
+                    <div class="hs-cert-header">
+                        <div class="hs-cert-header-left">
+                            <span>REGISTRY ID:</span>
+                            <strong id="hs-reg-code">BHD-REG-2026</strong>
+                        </div>
+                        <div class="hs-cert-header-right">
+                            AUTH BY: <span id="hs-auth-by">NHCP / ILOILO HERITAGE COUNCIL</span>
+                        </div>
+                    </div>
+
+                    <div class="hs-cert-body">
+                        <div class="hs-seal-wrapper">
+                            <div class="hs-seal-ring"></div>
+                            <div class="hs-seal-circle">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                                    <path d="M9 12l2 2 4-4"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="hs-details-wrapper">
+                            <div class="hs-status-subtitle">VERIFIED HERITAGE STATUS</div>
+                            <h3 class="hs-landmark-title" id="hs-landmark-title">Molo Heritage <em>Site</em></h3>
+                            <p class="hs-summary-text" id="hs-summary-text">
+                                Officially certified as an active cultural heritage structure under local and national preservation standards.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="hs-fields-grid">
+                        <div class="hs-field-box">
+                            <div class="hs-field-label">CLASSIFICATION</div>
+                            <div class="hs-field-value" id="hs-val-registry">NATIONAL HERITAGE LANDMARK</div>
+                        </div>
+                        <div class="hs-field-box">
+                            <div class="hs-field-label">MARKER YEAR</div>
+                            <div class="hs-field-value" id="hs-val-marker">19TH CENTURY</div>
+                        </div>
+                        <div class="hs-field-box">
+                            <div class="hs-field-label">ORDINANCE NO.</div>
+                            <div class="hs-field-value" id="hs-val-ordinance">ORD NO. 2012-084</div>
+                        </div>
+                    </div>
+
+                    <div class="hs-cert-footer">
+                        <div class="hs-active-badge">
+                            <span class="hs-status-dot"></span>
+                            AUTHENTICATED RECORD
+                        </div>
+                        <a href="#" class="hs-source-link" id="hs-source-link" onclick="alert('Opening legal record archive...')">
+                            DOCUMENT ARCHIVE →
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+     <!-- Play Game (PG) Modal Overlay -->
+        <div id="pg-overlay" class="pg-overlay">
+            <div class="pg-modal-card">
+                <!-- Absolute Positioned Close Button -->
+                <button type="button" class="pg-close-btn" onclick="closePGModal()" aria-label="Close modal">✕</button>
+                
+                <div class="pg-halo-wrapper">
+                    <div class="pg-halo-ring"></div>
+                    <div class="pg-icon-circle">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="6" y1="12" x2="10" y2="12"></line>
+                            <line x1="8" y1="10" x2="8" y2="14"></line>
+                            <circle cx="15" cy="11" r="1"></circle>
+                            <circle cx="17" cy="13" r="1"></circle>
+                            <path d="M18 6H6a4 4 0 0 0-4 4v4a4 4 0 0 0 4 4h12a4 4 0 0 0 4-4v-4a4 4 0 0 0-4-4z"></path>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="pg-badge">INTERACTIVE EXPERIENCES</div>
+                <h2 class="pg-title" id="pg-landmark-title">Molo Mansion <em>Interactive</em></h2>
+                <p class="pg-sub-description" id="pg-sub-desc">
+                    Choose between inspecting the 3D model of this structure or playing its personal landmark challenge game.
+                </p>
+
+                <div class="pg-cards-grid">
+                    <!-- MODE 1: Landmark 3D Model -->
+                    <div class="pg-mode-card selected" id="pg-card-3d" onclick="selectPGMode('3d-model')">
+                        <div>
+                            <div class="pg-card-top">
+                                <span class="pg-mode-label">MODE 01</span>
+                                <div class="pg-card-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                                        <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                                        <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                                    </svg>
+                                </div>
+                            </div>
+                            <h3 class="pg-card-title" id="pg-m1-title">3D Model <em>Viewer</em></h3>
+                            <p class="pg-card-desc" id="pg-m1-desc">
+                                Inspect the real-time architectural 3D rendering of the landmark structure in 360 degrees.
+                            </p>
+                        </div>
+                        <div>
+                            <div class="pg-progress-meta">
+                                <span>STATUS</span>
+                                <span id="pg-m1-meta">MODEL READY · 100%</span>
+                            </div>
+                            <div class="pg-progress-bar-bg">
+                                <div class="pg-progress-fill" id="pg-m1-bar" style="width: 100%;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- MODE 2: Landmark Personal Game -->
+                    <div class="pg-mode-card" id="pg-card-game" onclick="selectPGMode('personal-game')">
+                        <div>
+                            <div class="pg-card-top">
+                                <span class="pg-mode-label">MODE 02</span>
+                                <div class="pg-card-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                                    </svg>
+                                </div>
+                            </div>
+                            <h3 class="pg-card-title" id="pg-m2-title">Site <em>Challenge</em></h3>
+                            <p class="pg-card-desc" id="pg-m2-desc">
+                                Play the custom mini-game designed specifically around the unique history and trivia of this site.
+                            </p>
+                        </div>
+                        <div>
+                            <div class="pg-progress-meta">
+                                <span>MINI-GAME</span>
+                                <span id="pg-m2-meta">PERSONAL GAME · READY</span>
+                            </div>
+                            <div class="pg-progress-bar-bg">
+                                <div class="pg-progress-fill" id="pg-m2-bar" style="width: 100%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pg-footer-bar">
+                    <div class="pg-stats-row">
+                        <span>AVAILABLE MODES: <strong>2/2</strong></span>
+                    </div>
+                    <a href="#" id="pg-launch-btn" class="pg-launch-btn" onclick="launchSelectedGame(); return false;">ENTER EXPERIENCE →</a>
+                </div>
+            </div>
+        </div>
+        <!-- QR Code (QR) Sidebar Panel -->
+        <div id="qr-panel" class="qr-panel">
+            <div class="qr-header">
+                <div class="qr-icon-box">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="7" height="7"/>
+                        <rect x="14" y="3" width="7" height="7"/>
+                        <rect x="14" y="14" width="7" height="7"/>
+                        <rect x="3" y="14" width="7" height="7"/>
+                    </svg>
+                </div>
+                <button type="button" class="qr-back-btn" onclick="closeQRPanel()">← BACK TO OVERVIEW</button>
+            </div>
+
+            <div class="qr-meta-ref" id="qr-ref-code">REF · BHD-ML-0001 · QR ACCESS</div>
+            <h2 class="qr-title" id="qr-landmark-title">Molo Mansion <em>QR Code</em></h2>
+
+            <!-- QR Card Image Display -->
+            <div class="qr-card-display">
+                <div class="qr-image-wrapper">
+                    <img id="qr-code-img" src="" alt="Landmark QR Code">
+                </div>
+                <div class="qr-scan-hint">SCAN TO INSTANTLY ACCESS ON MOBILE</div>
+            </div>
+
+            <!-- Spec Grid -->
+            <div class="qr-spec-box">
+                <div class="qr-spec-item">
+                    <span class="qr-spec-key">SITE ID</span>
+                    <span class="qr-spec-val" id="qr-val-id">BHD-ML-0001</span>
+                </div>
+                <div class="qr-spec-item">
+                    <span class="qr-spec-key">DISTRICT</span>
+                    <span class="qr-spec-val" id="qr-val-district">Molo, Iloilo City</span>
+                </div>
+                <div class="qr-spec-item">
+                    <span class="qr-spec-key">FORMAT</span>
+                    <span class="qr-spec-val" id="qr-val-format">PNG / 1024px</span>
+                </div>
+                <div class="qr-spec-item">
+                    <span class="qr-spec-key">STATUS</span>
+                    <span class="qr-spec-val" id="qr-val-status">ACTIVE & VERIFIED</span>
+                </div>
+            </div>
+
+            <!-- Actions Footer -->
+            <div class="qr-footer">
+                <button type="button" class="qr-action-btn" onclick="downloadQRCode()">
+                    DOWNLOAD QR CODE ↓
+                </button>
+                <button type="button" class="qr-share-btn" onclick="shareQRLink()">
+                    COPY ACCESS LINK 🔗
+                </button>
+            </div>
+        </div>
+
+        <div id="heritage-boundary-overlay" class="heritage-boundary-overlay" hidden></div>
+
+        <div class="legend" id="map-legend">
+            <div class="lg-title">Legend</div>
+            <button type="button" class="lg-row" data-legend-cat="mansion"><span class="lg-dot a"></span>Ancestral Houses</button>
+            <button type="button" class="lg-row" data-legend-cat="church"><span class="lg-dot c"></span>Churches</button>
+            <button type="button" class="lg-row" data-legend-cat="plaza"><span class="lg-dot p"></span>Plazas &amp; Parks</button>
+            <button type="button" class="lg-row" data-legend-cat="food"><span class="lg-dot f"></span>Culinary Sites</button>
+        </div>
+
+        <div class="zoom-ctl">
+            <button type="button" id="zoom-in" title="Zoom in" aria-label="Zoom in">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+            <button type="button" id="zoom-out" title="Zoom out" aria-label="Zoom out">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+        </div>
+
+        <footer class="toolbar" id="map-toolbar">
+            <div class="tb-stats">
+                <div class="tb-stat">
+                    <span class="k">Displayed</span>
+                    <span class="v"><b id="tb-count">0</b> / <span id="tb-total">0</span></span>
+                </div>
+                <div class="tb-divider"></div>
+                <div class="tb-stat">
+                    <span class="k">Coordinates</span>
+                    <span class="v" id="tb-coords">10.6970° N · 122.5440° E</span>
+                </div>
+                <div class="tb-divider"></div>
+                <div class="tb-stat">
+                    <span class="k">Zoom</span>
+                    <span class="v"><b id="tb-zoom">18</b></span>
+                </div>
+            </div>
+            <div class="tb-center">
+                <div class="scale-bar">
+                    <span class="lbl">Scale · <b id="tb-scale">1 : 3,200</b></span>
+                    <div class="track" id="tb-scale-track"></div>
+                    <span class="lbl"><b>200 m</b></span>
+                </div>
+            </div>
+            <div class="tb-right">
+                <a class="tb-link" id="tb-repo" href="https://github.com" target="_blank" rel="noopener noreferrer" title="GitHub">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19 c-4 1 -4 -3 -6 -3 M15 22 v-4 a3 3 0 0 0 -1 -2 c3 -0.5 6 -1.5 6 -6 a4.5 4.5 0 0 0 -1.2 -3.2 a4 4 0 0 0 -0.2 -3.2 s-1 -0.5 -3.6 1.2 a12 12 0 0 0 -6 0 c-2.6 -1.7 -3.6 -1.2 -3.6 -1.2 a4 4 0 0 0 -0.2 3.2 A4.5 4.5 0 0 0 3 9 c0 4.5 3 5.5 6 6 a3 3 0 0 0 -1 2 v4"/></svg>
+                    Repo
+                </a>
+                <a class="tb-link" id="tb-docs" href="about.html" title="Documentation">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5 a2 2 0 0 1 2 -2 h10 l4 4 v12 a2 2 0 0 1 -2 2 H6 a2 2 0 0 1 -2 -2 Z"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="16" y2="14"/><line x1="8" y1="18" x2="13" y2="18"/></svg>
+                    Docs
+                </a>
+                <button type="button" class="tb-link" id="tb-cite" title="Academic paper">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 8 L12 3 L2 8 l10 5 z"/><path d="M6 10 v6 c0 1 3 3 6 3 s6 -2 6 -3 v-6"/></svg>
+                    Cite
+                </button>
+            </div>
+        </footer>
+
+    </div>
+
+    <!-- Map Libraries & Firebase SDKs -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+
+    <!-- App Logic Scripts -->
+    <script src="js/firebase-config.js"></script>
+    <script src="js/firestore.js"></script>
+    <script src="js/sites-data.js"></script>
+    <script src="js/MapHandler.js"></script>
+    <script src="js/ff-handler.js"></script>
+    <script src="js/hsc-handler.js"></script>
+    <script src="js/hs-handler.js"></script>
+    <script src="js/pg-handler.js"></script>
+    <script src="js/qr-handler.js"></script>
+
+<!-- Master Control Router -->
+    <script>
+    // Master Close Function (Collapses sidebar & closes all sub-panels/modals)
+    function closeSidebar() {
+        const sidebar = document.getElementById('info-sidebar');
+        const blueprintPanel = document.getElementById('blueprint-panel');
+
+        // Force collapse main sidebar and blueprint
+        if (sidebar) sidebar.classList.add('collapsed');
+        if (blueprintPanel) blueprintPanel.classList.remove('active');
+
+        // Safely close sub-panels without side effects
+        if (typeof window.closeFFPopover === 'function') window.closeFFPopover();
+        if (typeof window.closeHSCModal === 'function') window.closeHSCModal();
+        if (typeof window.closeHSModal === 'function') window.closeHSModal();
+        if (typeof window.closePGModal === 'function') window.closePGModal();
+        
+        // Direct remove active class on QR panel
+        const qrPanel = document.getElementById('qr-panel');
+        if (qrPanel) qrPanel.classList.remove('active');
+    }
+
+    // Open Component Panels / Modals
+    function openFrame(frameType) {
+        const sidebar = document.getElementById('info-sidebar');
+        const blueprintPanel = document.getElementById('blueprint-panel');
+    
+        if (blueprintPanel) blueprintPanel.classList.remove('active');
+        if (typeof window.closeFFPopover === 'function') window.closeFFPopover();
+        if (typeof window.closeHSCModal === 'function') window.closeHSCModal();
+        if (typeof window.closeHSModal === 'function') window.closeHSModal();
+        if (typeof window.closePGModal === 'function') window.closePGModal();
+        if (typeof window.closeQRPanel === 'function') window.closeQRPanel();
+
+        if (frameType === 'FD') {
+            if (typeof window.syncBlueprintPanel === 'function') window.syncBlueprintPanel();
+            if (sidebar) sidebar.classList.add('collapsed');
+
+            if (blueprintPanel) {
+                blueprintPanel.classList.add('active');
+                const refCode = document.getElementById('bp-ref-code');
+                if (refCode && window.currentSelectedSite) {
+                    refCode.innerText = `REF · ${window.currentSelectedSite.site_id || 'BHD-ML-0001'} · FULL DETAILS`;
+                }
+            }
+        } else if (frameType === 'FF') {
+            if (sidebar) sidebar.classList.remove('collapsed'); 
+            if (typeof window.positionAndShowFFPopover === 'function') window.positionAndShowFFPopover();
+        } else if (frameType === 'HSC') {
+            if (typeof window.openHSCModal === 'function') window.openHSCModal();
+        } else if (frameType === 'HS') {
+            if (typeof window.openHSModal === 'function') window.openHSModal();
+        } else if (frameType === 'PG') {
+            if (typeof window.openPGModal === 'function') window.openPGModal();
+        } else if (frameType === 'QR') {
+            if (typeof window.openQRPanel === 'function') window.openQRPanel();
+        }
+    }
+
+    // Return to main sidebar from Blueprint Panel or QR Panel
+    function backToSidebar() {
+        const sidebar = document.getElementById('info-sidebar');
+        const blueprintPanel = document.getElementById('blueprint-panel');
+
+        if (blueprintPanel) blueprintPanel.classList.remove('active');
+        if (typeof window.closeQRPanel === 'function') window.closeQRPanel();
+        if (sidebar) sidebar.classList.remove('collapsed');
+    }
+
+    // Switch tabs inside Blueprint (FD) Panel
+    function switchBpTab(btn, tabName) {
+        const tabs = btn.parentElement.querySelectorAll('.bp-tab-btn');
+        tabs.forEach(t => t.classList.remove('active'));
+        btn.classList.add('active');
+    }
+
+    // Direct event listener binding
+    document.addEventListener('DOMContentLoaded', () => {
+        const closeBtn = document.querySelector('#info-sidebar .close-btn');
+        if (closeBtn) {
+            closeBtn.onclick = closeSidebar;
+        }
+        initFilterControlPanel();
+        initGisChrome();
+    });
+
+    function siteCategoryKey(site) {
+        const blob = `${site?.category || ''} ${site?.site_name || ''} ${site?.title || ''}`.toLowerCase();
+        if (/food|culin|panaderia|pancit/.test(blob)) return 'food';
+        if (/church|religious|parish/.test(blob)) return 'church';
+        if (/plaza|park/.test(blob)) return 'plaza';
+        return 'mansion';
+    }
+
+    function siteInRegion(site, region) {
+        const blob = `${site?.district || ''} ${site?.location || ''}`.toLowerCase();
+        if (region === 'jaro') return blob.includes('jaro');
+        if (region === 'city-proper') return blob.includes('proper');
+        return blob.includes('molo') || blob.length === 0;
+    }
+
+    function applyLandmarkVisibility() {
+        const categorySelect = document.getElementById('category-select');
+        const regionSelect = document.getElementById('region-select');
+        const chips = Array.from(document.querySelectorAll('.fp-chip[data-cat]'));
+        const activeCats = chips.filter(c => c.classList.contains('active')).map(c => c.dataset.cat);
+        const region = regionSelect ? regionSelect.value : 'molo';
+        const markers = window.bahandiMarkers || {};
+        const group = window.bahandiMarkerGroup;
+        const sites = window.siteStore || {};
+        const ids = Object.keys(markers);
+        let visible = 0;
+
+        ids.forEach((id) => {
+            const site = sites[id];
+            const marker = markers[id];
+            if (!site || !marker) return;
+            const catOk = activeCats.length === 0 ? false : activeCats.includes(siteCategoryKey(site));
+            const regionOk = siteInRegion(site, region);
+            const show = catOk && regionOk;
+            if (group) {
+                if (show) group.addLayer(marker);
+                else group.removeLayer(marker);
+            }
+            if (show) visible += 1;
+        });
+
+        const pinCount = document.getElementById('pin-count');
+        const tbCount = document.getElementById('tb-count');
+        const tbTotal = document.getElementById('tb-total');
+        if (pinCount) pinCount.textContent = String(visible);
+        if (tbCount) tbCount.textContent = String(visible);
+        if (tbTotal) tbTotal.textContent = String(ids.length || Object.keys(sites).length);
+
+        const catCount = document.getElementById('fp-cat-count');
+        if (catCount) {
+            const val = categorySelect ? categorySelect.value : 'all';
+            catCount.textContent = `${activeCats.length} · ${visible}`;
+        }
+        applyOverlayToggles();
+        return visible;
+    }
+
+    function preferDensePinLabels() {
+        return window.matchMedia('(min-width: 1025px)').matches;
+    }
+
+    function isCompactViewport() {
+        return window.matchMedia('(max-width: 1024px)').matches;
+    }
+
+    function markerIsOnMap(marker) {
+        const group = window.bahandiMarkerGroup;
+        if (group && typeof group.hasLayer === 'function') return group.hasLayer(marker);
+        const map = window.map;
+        if (map && typeof map.hasLayer === 'function') return map.hasLayer(marker);
+        return true;
+    }
+
+    function applyOverlayToggles() {
+        const labelsOn = document.querySelector('[data-toggle="labels"]')?.classList.contains('on');
+        const pulseOn = document.querySelector('[data-toggle="pulse"]')?.classList.contains('on');
+        const boundsOn = document.querySelector('[data-toggle="bounds"]')?.classList.contains('on');
+        document.body.classList.toggle('pin-labels-on', !!labelsOn);
+        document.body.classList.toggle('pin-pulse-off', !pulseOn);
+        document.body.classList.toggle('compact-ui', isCompactViewport());
+        const overlay = document.getElementById('heritage-boundary-overlay');
+        if (overlay) overlay.hidden = !boundsOn;
+
+        const map = window.map;
+        const markers = window.bahandiMarkers || {};
+        const sites = window.siteStore || {};
+        const zoom = map && typeof map.getZoom === 'function' ? map.getZoom() : 0;
+        const allowPermanent = !!labelsOn && preferDensePinLabels() && zoom >= 17;
+        const placed = [];
+        const minDist = zoom >= 18 ? 72 : 96;
+
+        Object.keys(markers).forEach((id) => {
+            const marker = markers[id];
+            const site = sites[id];
+            if (!marker || !site || typeof marker.bindTooltip !== 'function') return;
+            if (marker.unbindTooltip) marker.unbindTooltip();
+            if (!labelsOn) return;
+
+            const label = site.site_name || 'Landmark';
+            const hoverOpts = {
+                permanent: false,
+                direction: 'top',
+                className: 'pin-label-tip pin-label-hover',
+                offset: [0, -28],
+                opacity: 0.96
+            };
+
+            if (!allowPermanent || !markerIsOnMap(marker) || !map || typeof map.latLngToContainerPoint !== 'function') {
+                marker.bindTooltip(label, hoverOpts);
+                return;
+            }
+
+            const pt = map.latLngToContainerPoint(marker.getLatLng());
+            const isSelected = window.currentSelectedSite && window.currentSelectedSite.site_id === id;
+            const collides = !isSelected && placed.some((p) => Math.hypot(p.x - pt.x, p.y - pt.y) < minDist);
+
+            if (collides) {
+                marker.bindTooltip(label, hoverOpts);
+            } else {
+                marker.bindTooltip(label, {
+                    permanent: true,
+                    direction: 'top',
+                    className: 'pin-label-tip pin-label-permanent',
+                    offset: [0, -28],
+                    opacity: 0.96
+                });
+                placed.push(pt);
+            }
+        });
+    }
+
+    function adaptChromeToViewport() {
+        const panel = document.getElementById('filter-control-panel');
+        const reopen = document.getElementById('fp-reopen');
+        const labelsToggle = document.querySelector('[data-toggle="labels"]');
+        const compact = isCompactViewport();
+
+        if (compact) {
+            if (panel && !panel.classList.contains('collapsed')) {
+                panel.classList.add('collapsed');
+                reopen?.classList.add('visible');
+            }
+            if (labelsToggle) labelsToggle.classList.remove('on');
+        } else if (labelsToggle && !labelsToggle.dataset.userToggled) {
+            labelsToggle.classList.add('on');
+        }
+
+        document.body.classList.toggle('compact-ui', compact);
+        applyOverlayToggles();
+        if (window.map && typeof window.map.invalidateSize === 'function') {
+            setTimeout(() => window.map.invalidateSize(), 220);
+        }
+    }
+
+    function initFilterControlPanel() {
+        const panel = document.getElementById('filter-control-panel');
+        const regionSelect = document.getElementById('region-select');
+        const categorySelect = document.getElementById('category-select');
+        const chips = Array.from(document.querySelectorAll('.fp-chip[data-cat]'));
+        const catCount = document.getElementById('fp-cat-count');
+        const reopen = document.getElementById('fp-reopen');
+        if (!panel || !categorySelect) return;
+
+        const fireChange = (el) => el && el.dispatchEvent(new Event('change', { bubbles: true }));
+        let syncingFromChips = false;
+
+        function selectedCats() {
+            return chips.filter(c => c.classList.contains('active')).map(c => c.dataset.cat);
+        }
+
+        function syncCategorySelect() {
+            const active = selectedCats();
+            const next = active.length === 0 || active.length === chips.length ? 'all' : (active.length === 1 ? active[0] : 'all');
+            if (categorySelect.value !== next) {
+                syncingFromChips = true;
+                categorySelect.value = next;
+                fireChange(categorySelect);
+                syncingFromChips = false;
+            }
+            if (catCount) catCount.textContent = `${chips.length} · ${next}`;
+            applyLandmarkVisibility();
+        }
+
+        chips.forEach(chip => {
+            chip.addEventListener('click', () => {
+                chip.classList.toggle('active');
+                syncCategorySelect();
+            });
+        });
+
+        categorySelect.addEventListener('change', () => {
+            if (!syncingFromChips) {
+                const val = categorySelect.value;
+                chips.forEach(chip => {
+                    chip.classList.toggle('active', val === 'all' ? chip.dataset.cat !== 'food' : chip.dataset.cat === val);
+                });
+            }
+            if (catCount) catCount.textContent = `${chips.length} · ${categorySelect.value}`;
+            applyLandmarkVisibility();
+        });
+
+        regionSelect?.addEventListener('change', applyLandmarkVisibility);
+
+        function resetFilters() {
+            if (regionSelect) {
+                regionSelect.value = 'molo';
+                fireChange(regionSelect);
+            }
+            chips.forEach(chip => chip.classList.toggle('active', chip.dataset.cat !== 'food'));
+            syncCategorySelect();
+            const labelsToggle = document.querySelector('[data-toggle="labels"]');
+            if (preferDensePinLabels()) labelsToggle?.classList.add('on');
+            else labelsToggle?.classList.remove('on');
+            document.querySelector('[data-toggle="pulse"]')?.classList.add('on');
+            document.querySelector('[data-toggle="bounds"]')?.classList.remove('on');
+            applyOverlayToggles();
+        }
+
+        document.getElementById('fp-reset')?.addEventListener('click', resetFilters);
+        document.getElementById('fp-reset-foot')?.addEventListener('click', resetFilters);
+        document.getElementById('fp-apply')?.addEventListener('click', () => {
+            fireChange(regionSelect);
+            fireChange(categorySelect);
+            applyLandmarkVisibility();
+            applyOverlayToggles();
+        });
+        document.getElementById('fp-collapse')?.addEventListener('click', () => {
+            panel.classList.add('collapsed');
+            reopen?.classList.add('visible');
+        });
+        reopen?.addEventListener('click', () => {
+            panel.classList.remove('collapsed');
+            reopen.classList.remove('visible');
+        });
+        document.querySelectorAll('#filter-control-panel [data-toggle]').forEach(t => {
+            t.addEventListener('click', () => {
+                t.classList.toggle('on');
+                if (t.getAttribute('data-toggle') === 'labels') {
+                    t.dataset.userToggled = '1';
+                }
+                applyOverlayToggles();
+            });
+        });
+
+        document.querySelectorAll('[data-legend-cat]').forEach(row => {
+            row.addEventListener('click', () => {
+                const key = row.dataset.legendCat;
+                const chip = document.querySelector(`.fp-chip[data-cat="${key}"]`);
+                if (!chip) return;
+                chip.classList.toggle('active');
+                syncCategorySelect();
+            });
+        });
+
+        syncCategorySelect();
+        adaptChromeToViewport();
+        applyOverlayToggles();
+    }
+
+    function focusLandmark(siteId) {
+        if (typeof selectLandmark === 'function') {
+            selectLandmark(siteId);
+        }
+        const site = window.siteStore && window.siteStore[siteId];
+        const map = window.map;
+        if (map && site && Array.isArray(site.coordinates)) {
+            map.setView(site.coordinates, Math.max(map.getZoom(), 18));
+        }
+    }
+
+    function renderSearchResults(query) {
+        const cmd = document.getElementById('search-cmd');
+        if (!cmd) return;
+        const sites = Object.values(window.siteStore || {});
+        const q = (query || '').trim().toLowerCase();
+        const matches = sites.filter(site => {
+            const blob = `${site.site_name || ''} ${site.category || ''} ${site.location || ''}`.toLowerCase();
+            return !q || blob.includes(q);
+        }).slice(0, 6);
+
+        cmd.innerHTML = matches.map((site, idx) => `
+            <button type="button" class="cmd-item${idx === 0 ? ' hi' : ''}" data-site-id="${site.site_id}">
+                <div class="ci"></div>
+                <div class="txt">
+                    <b>${site.site_name || 'Landmark'}</b>
+                    <small>${site.category || 'Heritage'} · ${site.district || 'Molo'}</small>
+                </div>
+            </button>
+        `).join('') || `<div class="cmd-item"><div class="txt"><b>No matches</b><small>Try another landmark name</small></div></div>`;
+
+        cmd.querySelectorAll('[data-site-id]').forEach(item => {
+            item.addEventListener('click', () => focusLandmark(item.dataset.siteId));
+        });
+    }
+
+    function initGisChrome() {
+        const bindMapChrome = () => {
+            const map = window.map;
+            if (!map) return false;
+
+            document.getElementById('zoom-in')?.addEventListener('click', () => map.zoomIn());
+            document.getElementById('zoom-out')?.addEventListener('click', () => map.zoomOut());
+
+            const coordsEl = document.getElementById('tb-coords');
+            const zoomEl = document.getElementById('tb-zoom');
+            const scaleEl = document.getElementById('tb-scale');
+            const track = document.getElementById('tb-scale-track');
+
+            const refreshHud = () => {
+                const c = map.getCenter();
+                if (coordsEl) coordsEl.textContent = `${c.lat.toFixed(4)}° N · ${c.lng.toFixed(4)}° E`;
+                if (zoomEl) zoomEl.textContent = String(map.getZoom());
+                const z = map.getZoom();
+                const ratio = Math.round(3200 * Math.pow(2, 16 - z));
+                if (scaleEl) scaleEl.textContent = `1 : ${ratio.toLocaleString()}`;
+                if (track) track.style.setProperty('--scale-fill', `${Math.min(90, 30 + (z - 15) * 15)}%`);
+            };
+
+            let labelTimer;
+            const scheduleLabels = () => {
+                clearTimeout(labelTimer);
+                labelTimer = setTimeout(applyOverlayToggles, 120);
+            };
+
+            map.on('move', refreshHud);
+            map.on('zoom', refreshHud);
+            map.on('zoomend', scheduleLabels);
+            map.on('moveend', scheduleLabels);
+            refreshHud();
+            applyLandmarkVisibility();
+            applyOverlayToggles();
+            renderSearchResults('');
+            return true;
+        };
+
+        if (!bindMapChrome()) {
+            window.addEventListener('bahandi-sites-ready', () => {
+                bindMapChrome();
+                applyLandmarkVisibility();
+                renderSearchResults('');
+            }, { once: true });
+        } else {
+            window.addEventListener('bahandi-sites-ready', () => {
+                applyLandmarkVisibility();
+                applyOverlayToggles();
+                renderSearchResults('');
+            });
+        }
+
+        const searchInput = document.getElementById('search-input');
+        searchInput?.addEventListener('input', () => renderSearchResults(searchInput.value));
+        searchInput?.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const first = document.querySelector('#search-cmd [data-site-id]');
+                if (first) focusLandmark(first.dataset.siteId);
+            }
+            if (e.key === 'Escape') searchInput.blur();
+        });
+        document.addEventListener('keydown', (e) => {
+            if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+                e.preventDefault();
+                searchInput?.focus();
+            }
+        });
+
+        document.getElementById('theme-toggle')?.addEventListener('click', () => {
+            document.body.classList.toggle('theme-light');
+        });
+        document.getElementById('nav-menu-toggle')?.addEventListener('click', () => {
+            const nav = document.querySelector('.nav-links');
+            const btn = document.getElementById('nav-menu-toggle');
+            const open = nav?.classList.toggle('is-open');
+            document.body.classList.toggle('nav-open', !!open);
+            if (btn) btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        });
+        window.addEventListener('resize', () => {
+            clearTimeout(window.__bahandiResizeTimer);
+            window.__bahandiResizeTimer = setTimeout(adaptChromeToViewport, 160);
+        });
+        document.getElementById('lang-toggle')?.addEventListener('click', () => {
+            const next = document.documentElement.lang === 'fil' ? 'en' : 'fil';
+            document.documentElement.lang = next;
+            const badge = document.querySelector('.brand-badge');
+            if (badge) badge.textContent = next === 'fil' ? 'GIS Pangkultura ng Molo' : 'Molo Cultural GIS';
+        });
+        document.getElementById('tb-cite')?.addEventListener('click', async () => {
+            const citation = 'Project Bahandi (2026). Molo District Heritage Map. Iloilo City.';
+            try {
+                await navigator.clipboard.writeText(citation);
+                alert('Citation copied to clipboard.');
+            } catch (err) {
+                alert(citation);
+            }
+        });
+    }
+
+    // Global Export
+    window.closeSidebar = closeSidebar;
+    window.backToSidebar = backToSidebar;
+    window.openFrame = openFrame;
+    window.switchBpTab = switchBpTab;
+    window.applyLandmarkVisibility = applyLandmarkVisibility;
+    window.applyOverlayToggles = applyOverlayToggles;
+    window.initFilterControlPanel = initFilterControlPanel;
+    </script>
+</html>

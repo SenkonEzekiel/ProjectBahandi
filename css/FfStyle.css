@@ -1,0 +1,278 @@
+/* =========================================================
+   PROJECT BAHANDI - FUN FACTS (FF) CARD STACK POPOVER
+   ========================================================= */
+
+:root {
+  --ff-navy-dark: #0f1a2e;
+  --ff-navy-card: #16233b;
+  --ff-blue-accent: #2563eb;
+  --ff-blue-soft: #60a5fa;
+  --ff-ice: #f8fafc;
+  --ff-muted: #94a3b8;
+  --ff-line: rgba(148, 163, 184, 0.2);
+  --ff-line-strong: rgba(148, 163, 184, 0.35);
+}
+
+/* Position wrapper over Leaflet map container */
+.ff-popover-wrapper {
+  position: absolute;
+  z-index: 1000;
+  width: 340px;
+  height: 430px;
+  perspective: 1000px;
+  display: none;
+  pointer-events: auto;
+}
+
+.ff-popover-wrapper.active {
+  display: block;
+}
+
+/* Card Stack Engine */
+.ff-deck-stack {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* Background Card Layers */
+.ff-card-bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(160deg, var(--ff-navy-card) 0%, var(--ff-navy-dark) 100%);
+  border-radius: 12px;
+  border: 1px solid var(--ff-line);
+  box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.7);
+  pointer-events: none;
+  transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.3s ease;
+}
+
+.ff-card-bg.layer-2 {
+  transform: translateY(18px) scale(0.92) rotate(2deg);
+  opacity: 0.3;
+  filter: blur(1px);
+}
+
+.ff-card-bg.layer-1 {
+  transform: translateY(9px) scale(0.96) rotate(-1.5deg);
+  opacity: 0.55;
+  filter: blur(0.5px);
+}
+
+/* Main Interactive Front Card */
+.ff-card {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  background: linear-gradient(160deg, var(--ff-navy-card) 0%, var(--ff-navy-dark) 100%);
+  border-radius: 12px;
+  border: 1px solid var(--ff-line-strong);
+  padding: 16px 18px;
+  color: var(--ff-ice);
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.8);
+  display: flex;
+  flex-direction: column;
+  font-family: 'Space Grotesk', 'Urbanist', system-ui, sans-serif;
+}
+
+/* Header & Close Button */
+.ff-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.ff-icon-circle {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, rgba(96,165,250,0.35), rgba(37,99,235,0.08) 65%, transparent 75%);
+  border: 1px solid var(--ff-blue-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ff-blue-soft);
+  box-shadow: inset 0 0 12px rgba(37, 99, 235, 0.2);
+}
+
+.ff-icon-circle svg {
+  width: 24px;
+  height: 24px;
+}
+
+.ff-close-btn {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1px solid var(--ff-line-strong);
+  background: transparent;
+  color: var(--ff-ice);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  transition: all 0.2s ease;
+}
+
+.ff-close-btn:hover {
+  border-color: var(--ff-blue-soft);
+  color: var(--ff-blue-soft);
+  background: rgba(37, 99, 235, 0.15);
+}
+
+/* Counter & Title */
+.ff-counter {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  color: var(--ff-blue-soft);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.ff-counter span {
+  color: var(--ff-muted);
+}
+
+.ff-title {
+  font-family: 'Instrument Serif', serif, 'Montserrat';
+  font-weight: 400;
+  font-size: 19px;
+  line-height: 1.2;
+  margin: 0 0 8px;
+  letter-spacing: -0.01em;
+  color: var(--ff-ice);
+}
+
+.ff-title em {
+  font-style: italic;
+  color: var(--ff-blue-soft);
+}
+
+/* Quote Body Section */
+.ff-body-box {
+  border-left: 2px solid var(--ff-blue-accent);
+  padding: 1px 0 1px 10px;
+  margin-bottom: 10px;
+}
+
+.ff-description {
+  margin: 0;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: #cbd5e1;
+}
+
+/* Tag Pills */
+.ff-tags {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.ff-tag-pill {
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: rgba(37, 99, 235, 0.12);
+  border: 1px solid rgba(37, 99, 235, 0.35);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ff-blue-soft);
+}
+
+/* Did You Know Callout Box */
+.ff-did-you-know-box {
+  background: rgba(37, 99, 235, 0.06);
+  border: 1px dashed rgba(37, 99, 235, 0.4);
+  border-radius: 6px;
+  padding: 8px 10px;
+  margin-top: auto;
+  margin-bottom: 10px;
+}
+
+.ff-dyk-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  color: var(--ff-blue-soft);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ff-dyk-text {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.4;
+  color: #cbd5e1;
+}
+
+/* Footer Navigation Controls */
+.ff-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 8px;
+  border-top: 1px solid var(--ff-line);
+}
+
+.ff-dots-pager {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.ff-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--ff-line-strong);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ff-dot.active {
+  background: var(--ff-blue-soft);
+  width: 16px;
+  border-radius: 3px;
+}
+
+.ff-nav-btns {
+  display: flex;
+  gap: 6px;
+}
+
+.ff-arrow-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(37, 99, 235, 0.1);
+  border: 1px solid var(--ff-blue-accent);
+  color: var(--ff-blue-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ff-arrow-btn:hover {
+  background: var(--ff-blue-accent);
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(37, 99, 235, 0.5);
+}
+
+/* Responsive Scaling */
+@media (max-width: 400px) {
+  .ff-popover-wrapper {
+    width: calc(100vw - 32px);
+    height: 400px;
+  }
+}

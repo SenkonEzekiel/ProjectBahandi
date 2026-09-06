@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login · Project Bahandi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;0,6..72,700;1,6..72,400&family=Public+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/institution.css" />
+</head>
+<body class="site-body">
+  <header class="masthead">
+    <div class="masthead-inner">
+      <a class="brand" href="index.html">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2 L20 8 L12 22 L4 8 Z"/>
+            <circle cx="12" cy="9" r="2.5" fill="currentColor" stroke="none"/>
+          </svg>
+        </span>
+        <span class="brand-text">
+          <span class="brand-name">projectbahandi<span class="tld">.com</span></span>
+          <span class="brand-meta">Molo Cultural GIS · Iloilo City</span>
+        </span>
+      </a>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="index.html">Home</a>
+        <a href="DigitalMap.html">Interactive Map</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+      <div class="mast-actions">
+        <a class="nav-login is-current" href="Login.html">Login</a>
+        <button type="button" class="nav-toggle" id="mobile-toggle" aria-label="Toggle navigation" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="drawer" id="mobile-menu">
+      <a href="index.html">Home</a>
+      <a href="DigitalMap.html">Interactive Map</a>
+      <a href="about.html">About</a>
+      <a href="contact.html">Contact</a>
+      <a href="Login.html" class="is-current">Login</a>
+    </div>
+  </header>
+
+  <main class="page">
+    <section class="folio">
+      <div class="dateline">
+        <span>Access desk</span>
+        <span>Authorized users</span>
+      </div>
+      <div class="auth-folio">
+        <aside class="auth-aside">
+          <img src="assets/STVEPLG.jpg" alt="" />
+          <div class="copy">
+            <div>
+              <p class="kicker" style="color:#f3c7be;">Account login</p>
+              <h2>Return to the register</h2>
+              <p>Enter your email and password to reach the Project Bahandi dashboard.</p>
+            </div>
+            <p class="legal" style="color:#cfc6b4;">Project Bahandi · Heritage showcase</p>
+          </div>
+        </aside>
+
+        <div class="auth-form">
+          <div class="auth-form-top">
+            <h1>Log in</h1>
+            <a class="inline-link" href="index.html">Back to home</a>
+          </div>
+
+          <div id="loginMessage" class="hidden"></div>
+
+          <form id="loginForm" onsubmit="return false;">
+            <div class="field">
+              <label for="email">Email</label>
+              <input id="email" type="email" placeholder="name@example.com" required />
+            </div>
+            <div class="field">
+              <label for="password">Password</label>
+              <input id="password" type="password" placeholder="Enter your password" required />
+            </div>
+            <button id="btnLocalSignIn" type="submit" class="btn btn-full">Log in</button>
+            <button id="btnGoogleSignIn" type="button" class="btn btn-google">
+              Sign in with Google
+            </button>
+            <p class="auth-note">
+              Don’t have an account? <a href="signup.html">Sign up</a>
+            </p>
+          </form>
+
+          <div class="auth-foot">
+            <a class="btn btn-ghost" href="index.html">Proceed to user home</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="colophon" id="contact-us">
+    <div class="colophon-inner">
+      <div>
+        <h2>Project Bahandi</h2>
+        <p>An interactive showcase of heritage and identity of Molo, Iloilo City, Philippines.</p>
+        <a class="btn" href="DigitalMap.html">Explore map</a>
+      </div>
+      <div>
+        <h3>Explore</h3>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Contact</h3>
+        <ul>
+          <li>stvepstudentcouncil18@gmail.com</li>
+          <li>Luna St., La Paz, Iloilo City, Iloilo, Philippines, 5000</li>
+          <li>INHS - STVEP Local Learner Government</li>
+        </ul>
+      </div>
+    </div>
+    <div class="colophon-end">
+      <p class="legal">© <span id="current-year"></span> Project Bahandi. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="js/site-chrome.js"></script>
+  <script>
+    const yearEl = document.getElementById("current-year");
+    if (yearEl) yearEl.textContent = new Date().getFullYear();
+  </script>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import {
+      getAuth,
+      GoogleAuthProvider
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getFirestore } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDcAjMKFAnNBiFfIhekOPtRadiCb0Ly8Ng",
+      authDomain: "projectbahandi-7149a.firebaseapp.com",
+      projectId: "projectbahandi-7149a",
+      storageBucket: "projectbahandi-7149a.firebasestorage.app",
+      messagingSenderId: "1017170558784",
+      appId: "1:1017170558784:web:ca1c6942f68c2fec9304a5",
+      measurementId: "G-FS77PDWKSK"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    window.auth = getAuth(app);
+    window.db = getFirestore(app);
+    window.googleProvider = new GoogleAuthProvider();
+  </script>
+  <script type="module" src="js/login.js"></script>
+</body>
+</html>

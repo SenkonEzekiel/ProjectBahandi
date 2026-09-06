@@ -1,0 +1,326 @@
+/* =========================================================
+   PG - PLAY GAME / GAME LAUNCH MODAL STYLES
+   ========================================================= */
+
+/* Backdrop Overlay */
+.pg-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(4, 7, 13, 0.82);
+    backdrop-filter: blur(10px);
+    z-index: 2300;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    inset: 0;
+    padding: 16px;
+    box-sizing: border-box;
+}
+
+.pg-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Central Cinematic Modal Card */
+.pg-modal-card {
+    position: relative;
+    width: min(740px, 92vw);
+    max-height: 88vh; /* Keeps card fit cleanly on laptop displays */
+    overflow-y: auto; /* Enables smooth scroll if screen height is tiny */
+    background: radial-gradient(circle at 50% 10%, #0F172A 0%, #0B132B 80%);
+    border: 1px solid rgba(59, 130, 246, 0.22);
+    border-radius: 16px;
+    padding: 24px 28px;
+    box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.9),
+                0 0 50px rgba(37, 99, 235, 0.15);
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Custom Scrollbar for Modal Card */
+.pg-modal-card::-webkit-scrollbar {
+    width: 6px;
+}
+.pg-modal-card::-webkit-scrollbar-thumb {
+    background: rgba(59, 130, 246, 0.3);
+    border-radius: 3px;
+}
+
+/* Close Button */
+.pg-close-btn {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    color: #94A3B8;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    z-index: 10;
+}
+
+.pg-close-btn:hover {
+    color: #60A5FA;
+    border-color: rgba(96, 165, 250, 0.5);
+    background: rgba(37, 99, 235, 0.15);
+}
+
+/* Top Halo & Gamepad Icon */
+.pg-halo-wrapper {
+    position: relative;
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 8px;
+    flex-shrink: 0;
+}
+
+.pg-halo-ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 1px solid rgba(59, 130, 246, 0.35);
+    box-shadow: 0 0 20px rgba(37, 99, 235, 0.25);
+}
+
+.pg-icon-circle {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(37, 99, 235, 0.3) 0%, rgba(15, 23, 42, 0.9) 100%);
+    border: 1px solid #2563EB;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #60A5FA;
+}
+
+.pg-icon-circle svg {
+    width: 22px;
+    height: 22px;
+}
+
+/* Title & Subtitle Header */
+.pg-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: 0.22em;
+    color: #3B82F6;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+
+.pg-title {
+    font-family: 'Instrument Serif', serif;
+    font-size: 32px;
+    font-weight: 400;
+    color: #F8FAFC;
+    margin: 0 0 4px 0;
+    text-align: center;
+}
+
+.pg-title em {
+    font-style: italic;
+    color: #60A5FA;
+}
+
+.pg-sub-description {
+    font-family: 'Urbanist', sans-serif;
+    font-size: 13px;
+    color: #94A3B8;
+    text-align: center;
+    max-width: 500px;
+    line-height: 1.45;
+    margin: 0 0 18px 0;
+}
+
+/* Exactly 2 Mode Cards Grid */
+.pg-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    width: 100%;
+    margin-bottom: 18px;
+}
+
+.pg-mode-card {
+    background: rgba(15, 23, 42, 0.7);
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    border-radius: 12px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.pg-mode-card:hover {
+    border-color: rgba(96, 165, 250, 0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px -10px rgba(37, 99, 235, 0.25);
+}
+
+.pg-mode-card.selected {
+    border-color: #3B82F6;
+    background: rgba(30, 58, 138, 0.25);
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+}
+
+.pg-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+}
+
+.pg-mode-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.16em;
+    color: #64748B;
+    text-transform: uppercase;
+}
+
+.pg-card-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    background: rgba(59, 130, 246, 0.12);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #60A5FA;
+}
+
+.pg-card-icon svg {
+    width: 14px;
+    height: 14px;
+}
+
+.pg-card-title {
+    font-family: 'Instrument Serif', serif;
+    font-size: 21px;
+    color: #F8FAFC;
+    margin: 0 0 4px 0;
+}
+
+.pg-card-title em {
+    font-style: italic;
+    color: #60A5FA;
+}
+
+.pg-card-desc {
+    font-family: 'Urbanist', sans-serif;
+    font-size: 11.5px;
+    color: #94A3B8;
+    line-height: 1.4;
+    margin: 0 0 12px 0;
+}
+
+/* Progress bar inside cards */
+.pg-progress-meta {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8.5px;
+    color: #64748B;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+}
+
+.pg-progress-bar-bg {
+    width: 100%;
+    height: 4px;
+    background: rgba(148, 163, 184, 0.15);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.pg-progress-fill {
+    height: 100%;
+    background: #3B82F6;
+    border-radius: 2px;
+    width: 0%;
+    transition: width 0.4s ease;
+}
+
+/* Action Footer Bar */
+.pg-footer-bar {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 14px;
+    border-top: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+.pg-stats-row {
+    display: flex;
+    gap: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    color: #94A3B8;
+    text-transform: uppercase;
+}
+
+.pg-stats-row strong {
+    color: #60A5FA;
+}
+
+.pg-launch-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #2563EB;
+    color: #FFFFFF;
+    border: none;
+    padding: 10px 22px;
+    border-radius: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+}
+
+.pg-launch-btn:hover {
+    background: #3B82F6;
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6);
+}
+
+@media (max-width: 600px) {
+    .pg-cards-grid {
+        grid-template-columns: 1fr;
+    }
+    .pg-footer-bar {
+        flex-direction: column;
+        gap: 12px;
+    }
+}

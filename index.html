@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Project Bahandi · Molo Cultural GIS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;0,6..72,700;1,6..72,400&family=Public+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/institution.css" />
+  <link rel="stylesheet" href="css/HomepageA.css" />
+</head>
+<body class="site-body">
+  <header class="masthead">
+    <div class="masthead-inner">
+      <a class="brand" href="index.html">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2 L20 8 L12 22 L4 8 Z"/>
+            <circle cx="12" cy="9" r="2.5" fill="currentColor" stroke="none"/>
+          </svg>
+        </span>
+        <span class="brand-text">
+          <span class="brand-name">projectbahandi<span class="tld">.com</span></span>
+          <span class="brand-meta">Molo Cultural GIS · Iloilo City</span>
+        </span>
+      </a>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="index.html" class="is-current">Home</a>
+        <a href="DigitalMap.html">Interactive Map</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+      <div class="mast-actions">
+        <a class="nav-login" href="Login.html">Login</a>
+        <button type="button" class="nav-toggle" id="mobile-toggle" aria-label="Toggle navigation" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="drawer" id="mobile-menu">
+      <a href="index.html" class="is-current">Home</a>
+      <a href="DigitalMap.html">Interactive Map</a>
+      <a href="about.html">About</a>
+      <a href="contact.html">Contact</a>
+      <a href="Login.html">Login</a>
+    </div>
+  </header>
+
+  <main class="page">
+    <section class="folio" id="hero">
+      <div class="dateline">
+        <span>Vol. I · District of Molo</span>
+        <span>Registry 2026</span>
+      </div>
+      <div class="hero-gazette">
+        <div>
+          <p class="kicker">Cultural heritage gazette</p>
+          <h1 class="display">The living <em>cartography</em> of Molo</h1>
+          <p class="lede">
+            Project Bahandi is a student-led cultural GIS for Molo, Iloilo City. The register maps landmarks, kitchens, plazas, and remembered streets so residents and visitors can read the district as a place, not a list.
+          </p>
+          <div class="hero-actions">
+            <a class="btn" href="DigitalMap.html">Open the digital map</a>
+            <a class="btn btn-ghost" href="#about">Read the brief</a>
+          </div>
+        </div>
+        <figure class="frame">
+          <div class="frame-photo" style="aspect-ratio: 4 / 3;">
+            <img src="assets/MoloFront.jpg" alt="Molo Church and plaza" />
+          </div>
+          <figcaption class="caption-bar">
+            <span>Plate 01 · St. Anne Parish</span>
+            <b>Molo, Iloilo</b>
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="band" id="lg-showcase">
+      <div class="folio">
+        <div class="section-head">
+          <div>
+            <p class="kicker">Field guides</p>
+            <h2>Learner Government officers</h2>
+          </div>
+          <p class="section-note">
+            Use the arrows or <kbd>←</kbd> <kbd>→</kbd> while this plate is on screen.
+          </p>
+        </div>
+
+        <div class="frame" style="padding: 1.25rem 1.35rem 1.1rem;">
+          <div id="sprite-carousel" class="guide-stage">
+            <div class="sprite-slide active-slide">
+              <div class="sprite-well">
+                <img src="assets/Molo-Memory-Match/Sprite/Sprite1 (2).png" alt="Governor sprite" onerror="this.src='https://api.dicebear.com/7.x/pixel-art/svg?seed=Officer1'" />
+              </div>
+              <div>
+                <p class="role-mark">Governor</p>
+                <h3>Keion Enzo Gendrala</h3>
+                <p class="body-copy">Leads the STVEP Learner Government and the digital preservation work for Project Bahandi. Appears as a guide in the culture-specific quest games.</p>
+              </div>
+            </div>
+
+            <div class="sprite-slide hidden-slide">
+              <div class="sprite-well">
+                <img src="assets/Balay-Blueprint/02-Relics-and-Sprites/sprite3_idle.png" alt="Vice Governor sprite" onerror="this.src='https://api.dicebear.com/7.x/pixel-art/svg?seed=Officer2'" />
+              </div>
+              <div>
+                <p class="role-mark">Vice Governor</p>
+                <h3>John Paul Balboa</h3>
+                <p class="body-copy">Assists the Learner Government in cultural preservation projects and guides players through puzzle-led site games.</p>
+              </div>
+            </div>
+
+            <div class="sprite-slide hidden-slide">
+              <div class="sprite-well">
+                <img src="assets/Molo-Chrolo-Defenders/sprites/Sprite2.png" alt="PIO sprite" onerror="this.src='https://api.dicebear.com/7.x/pixel-art/svg?seed=Officer3'" />
+              </div>
+              <div>
+                <p class="role-mark">Public Information Officer</p>
+                <h3>Reylen Angela Guillano</h3>
+                <p class="body-copy">Handles public-facing records for the Learner Government and appears beside games that test how closely you read the district.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="stage-controls">
+            <div class="ctrl-pair">
+              <button type="button" class="ctrl" id="prev-btn" aria-label="Previous officer">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 19l-7-7 7-7"/></svg>
+              </button>
+              <button type="button" class="ctrl" id="next-btn" aria-label="Next officer">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg>
+              </button>
+            </div>
+            <div class="dots" id="carousel-dots">
+              <button type="button" class="dot-btn is-on" data-slide="0" aria-label="Plate 1"></button>
+              <button type="button" class="dot-btn" data-slide="1" aria-label="Plate 2"></button>
+              <button type="button" class="dot-btn" data-slide="2" aria-label="Plate 3"></button>
+            </div>
+            <div class="counter"><span id="slide-current">01</span> / <span id="slide-total">03</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="folio">
+      <div class="section-head">
+        <div>
+          <p class="kicker">Survey plates</p>
+          <h2>Key cultural sites</h2>
+        </div>
+        <a class="inline-link" href="DigitalMap.html">Open full map</a>
+      </div>
+      <div class="site-grid">
+        <article class="site-cell">
+          <div class="thumb"><img src="assets/MoloFront.jpg" alt="Molo Mansion" /></div>
+          <div class="pad">
+            <p class="cat">Architecture</p>
+            <h4>Molo Mansion</h4>
+            <p>A grand colonial residence with neoclassical massing and local craftsmanship.</p>
+          </div>
+        </article>
+        <article class="site-cell">
+          <div class="thumb"></div>
+          <div class="pad">
+            <p class="cat">Religious site</p>
+            <h4>St. Anne Parish</h4>
+            <p>Historic church known for the statues of female saints along the nave.</p>
+          </div>
+        </article>
+        <article class="site-cell">
+          <div class="thumb"></div>
+          <div class="pad">
+            <p class="cat">Gastronomy</p>
+            <h4>Pancit Molo</h4>
+            <p>The district soup as cultural record: kitchens, recipes, and public memory.</p>
+          </div>
+        </article>
+        <article class="site-cell">
+          <div class="thumb"></div>
+          <div class="pad">
+            <p class="cat">Public space</p>
+            <h4>Molo Plaza</h4>
+            <p>The civic square that still organizes feast days, processions, and daily life.</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="folio" id="about">
+      <div class="section-head">
+        <div>
+          <p class="kicker">Project brief</p>
+          <h2>Heritage as a public record</h2>
+        </div>
+      </div>
+      <div class="split">
+        <ol class="purpose-list">
+          <li>
+            <span class="n">01</span>
+            <div>
+              <h4>Digital mapping</h4>
+              <p>Plot cultural assets across Molo so local history can be read on a single sheet.</p>
+            </div>
+          </li>
+          <li>
+            <span class="n">02</span>
+            <div>
+              <h4>Community documentation</h4>
+              <p>Keep architectural sites, oral traditions, and local stories gathered from residents.</p>
+            </div>
+          </li>
+          <li>
+            <span class="n">03</span>
+            <div>
+              <h4>Educational outreach</h4>
+              <p>Give students, residents, and visitors a working context for Iloilo City.</p>
+            </div>
+          </li>
+        </ol>
+        <article class="frame media-card">
+          <a class="play-hit" href="https://www.youtube.com/watch?v=xNhHZGU3egM" target="_blank" rel="noopener noreferrer">
+            <div class="frame-photo" style="aspect-ratio: 16 / 9;">
+              <img src="assets/MoloFront.jpg" alt="Molo district showcase still" />
+            </div>
+            <span class="play" aria-hidden="true"><span>Play</span></span>
+          </a>
+          <div class="pad" style="padding: 0 1rem 1.1rem;">
+            <h4>Molo: a district of history and culture</h4>
+            <p class="body-copy">Molo grew as a trade and cultural hub in Iloilo during the Spanish colonial period. Landmark structures, culinary practice, and community custom still define the district.</p>
+            <p style="margin-top: 0.85rem;"><a class="inline-link" href="about.html">Full project record</a></p>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="colophon" id="contact-us">
+    <div class="colophon-inner">
+      <div>
+        <h2>Project Bahandi</h2>
+        <p>An interactive showcase of heritage and identity of Molo, Iloilo City, Philippines. Landmarks, practices, local stories, and community memory, held on one map.</p>
+        <a class="btn" href="DigitalMap.html">Explore map</a>
+      </div>
+      <div>
+        <h3>Navigation</h3>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="DigitalMap.html">Interactive Map</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Correspondence</h3>
+        <ul>
+          <li><a href="mailto:stvepstudentcouncil18@gmail.com">stvepstudentcouncil18@gmail.com</a></li>
+          <li>Luna St., La Paz, Iloilo City, Philippines 5000</li>
+          <li>INHS - STVEP Local Learner Government</li>
+        </ul>
+      </div>
+    </div>
+    <div class="colophon-end">
+      <p class="motto">Preserving Molo’s stories, connecting generations, and celebrating the heritage shaped by its people.</p>
+      <div class="seals">
+        <img src="assets/Iloilo_City.jpg" alt="Iloilo City seal" />
+        <img src="assets/Philippines.jpg" alt="Love the Philippines mark" />
+      </div>
+      <p class="legal">© 2026 Project Bahandi. An interactive showcase of heritage and identity of Molo, Iloilo City, Philippines. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="js/site-chrome.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const slides = document.querySelectorAll(".sprite-slide");
+      const dots = document.querySelectorAll(".dot-btn");
+      const currentCounter = document.getElementById("slide-current");
+      const totalCounter = document.getElementById("slide-total");
+      const prevBtn = document.getElementById("prev-btn");
+      const nextBtn = document.getElementById("next-btn");
+      let currentIndex = 0;
+      const totalSlides = slides.length;
+
+      if (totalCounter) {
+        totalCounter.textContent = totalSlides.toString().padStart(2, "0");
+      }
+
+      function updateCarousel(index) {
+        slides.forEach((slide, idx) => {
+          const on = idx === index;
+          slide.classList.toggle("active-slide", on);
+          slide.classList.toggle("hidden-slide", !on);
+        });
+        dots.forEach((dot, idx) => {
+          dot.classList.toggle("is-on", idx === index);
+        });
+        if (currentCounter) {
+          currentCounter.textContent = (index + 1).toString().padStart(2, "0");
+        }
+        currentIndex = index;
+      }
+
+      function nextSlide() {
+        updateCarousel((currentIndex + 1) % totalSlides);
+      }
+
+      function prevSlide() {
+        updateCarousel((currentIndex - 1 + totalSlides) % totalSlides);
+      }
+
+      if (nextBtn) nextBtn.addEventListener("click", nextSlide);
+      if (prevBtn) prevBtn.addEventListener("click", prevSlide);
+      dots.forEach((dot, idx) => {
+        dot.addEventListener("click", () => updateCarousel(idx));
+      });
+
+      document.addEventListener("keydown", (e) => {
+        const container = document.getElementById("lg-showcase");
+        if (!container) return;
+        const rect = container.getBoundingClientRect();
+        const inView = rect.top < window.innerHeight && rect.bottom >= 0;
+        if (!inView) return;
+        if (e.key === "ArrowRight") nextSlide();
+        if (e.key === "ArrowLeft") prevSlide();
+      });
+    });
+  </script>
+</body>
+</html>

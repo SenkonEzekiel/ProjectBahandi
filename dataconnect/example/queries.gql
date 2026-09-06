@@ -1,0 +1,99 @@
+mutation CreateCategory @auth(level: USER) {
+  category_insert(data: { name: "Historic Landmark", colorCode: "#FF5733" })
+}
+
+mutation UpdateCategory($id: UUID!, $name: String!) @auth(level: USER) {
+  category_update(id: $id, data: { name: $name })
+}
+
+mutation DeleteCategory($id: UUID!) @auth(level: USER) {
+  category_delete(id: $id)
+}
+
+query GetCategory($id: UUID!) @auth(level: PUBLIC, insecureReason: "Categories are public information.") {
+  category(id: $id) { name colorCode }
+}
+
+query ListCategories @auth(level: PUBLIC, insecureReason: "Categories are public information.") {
+  categories { name colorCode }
+}
+
+mutation CreateContributor @auth(level: USER) {
+  contributor_insert(data: { username: "jdoe", email: "jdoe@example.com", role: "editor" })
+}
+
+mutation UpdateContributor($id: UUID!, $role: String!) @auth(level: USER) {
+  contributor_update(id: $id, data: { role: $role })
+}
+
+mutation DeleteContributor($id: UUID!) @auth(level: USER) {
+  contributor_delete(id: $id)
+}
+
+query GetContributor($id: UUID!) @auth(level: USER) {
+  contributor(id: $id) { username email role }
+}
+
+query ListContributors @auth(level: USER) {
+  contributors { username email }
+}
+
+mutation CreateHeritageSite @auth(level: USER) {
+  heritageSite_insert(data: { name: "Ancient Ruins", latitude: 34.0, longitude: -118.0, description: "A historic site.", category: { id: "00000000-0000-0000-0000-000000000000" } })
+}
+
+mutation UpdateHeritageSite($id: UUID!, $desc: String!) @auth(level: USER) {
+  heritageSite_update(id: $id, data: { description: $desc })
+}
+
+mutation DeleteHeritageSite($id: UUID!) @auth(level: USER) {
+  heritageSite_delete(id: $id)
+}
+
+query GetHeritageSite($id: UUID!) @auth(level: PUBLIC, insecureReason: "Heritage site details are public.") {
+  heritageSite(id: $id) { name description latitude longitude }
+}
+
+query ListHeritageSites @auth(level: PUBLIC, insecureReason: "Heritage site list is public.") {
+  heritageSites { name address }
+}
+
+mutation CreateMedia @auth(level: USER) {
+  media_insert(data: { url: "https://example.com/img.jpg", caption: "Photo of site", site: { id: "00000000-0000-0000-0000-000000000000" } })
+}
+
+mutation UpdateMedia($id: UUID!, $caption: String!) @auth(level: USER) {
+  media_update(id: $id, data: { caption: $caption })
+}
+
+mutation DeleteMedia($id: UUID!) @auth(level: USER) {
+  media_delete(id: $id)
+}
+
+query GetMedia($id: UUID!) @auth(level: PUBLIC, insecureReason: "Media is public.") {
+  media(id: $id) { url caption }
+}
+
+query ListMedia @auth(level: PUBLIC, insecureReason: "Media list is public.") {
+  medias { url caption }
+}
+
+mutation CreateContributionRequest @auth(level: USER) {
+  contributionRequest_insert(data: { site: { id: "00000000-0000-0000-0000-000000000000" }, contributor: { id: "00000000-0000-0000-0000-000000000000" }, contentUpdate: "Update info", status: "PENDING" })
+}
+
+mutation UpdateContributionRequest($id: UUID!, $status: String!) @auth(level: USER) {
+  contributionRequest_update(id: $id, data: { status: $status })
+}
+
+mutation DeleteContributionRequest($id: UUID!) @auth(level: USER) {
+  contributionRequest_delete(id: $id)
+}
+
+query GetContributionRequest($id: UUID!) @auth(level: USER) {
+  contributionRequest(id: $id) { status contentUpdate feedback }
+}
+
+query ListContributionRequests @auth(level: USER) {
+  contributionRequests { status contentUpdate }
+}

@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Project Bahandi - Sign Up</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .video-frame-hover {
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease;
+    }
+
+    .video-frame-hover:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 30px -10px rgba(20, 33, 61, 0.25);
+    }
+
+    .nav-icon {
+      width: 22px;
+      height: 22px;
+      display: block;
+      flex-shrink: 0;
+      padding: 4px;
+      border-radius: 9999px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(220,230,245,0.9));
+      border: 1px solid rgba(255,255,255,0.85);
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
+    }
+
+    .nav-icon svg {
+      width: 100%;
+      height: 100%;
+      color: #14213d;
+    }
+  </style>
+</head>
+<body class="min-h-screen text-slate-800 font-sans flex flex-col bg-slate-50">
+
+  <!-- Navigation Bar -->
+  <nav class="fixed top-0 left-0 w-full h-[72px] bg-[#14213d] text-white z-50 shadow-md flex items-center px-6 md:px-12">
+    <div class="relative flex-1 overflow-hidden rounded-xl px-4 py-2">
+      <div class="absolute inset-0 bg-[#14213d]/60"></div>
+      <span class="relative z-10 block font-serif text-xl font-bold tracking-wide text-white">Project Bahandi</span>
+    </div>
+
+    <div class="hidden md:flex space-x-6 text-sm font-medium items-center">
+      <a href="index.html" class="video-frame-hover flex items-center gap-2 rounded-full px-2 py-1 hover:text-[#5C87C7] hover:underline underline-offset-4 transition-all">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <path d="M9 22V12h6v10"></path>
+          </svg>
+        </span>
+        <span>Home</span>
+      </a>
+      <a href="about.html" class="video-frame-hover flex items-center gap-2 rounded-full px-2 py-1 hover:text-[#5C87C7] hover:underline underline-offset-4 transition-all">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+        </span>
+        <span>About</span>
+      </a>
+      <a href="contact.html" class="video-frame-hover flex items-center gap-2 rounded-full px-2 py-1 hover:text-[#5C87C7] hover:underline underline-offset-4 transition-all">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"></path>
+          </svg>
+        </span>
+        <span>Contact</span>
+      </a>
+      <a href="Login.html" class="video-frame-hover bg-[#5C87C7] hover:bg-white hover:text-[#14213d] text-white rounded-lg px-4 py-2 transition-all font-semibold">Login</a>
+    </div>
+
+    <button id="mobile-toggle" class="md:hidden p-2" type="button" aria-label="Toggle menu" aria-expanded="false">☰</button>
+  </nav>
+
+  <div id="mobile-menu" class="hidden fixed top-[72px] left-0 w-full bg-[#14213d] text-white flex flex-col items-center py-6 space-y-4 md:hidden z-40 shadow-lg border-t border-white/20">
+    <a href="index.html" class="video-frame-hover flex items-center gap-2 rounded-full px-2 py-1 text-lg font-medium hover:text-[#5C87C7] transition-colors">
+      <span class="nav-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+          <path d="M9 22V12h6v10"></path>
+        </svg>
+      </span>
+      <span>Home</span>
+    </a>
+    <a href="about.html" class="video-frame-hover flex items-center gap-2 rounded-full px-2 py-1 text-lg font-medium hover:text-[#5C87C7] transition-colors">
+      <span class="nav-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="16" x2="12" y2="12"></line>
+          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
+      </span>
+      <span>About</span>
+    </a>
+    <a href="contact.html" class="video-frame-hover flex items-center gap-2 rounded-full px-2 py-1 text-lg font-medium hover:text-[#5C87C7] transition-colors">
+      <span class="nav-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"></path>
+        </svg>
+      </span>
+      <span>Contact</span>
+    </a>
+    <a href="Login.html" class="video-frame-hover text-lg font-medium hover:text-[#5C87C7] transition-colors">Login</a>
+  </div>
+
+ 
+
+  <!-- Main Content Area -->
+  <main class="flex-1 pt-[72px] flex items-center justify-center py-12 px-6">
+    <div class="max-w-4xl w-full bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden grid grid-cols-1 md:grid-cols-5">
+      
+      <!-- Visual Side Banner -->
+      <div class="md:col-span-2 relative overflow-hidden rounded-tr-2xl rounded-br-2xl bg-cover bg-center text-white p-8 md:p-10" style="background-image: url('../imports/MoloFront.jpg'); min-height: 100%;">
+        <div class="absolute inset-0 bg-slate-950/60"></div>
+        <div class="relative z-10 flex h-full flex-col justify-between gap-6">
+          <div>
+            <span class="text-[#5C87C7] uppercase text-xs font-semibold tracking-wider block mb-2">Account Signup</span>
+            <h2 class="text-2xl md:text-3xl font-serif font-bold mb-4">Create Your Account</h2>
+            <p class="text-slate-200 text-sm leading-relaxed">
+              Frontend signup UI only for now. You can connect this form to Firebase Authentication later.
+            </p>
+          </div>
+          <div class="mt-8 pt-6 border-t border-white/20 text-xs text-slate-300">
+            Project Bahandi &copy; Heritage Showcase
+          </div>
+        </div>
+      </div>
+
+      <!-- Sign Up Form Area -->
+      <div class="md:col-span-3 p-8 md:p-10 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <h1 class="text-2xl font-serif font-bold text-[#14213d]">Sign Up</h1>
+            <a href="index.html" class="text-xs font-semibold text-[#5C87C7] hover:underline">Back to Home</a>
+          </div>
+
+          <p class="text-xs text-slate-500 mb-6 bg-slate-50 border border-slate-200/80 p-3 rounded-lg">
+            Use your DEPED Google account when backend auth is connected.
+          </p>
+
+          <form class="space-y-4" onsubmit="return false;">
+            <div>
+              <label for="fullName" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Full Name</label>
+              <input id="fullName" type="text" placeholder="Juan Dela Cruz" class="w-full px-4 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#5C87C7] transition-all" />
+            </div>
+
+            <div>
+              <label for="signupEmail" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Email</label>
+              <input id="signupEmail" type="email" placeholder="name@example.com" class="w-full px-4 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#5C87C7] transition-all" />
+            </div>
+
+            <div>
+              <label for="signupPassword" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Password</label>
+              <input id="signupPassword" type="password" placeholder="Create a password" class="w-full px-4 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#5C87C7] transition-all" />
+            </div>
+
+            <button type="button" class="w-full bg-[#14213d] hover:bg-[#1a2b50] text-white font-semibold py-3 px-6 rounded-full text-sm transition-colors uppercase tracking-wider mt-2">
+              Create Account
+            </button>
+          </form>
+        </div>
+
+        <div class="mt-8 pt-6 border-t border-slate-100 flex flex-col sm:flex-row gap-3 items-center justify-between">
+         
+          <a href="index.html" class="bg-[#5C87C7] hover:bg-[#4a72ad] text-white text-xs font-semibold py-2.5 px-4 rounded-full transition-colors uppercase tracking-wider text-center">
+            Proceed to User Home
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Contact Section & Footer -->
+  <section id="contact-us" class="pt-24 bg-[#14213d] text-white">
+    <div class="max-w-6xl mx-auto px-6 md:px-12">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-16 mb-16">
+        
+        <!-- Column 1: Project Info -->
+        <div class="col-span-1 md:col-span-1">
+          <h2 class="text-2xl font-serif font-bold mb-4 text-[#5C87C7]">
+            PROJECT BAHANDI
+          </h2>
+          <p class="text-slate-300 mb-6 leading-relaxed">
+            An Interactive Showcase of Heritage and Identity of Molo, Iloilo City, Philippines.
+            <br /><br />
+            Explore Molo’s rich cultural heritage through an interactive digital map featuring historical landmarks, traditional practices, local stories, and community memories. Discover the places, people, and traditions that shaped Molo’s identity.
+          </p>
+          <a href="DigitalMap.html" class="inline-block bg-white hover:bg-slate-100 text-[#14213d] font-bold py-3 px-8 rounded-full transition-colors uppercase tracking-wider text-sm">
+            EXPLORE
+          </a>
+        </div>
+
+        <!-- Column 2: Quick Links -->
+        <div class="col-span-1 md:col-span-1 md:pl-12">
+          <h3 class="text-xl font-serif font-bold mb-6 text-white border-b border-white/20 pb-2 inline-block">
+            Explore
+          </h3>
+          <ul class="space-y-3">
+            <li>
+              <a href="index.html" class="text-slate-300 hover:text-[#5C87C7] transition-colors uppercase tracking-wider text-sm">HOME</a>
+            </li>
+            <li>
+              <a href="about.html" class="text-slate-300 hover:text-[#5C87C7] transition-colors uppercase tracking-wider text-sm">ABOUT</a>
+            </li>
+            <li>
+              <a href="#contact-us" class="text-slate-300 hover:text-[#5C87C7] transition-colors uppercase tracking-wider text-sm">CONTACT</a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Column 3: Contact Information -->
+        <div class="col-span-1 md:col-span-1">
+          <h3 class="text-xl font-serif font-bold mb-6 text-white border-b border-white/20 pb-2 inline-block">
+            Contact
+          </h3>
+          <ul class="space-y-4 text-slate-300">
+            <li class="flex items-start space-x-3">
+              <!-- Mail Icon -->
+              <svg class="w-5 h-5 mt-1 text-[#5C87C7] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+              </svg>
+              <span class="text-sm">stvepstudentcouncil18@gmail.com</span>
+            </li>
+            <li class="flex items-start space-x-3">
+              <!-- MapPin Icon -->
+              <svg class="w-5 h-5 mt-1 text-[#5C87C7] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              </svg>
+              <span class="text-sm">Luna St., La Paz, Iloilo City, Iloilo, Philippines, 5000</span>
+            </li>
+            <li class="flex items-start space-x-3">
+              <!-- Facebook Icon -->
+              <svg class="w-5 h-5 mt-1 text-[#5C87C7] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"></path>
+              </svg>
+              <span class="text-sm">INHS - STVEP Local Learner Government</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Bottom Tagline & Branding -->
+      <div class="border-t border-white/20 py-12 flex flex-col items-center text-center">
+        <h4 class="text-xl font-serif italic text-[#5C87C7] mb-8 max-w-2xl">
+          "Preserving Molo’s stories, connecting generations, and celebrating the heritage shaped by its people."
+        </h4>
+
+        <div class="flex space-x-8 items-center mb-8 bg-white p-4 rounded-xl">
+          <div class="w-24">
+            <img src="../imports/Iloilo_City.jpg" alt="Iloilo City Logo" class="w-full h-auto object-contain mix-blend-multiply" />
+          </div>
+          <div class="w-24">
+            <img src="../imports/Philippines.jpg" alt="Love The Philippines Logo" class="w-full h-auto object-contain mix-blend-multiply" />
+          </div>
+        </div>
+
+        <p class="text-slate-400 text-xs tracking-wider uppercase max-w-3xl leading-relaxed">
+          © <span id="current-year"></span> PROJECT BAHANDI: An Interactive Showcase of Heritage and Identity of Molo, Iloilo City, Philippines.
+          <br />
+          All Rights Reserved.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- JavaScript for Interactive Behavior -->
+  <script>
+    document.getElementById("current-year").textContent = new Date().getFullYear();
+
+    const menuToggleBtn = document.getElementById("mobile-toggle");
+    const mobileMenu = document.getElementById("mobile-menu");
+
+    if (menuToggleBtn && mobileMenu) {
+      menuToggleBtn.addEventListener("click", () => {
+        const isHidden = mobileMenu.classList.toggle("hidden");
+        menuToggleBtn.setAttribute("aria-expanded", String(!isHidden));
+      });
+
+      mobileMenu.querySelectorAll("a").forEach((link) => {
+        link.addEventListener("click", () => {
+          mobileMenu.classList.add("hidden");
+          menuToggleBtn.setAttribute("aria-expanded", "false");
+        });
+      });
+    }
+  </script>
+
+  <!-- Project Main Script -->
+  <script src="../JavaScript/JS/main.js"></script>
+</body>
+</html>

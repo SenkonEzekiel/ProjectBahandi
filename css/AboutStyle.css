@@ -1,0 +1,4 @@
+/* About page inherits the institutional gazette from institution.css */
+body.site-body {
+  font-family: var(--sans);
+}

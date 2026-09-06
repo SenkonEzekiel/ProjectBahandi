@@ -1,0 +1,58 @@
+mutation SeedDatabase @transaction {
+  category_insertMany(data: [
+    { name: "Historical Landmark", colorCode: "#FF5733" },
+    { name: "Natural Wonder", colorCode: "#28B463" },
+    { name: "Cultural Site", colorCode: "#8E44AD" }
+  ])
+  contributor_insertMany(data: [
+    { username: "alice_travels", email: "alice@example.com", role: "admin" },
+    { username: "bob_explorer", email: "bob@example.com", role: "editor" },
+    { username: "charlie_arch", email: "charlie@example.com", role: "editor" }
+  ])
+  heritageSite_insertMany(data: [
+    { 
+      name: "Great Pyramids", 
+      latitude: 29.9792, 
+      longitude: 31.1342, 
+      description: "Ancient tombs of pharaohs.", 
+      category: { id: "00000000-0000-0000-0000-000000000000" }, 
+      constructedYear: -2560 
+    },
+    { 
+      name: "Yellowstone", 
+      latitude: 44.4280, 
+      longitude: -110.5885, 
+      description: "Massive volcanic park.", 
+      category: { id: "00000000-0000-0000-0000-000000000001" }, 
+      constructedYear: 1872 
+    },
+    { 
+      name: "Colosseum", 
+      latitude: 41.8902, 
+      longitude: 12.4922, 
+      description: "Famous Roman amphitheater.", 
+      category: { id: "00000000-0000-0000-0000-000000000002" }, 
+      constructedYear: 80 
+    }
+  ])
+  media_insertMany(data: [
+    { 
+      url: "https://example.com/pyramid.jpg", 
+      caption: "View from the desert", 
+      site: { id: "00000000-0000-0000-0000-000000000000" } 
+    },
+    { 
+      url: "https://example.com/geyser.jpg", 
+      caption: "Old Faithful erupting", 
+      site: { id: "00000000-0000-0000-0000-000000000001" } 
+    }
+  ])
+  contributionRequest_insertMany(data: [
+    { 
+      contentUpdate: "Update opening hours to 9am-6pm", 
+      status: "pending", 
+      site: { id: "00000000-0000-0000-0000-000000000002" }, 
+      contributor: { id: "00000000-0000-0000-0000-000000000000" } 
+    }
+  ])
+}

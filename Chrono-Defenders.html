@@ -1,0 +1,441 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Chrono-Defenders</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@500;700;800&family=Press+Start+2P&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0b1220;
+      --panel: #1e293b;
+      --gold: #f0c862;
+      --rose: #e8a5b5;
+      --rose-blush: #f7d6de;
+      --cream: #f6efe0;
+      --shield-green: #10b981;
+      --boss-red: #ef4444;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--cream);
+      font-family: 'Space Grotesk', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #game-container {
+      position: relative;
+      width: 100vw;
+      height: 100dvh;
+      max-width: 1280px;
+      max-height: 720px;
+      aspect-ratio: 16 / 9;
+      background: #0b101d;
+      border: 2px solid #233148;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* TOP HUD BAR */
+    .hud-bar {
+      height: 52px;
+      flex-shrink: 0;
+      background: rgba(10, 15, 26, 0.95);
+      border-bottom: 2px solid rgba(240, 200, 98, 0.2);
+      display: grid;
+      grid-template-columns: 1fr 2fr 1fr;
+      align-items: center;
+      padding: 0 16px;
+      z-index: 10;
+    }
+
+    .epoch-display {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .epoch-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 8px;
+      letter-spacing: 2px;
+      color: var(--gold);
+      text-transform: uppercase;
+    }
+
+    .epoch-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--cream);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* PROMINENT CENTER BOSS BAR */
+    .boss-hud-center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0 12px;
+    }
+
+    .boss-name-tag {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 9px;
+      color: var(--boss-red);
+      text-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
+      margin-bottom: 3px;
+      letter-spacing: 1px;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
+
+    .boss-bar-frame {
+      width: 100%;
+      max-width: 420px;
+      height: 14px;
+      background: #090d16;
+      border: 2px solid var(--boss-red);
+      border-radius: 4px;
+      padding: 2px;
+      box-shadow: 0 0 12px rgba(239, 68, 68, 0.3);
+      position: relative;
+    }
+
+    .boss-bar-fill {
+      height: 100%;
+      width: 100%;
+      background: linear-gradient(90deg, #b91c1c, #f87171);
+      border-radius: 2px;
+      transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .side-stats {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 3px;
+    }
+
+    .score-display {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--gold);
+      letter-spacing: 1px;
+    }
+
+    .player-shield-wrap {
+      width: 110px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .mini-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 8px;
+      color: var(--shield-green);
+    }
+
+    .shield-bar-bg {
+      flex: 1;
+      height: 6px;
+      background: #111827;
+      border-radius: 3px;
+      overflow: hidden;
+      border: 1px solid rgba(52, 211, 153, 0.3);
+    }
+
+    .shield-bar-fill {
+      height: 100%;
+      width: 100%;
+      background: var(--shield-green);
+      transition: width 0.3s ease;
+    }
+
+    /* VIEWPORT & OVERLAY */
+    .top-viewport {
+      flex: 1;
+      position: relative;
+      background: #090e17;
+      display: flex;
+      overflow: hidden;
+    }
+
+    canvas#gameCanvas {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      image-rendering: pixelated;
+    }
+
+    /* NON-BLOCKING BOTTOM QUIZ DOCK */
+    .cinematic-quiz-overlay {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(to top, rgba(9, 14, 23, 0.95) 80%, rgba(9, 14, 23, 0));
+      display: none;
+      flex-direction: column;
+      padding: 10px 20px 14px 20px;
+      z-index: 15;
+      pointer-events: none;
+    }
+
+    .cinematic-quiz-overlay.active {
+      display: flex;
+    }
+
+    .q-box {
+      background: rgba(15, 23, 42, 0.88);
+      border: 1px solid var(--gold);
+      border-radius: 10px;
+      padding: 10px 14px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
+      pointer-events: auto;
+    }
+
+    .q-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      color: var(--gold);
+      margin-bottom: 2px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .q-text {
+      font-family: 'Instrument Serif', serif;
+      font-size: 1.1rem;
+      font-style: italic;
+      color: var(--cream);
+      margin-bottom: 8px;
+      line-height: 1.2;
+    }
+
+    /* DYNAMIC TARGET CHOICE GRID */
+    .q-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .opt-btn {
+      background: rgba(11, 18, 32, 0.85);
+      border: 1px solid rgba(247, 214, 222, 0.4);
+      border-radius: 6px;
+      padding: 8px 12px;
+      color: var(--cream);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-align: left;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .opt-btn:hover {
+      border-color: var(--gold);
+      background: rgba(25, 36, 56, 0.95);
+      transform: translateY(-1px);
+    }
+
+    .opt-btn.correct {
+      background: #10b981 !important;
+      border-color: #34d399 !important;
+      color: #fff;
+    }
+
+    .opt-btn.wrong {
+      background: #ef4444 !important;
+      border-color: #f87171 !important;
+      color: #fff;
+    }
+
+    /* MODALS */
+    .modal-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(11, 18, 32, 0.94);
+      backdrop-filter: blur(4px);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 20;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .q-card {
+      background: var(--panel);
+      border: 2px solid var(--gold);
+      border-radius: 12px;
+      width: 100%;
+      max-width: 480px;
+      padding: 20px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
+      text-align: center;
+    }
+
+    .start-btn {
+      background: var(--gold);
+      color: var(--bg);
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      margin-top: 10px;
+      width: 100%;
+    }
+
+    .start-btn:hover {
+      background: #ffd875;
+    }
+
+    /* MOBILE & TABLET ADAPTIVE OVERRIDES */
+    @media (max-width: 768px) {
+      #game-container {
+        border-radius: 0;
+        border: none;
+        aspect-ratio: auto;
+      }
+
+      .hud-bar {
+        padding: 0 8px;
+        grid-template-columns: 90px 1fr 90px;
+        height: 48px;
+      }
+
+      .epoch-title {
+        font-size: 0.75rem;
+      }
+
+      .boss-name-tag {
+        font-size: 7px;
+      }
+
+      .boss-bar-frame {
+        max-width: 180px;
+        height: 10px;
+      }
+
+      .player-shield-wrap {
+        width: 80px;
+      }
+
+      .q-text {
+        font-size: 0.95rem;
+      }
+
+      .opt-btn {
+        padding: 6px 8px;
+        font-size: 10px;
+      }
+
+      .q-options {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="game-container">
+    <!-- HUD Header Bar -->
+    <div class="hud-bar">
+      <div class="epoch-display">
+        <span class="epoch-label">CURRENT EPOCH</span>
+        <span class="epoch-title" id="val-epoch">1800s · Spanish Era</span>
+      </div>
+
+      <!-- CENTER BOSS ANIMA BAR -->
+      <div class="boss-hud-center">
+        <span class="boss-name-tag" id="boss-title-tag">ANOMALY ANIMA</span>
+        <div class="boss-bar-frame">
+          <div id="boss-bar" class="boss-bar-fill"></div>
+        </div>
+      </div>
+
+      <div class="side-stats">
+        <div class="score-display">SCORE: <span id="val-score">0</span></div>
+        <div class="player-shield-wrap">
+          <span class="mini-label">SHIELD</span>
+          <div class="shield-bar-bg">
+            <div id="shield-bar" class="shield-bar-fill"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN VIEWPORT FRAME -->
+    <div class="top-viewport">
+      <canvas id="gameCanvas" width="1280" height="720"></canvas>
+
+      <!-- Non-Blocking Quiz Overlay -->
+      <div id="quiz-modal" class="cinematic-quiz-overlay">
+        <div class="q-box">
+          <div class="q-title" id="q-header">Temporal Anomaly · Query 1</div>
+          <div class="q-text" id="q-prompt">Press "START DEFENDING TIME" to launch temporal field...</div>
+          <div class="q-options" id="q-opts"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Preloader / Start Modal -->
+    <div id="loading-modal" class="modal-overlay active">
+      <div class="q-card">
+        <div class="q-title" style="color:var(--rose);">CHRONO-DEFENDERS</div>
+        <div id="loading-status" style="font-family:'JetBrains Mono'; font-size:12px; margin-bottom: 10px;">Initializing Temporal Matrix...</div>
+        <button id="start-game-btn" class="start-btn">START DEFENDING TIME</button>
+      </div>
+    </div>
+
+    <!-- End Screen Overlay -->
+    <div id="end-modal" class="modal-overlay">
+      <div class="q-card">
+        <div class="q-title" style="color:var(--gold); font-family: 'Press Start 2P', monospace; margin-bottom: 10px; font-size: 12px;">TEMPORAL RESTORED</div>
+        <div class="q-text" id="end-stats" style="font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; font-style: normal;">You defended history across all epochs!</div>
+        <button class="start-btn" onclick="location.reload()">Play Again</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="Game-Handlers/Molo-Chrono-Defender.js"></script>
+</body>
+</html>

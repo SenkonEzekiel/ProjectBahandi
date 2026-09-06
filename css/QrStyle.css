@@ -1,0 +1,240 @@
+/* =========================================================
+   QR - QR CODE SIDEBAR PANEL STYLES
+   Slides in from the right edge, replacing the main sidebar.
+   ========================================================= */
+
+.qr-panel {
+    position: fixed;
+    top: 0;
+    right: -520px; /* Hidden off-screen */
+    width: 480px;
+    max-width: 90vw;
+    height: 100vh;
+    background: radial-gradient(circle at 80% 20%, #0F172A 0%, #0B132B 100%);
+    border-left: 1px solid rgba(59, 130, 246, 0.3);
+    box-shadow: -20px 0 60px rgba(0, 0, 0, 0.8),
+                -5px 0 25px rgba(37, 99, 235, 0.15);
+    z-index: 2100;
+    transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    box-sizing: border-box;
+    padding: 24px 28px;
+}
+
+.qr-panel.active {
+    right: 0;
+}
+
+/* Header & Navigation */
+.qr-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.qr-icon-box {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: rgba(59, 130, 246, 0.12);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #60A5FA;
+}
+
+.qr-icon-box svg {
+    width: 20px;
+    height: 20px;
+}
+
+.qr-back-btn {
+    background: transparent;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    color: #94A3B8;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.qr-back-btn:hover {
+    color: #60A5FA;
+    border-color: rgba(96, 165, 250, 0.5);
+    background: rgba(37, 99, 235, 0.15);
+}
+
+/* Title & Meta Header */
+.qr-meta-ref {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    color: #3B82F6;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+}
+
+.qr-title {
+    font-family: 'Instrument Serif', serif;
+    font-size: 32px;
+    font-weight: 400;
+    color: #F8FAFC;
+    margin: 0 0 20px 0;
+    line-height: 1.15;
+}
+
+.qr-title em {
+    font-style: italic;
+    color: #60A5FA;
+}
+
+/* Central QR Display Frame */
+.qr-card-display {
+    background: rgba(15, 23, 42, 0.7);
+    border: 1px solid rgba(59, 130, 246, 0.25);
+    border-radius: 16px;
+    padding: 28px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.4);
+    margin-bottom: 24px;
+    position: relative;
+}
+
+.qr-image-wrapper {
+    position: relative;
+    width: 210px;
+    height: 210px;
+    background: #FFFFFF;
+    border-radius: 12px;
+    padding: 12px;
+    box-sizing: border-box;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.qr-image-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 4px;
+}
+
+.qr-scan-hint {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: #94A3B8;
+    letter-spacing: 0.12em;
+    margin-top: 16px;
+    text-transform: uppercase;
+}
+
+/* Informational Specification Box */
+.qr-spec-box {
+    background: rgba(15, 23, 42, 0.5);
+    border: 1px solid rgba(148, 163, 184, 0.15);
+    border-radius: 12px;
+    padding: 16px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.qr-spec-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.qr-spec-key {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: #64748B;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.qr-spec-val {
+    font-family: 'Urbanist', sans-serif;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #E2E8F0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Action Controls Footer */
+.qr-footer {
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    border-top: 1px solid rgba(148, 163, 184, 0.12);
+    padding-top: 20px;
+}
+
+.qr-action-btn {
+    width: 100%;
+    background: #2563EB;
+    color: #FFFFFF;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.35);
+}
+
+.qr-action-btn:hover {
+    background: #3B82F6;
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.55);
+}
+
+.qr-share-btn {
+    width: 100%;
+    background: transparent;
+    color: #94A3B8;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.qr-share-btn:hover {
+    color: #FFFFFF;
+    border-color: rgba(96, 165, 250, 0.5);
+    background: rgba(37, 99, 235, 0.12);
+}
+
+@media (max-width: 540px) {
+    .qr-panel {
+        width: 100vw;
+        max-width: 100vw;
+    }
+}

@@ -1,0 +1,273 @@
+/* =========================================================
+   HS - HERITAGE STATUS / VERIFIED SEAL CERTIFICATE MODAL
+   ========================================================= */
+
+/* Backdrop Overlay */
+.hs-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(4, 7, 13, 0.78);
+    backdrop-filter: blur(8px);
+    z-index: 2200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hs-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Certificate Outer Frame */
+.hs-certificate-card {
+    position: relative;
+    width: min(680px, 90vw);
+    background: #0B132B;
+    border: 1px solid rgba(59, 130, 246, 0.25);
+    border-radius: 12px;
+    padding: 24px 28px;
+    box-shadow: 0 30px 80px -15px rgba(0, 0, 0, 0.85),
+                0 0 40px rgba(37, 99, 235, 0.12);
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+/* Dashed Inner Certificate Border */
+.hs-inner-border {
+    position: relative;
+    border: 1px dashed rgba(148, 163, 184, 0.25);
+    border-radius: 8px;
+    padding: 22px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Close Button Floating Top-Right */
+.hs-close-btn {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    background: transparent;
+    border: none;
+    color: #94A3B8;
+    font-size: 14px;
+    cursor: pointer;
+    z-index: 5;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.hs-close-btn:hover {
+    color: #60A5FA;
+    background: rgba(59, 130, 246, 0.15);
+}
+
+/* Certificate Header Line */
+.hs-cert-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.18em;
+    color: #60A5FA;
+    text-transform: uppercase;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+    padding-bottom: 8px;
+}
+
+.hs-cert-header-left {
+    display: flex;
+    gap: 8px;
+}
+
+.hs-cert-header-right {
+    color: #94A3B8;
+}
+
+.hs-cert-header-right span {
+    color: #60A5FA;
+    font-weight: 500;
+}
+
+/* Main Body Section: Seal Left, Information Right */
+.hs-cert-body {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+/* Animated Crest / Shield Seal Container */
+.hs-seal-wrapper {
+    flex-shrink: 0;
+    width: 110px;
+    height: 110px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Pulsing Outer Orbit Ring */
+.hs-seal-ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 1px dashed rgba(59, 130, 246, 0.45);
+    animation: hsRotateRing 24s linear infinite;
+}
+
+@keyframes hsRotateRing {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Inner Seal Circle */
+.hs-seal-circle {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(37, 99, 235, 0.25) 0%, rgba(11, 19, 43, 0.8) 100%);
+    border: 1px solid #2563EB;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #60A5FA;
+    box-shadow: inset 0 0 15px rgba(37, 99, 235, 0.3);
+}
+
+.hs-seal-circle svg {
+    width: 38px;
+    height: 38px;
+}
+
+/* Main Landmark Title & Overview */
+.hs-details-wrapper {
+    flex: 1;
+    min-width: 0;
+}
+
+.hs-status-subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    color: #3B82F6;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+
+.hs-landmark-title {
+    font-family: 'Instrument Serif', serif;
+    font-size: 32px;
+    font-weight: 400;
+    line-height: 1.1;
+    color: #F8FAFC;
+    margin: 0 0 10px 0;
+}
+
+.hs-landmark-title em {
+    font-style: italic;
+    color: #60A5FA;
+}
+
+.hs-summary-text {
+    font-family: 'Urbanist', sans-serif;
+    font-size: 12.5px;
+    line-height: 1.55;
+    color: #94A3B8;
+    margin: 0;
+}
+
+/* Verification Fields Grid */
+.hs-fields-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+.hs-field-box {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(148, 163, 184, 0.14);
+    border-radius: 6px;
+    padding: 10px 12px;
+}
+
+.hs-field-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    color: #64748B;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+
+.hs-field-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    font-weight: 500;
+    color: #F8FAFC;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Footer Verification Indicator & Action Source Link */
+.hs-cert-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 4px;
+}
+
+.hs-active-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    color: #10B981;
+    text-transform: uppercase;
+}
+
+.hs-status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: #10B981;
+    box-shadow: 0 0 8px #10B981;
+}
+
+.hs-source-link {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.14em;
+    color: #64748B;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.hs-source-link:hover {
+    color: #60A5FA;
+}
+
+/* Mobile Responsive adjustment */
+@media (max-width: 640px) {
+    .hs-cert-body {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .hs-fields-grid {
+        grid-template-columns: 1fr;
+    }
+}

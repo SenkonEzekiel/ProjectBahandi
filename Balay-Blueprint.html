@@ -1,0 +1,1872 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Balay Blueprint — The Hidden Relics</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@500;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet" />
+  
+  <style>
+    canvas#gameCanvas {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      cursor: url('assets/Balay-Blueprint/03-UI-and-Modals/cursor-idle.png') 16 16, crosshair;
+    }
+
+    canvas#gameCanvas.hovering-relic {
+      cursor: url('assets/Balay-Blueprint/03-UI-and-Modals/cursor-hover.png') 16 16, pointer;
+    }
+
+    :root {
+      --bg: #070a10;
+      --panel: #121926;
+      --panel-border: #6b4a2a;
+      --gold: #f0c862;
+      --gold-deep: #8b6f1d;
+      --rose: #e8a5b5;
+      --rose-blush: #f7d6de;
+      --cream: #f6efe0;
+      --ink: #1a121a;
+      --accent: #7fa98b;
+      --wood-dark: #26170e;
+      --wood-light: #734d28;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--cream);
+      font-family: 'Space Grotesk', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #game-container {
+      position: relative;
+      width: 80vw;
+      height: 80vh;
+      max-width: 1280px;
+      max-height: 800px;
+      min-width: 800px;
+      min-height: 500px;
+      aspect-ratio: 16 / 9;
+      background: #000;
+      border: 3px solid var(--wood-light);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 0 35px rgba(0, 0, 0, 0.95);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* MAIN MENU OVERLAY */
+    #main-menu-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 50;
+      display: flex;
+      background: #080c14;
+      background-image: radial-gradient(circle at 75% 50%, rgba(20, 30, 48, 0.4), rgba(5, 8, 14, 0.95));
+      transition: opacity 0.4s ease, visibility 0.4s ease;
+    }
+
+    #main-menu-overlay.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .menu-sidebar {
+      width: 320px;
+      height: 100%;
+      background: rgba(14, 20, 32, 0.96);
+      border-right: 2px solid var(--wood-light);
+      padding: 40px 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 10px 0 30px rgba(0, 0, 0, 0.8);
+      z-index: 2;
+    }
+
+    .menu-title-area {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .menu-logo-badge {
+      background: var(--wood-dark);
+      border: 1px solid var(--gold-deep);
+      border-radius: 4px;
+      padding: 4px 10px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--gold);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      width: fit-content;
+    }
+
+    .menu-title-main {
+      font-family: 'Instrument Serif', serif;
+      font-size: 2.2rem;
+      color: var(--cream);
+      line-height: 1.05;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .menu-nav-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .menu-btn {
+      background: transparent;
+      border: none;
+      color: #93a3b8;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      text-align: left;
+      padding: 10px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .menu-btn:hover {
+      color: var(--gold);
+      background: rgba(240, 200, 98, 0.08);
+      padding-left: 20px;
+    }
+
+    .menu-btn.primary {
+      color: var(--gold);
+      border-left: 3px solid var(--gold);
+      background: rgba(240, 200, 98, 0.05);
+    }
+
+    .menu-footer-info {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: #475569;
+    }
+
+    .menu-display-stage {
+      flex: 1;
+      position: relative;
+      display: flex;
+      align-items: flex-end;
+      justify-content: flex-end;
+      padding-right: 60px;
+      padding-bottom: 20px;
+      overflow: hidden;
+    }
+
+    .sprite-character {
+      width: 280px;
+      height: 420px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: bottom center;
+      transition: transform 0.3s ease, filter 0.3s ease;
+      position: relative;
+      image-rendering: pixelated;
+    }
+
+    /* TOP HUD BAR */
+    .hud-bar {
+      height: 52px;
+      flex-shrink: 0;
+      background: rgba(11, 18, 32, 0.95);
+      border-bottom: 2px solid var(--wood-light);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      z-index: 10;
+    }
+
+    .hud-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .hud-badge {
+      background: #05080f;
+      border: 1px solid var(--gold-deep);
+      border-radius: 6px;
+      padding: 5px 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--gold);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .hud-badge span.label {
+      color: var(--rose-blush);
+      font-size: 10px;
+      font-weight: 500;
+    }
+
+    .room-nav {
+      display: flex;
+      gap: 6px;
+      background: rgba(5, 8, 15, 0.6);
+      padding: 4px;
+      border-radius: 6px;
+      border: 1px solid rgba(140, 98, 57, 0.4);
+    }
+
+    .room-btn {
+      background: transparent;
+      border: none;
+      color: var(--cream);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .room-btn:hover {
+      background: rgba(240, 200, 98, 0.2);
+    }
+
+    .room-btn.active {
+      background: var(--gold);
+      color: var(--bg);
+      font-weight: 800;
+    }
+
+    /* VIEWPORT & RIGHT ORDER CONVEYOR BAR LAYOUT */
+    .viewport-wrapper {
+      flex: 1;
+      display: flex;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .viewport {
+      flex: 1;
+      position: relative;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    /* VERTICAL CONVEYOR BAR */
+    .conveyor-sidebar {
+      width: 130px;
+      background: rgba(14, 20, 32, 0.98);
+      border-left: 2px solid var(--wood-light);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 12px 8px;
+      gap: 10px;
+      z-index: 15;
+    }
+
+    .conveyor-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      color: var(--gold);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      text-align: center;
+    }
+
+    .conveyor-slot {
+      width: 90px;
+      height: 90px;
+      background: #090e17;
+      border: 2px solid var(--wood-light);
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      transition: transform 0.3s ease, border-color 0.3s ease;
+    }
+
+    .conveyor-slot.active-target {
+      border-color: var(--gold);
+      box-shadow: 0 0 12px rgba(240, 200, 98, 0.3);
+      animation: pulse-border 1.5s infinite alternate;
+    }
+
+    @keyframes pulse-border {
+      0% { border-color: var(--gold); }
+      100% { border-color: #ffffff; }
+    }
+
+    .conveyor-slot.shadow-target {
+      opacity: 0.6;
+      border-style: dashed;
+    }
+
+    .conveyor-img {
+      width: 50px;
+      height: 50px;
+      object-fit: contain;
+    }
+
+    .conveyor-img.shadow {
+      filter: brightness(0) drop-shadow(0px 0px 2px rgba(0,0,0,0.8));
+    }
+
+    .conveyor-label {
+      font-size: 9px;
+      color: var(--rose-blush);
+      margin-top: 4px;
+      text-align: center;
+      max-width: 80px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .conveyor-arrow {
+      color: var(--gold);
+      font-size: 12px;
+    }
+
+    /* MODAL OVERLAYS */
+    .modal-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(11, 18, 32, 0.92);
+      backdrop-filter: blur(4px);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 60;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .card-box {
+      background: var(--cream);
+      color: var(--ink);
+      border: 4px double var(--wood-dark);
+      border-radius: 10px;
+      width: 100%;
+      max-width: 500px;
+      padding: 20px;
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.8);
+      position: relative;
+    }
+
+    .card-title {
+      font-family: 'Instrument Serif', serif;
+      font-size: 1.6rem;
+      color: var(--wood-dark);
+      border-bottom: 2px solid var(--wood-light);
+      padding-bottom: 6px;
+      margin-bottom: 12px;
+    }
+
+    .q-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .opt-btn {
+      background: var(--wood-dark);
+      border: 1px solid var(--gold);
+      border-radius: 6px;
+      padding: 10px 12px;
+      color: var(--cream);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .close-modal-btn {
+      margin-top: 14px;
+      background: var(--wood-light);
+      color: var(--cream);
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="game-container">
+
+    <!-- MAIN MENU OVERLAY -->
+    <div id="main-menu-overlay">
+      <div class="menu-sidebar">
+        <div class="menu-title-area">
+          <div class="menu-logo-badge">Detective Bureau</div>
+          <div class="menu-title-main">Balay<br/>Blueprint</div>
+        </div>
+
+        <div class="menu-nav-list">
+          <button class="menu-btn primary" id="btn-play-game">
+            <span>▶</span> PLAY GAME
+          </button>
+          <button class="menu-btn" id="btn-orientate">
+            <span>🔍</span> ORIENTATE ME FIRST
+          </button>
+        </div>
+
+        <div class="menu-footer-info">
+          Estate Surveying Division<br/>
+          Camiña Balay nga Bato · 1865
+        </div>
+      </div>
+
+      <div class="menu-display-stage">
+        <div class="sprite-character" id="menu-sprite" data-state="idle" style="background-image: url('assets/Balay-Blueprint/02-Relics-and-Sprites/sprite3_idle.png');"></div>
+      </div>
+    </div>
+
+    <!-- HUD BAR -->
+    <div class="hud-bar">
+      <div class="hud-group">
+        <div class="hud-badge">
+          <span class="label">RELICS:</span> 
+          <span id="val-relics" style="color:var(--gold);">0/8</span>
+        </div>
+        <div class="hud-badge">
+          <span class="label">SCORE:</span> 
+          <span id="val-score" style="color:var(--accent);">0</span>
+        </div>
+      </div>
+
+      <div class="room-nav" id="room-nav-bar">
+        <button class="room-btn active" data-room="sombra">1. Sombra</button>
+        <button class="room-btn" data-room="antesala">2. Antesala</button>
+        <button class="room-btn" data-room="comedor">3. Comedor</button>
+      </div>
+
+      <div class="hud-group">
+        <div class="hud-badge">
+          <span class="label">TIME:</span> 
+          <span id="val-time" style="color:var(--cream);">0s</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEWPORT & RIGHT ORDER SIDEBAR -->
+    <div class="viewport-wrapper">
+      <div class="viewport">
+        <canvas id="gameCanvas" width="1280" height="720"></canvas>
+      </div>
+
+      <!-- RIGHT VERTICAL CONVEYOR ORDER BAR -->
+      <div class="conveyor-sidebar">
+        <div class="conveyor-title">ORDER LIST</div>
+        
+        <!-- Active Target Container -->
+        <div class="conveyor-slot active-target">
+          <img id="conveyor-active-img" class="conveyor-img" src="" alt="Target Relic" />
+          <div class="conveyor-label" id="conveyor-active-label">FIND THIS</div>
+        </div>
+
+        <div class="conveyor-arrow">▲ NEXT ▲</div>
+
+        <!-- Silhouette Preview Container -->
+        <div class="conveyor-slot shadow-target">
+          <img id="conveyor-next-img" class="conveyor-img shadow" src="" alt="Next Relic" />
+          <div class="conveyor-label">UPCOMING</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ORIENTATION MODAL -->
+    <div id="orientate-modal" class="modal-overlay">
+      <div class="card-box">
+        <div class="card-title">Field Research Orientation</div>
+        <div style="font-size: 13px; line-height: 1.5; color: #332218; display: flex; flex-direction: column; gap: 10px;">
+          <p><strong>1. Target Order:</strong> Follow the conveyor order bar on the right side to collect artifacts sequentially.</p>
+          <p><strong>2. Randomized Placement:</strong> Artifacts shift locations every refresh.</p>
+        </div>
+        <button class="close-modal-btn" onclick="document.getElementById('orientate-modal').classList.remove('active')">BACK TO MAIN MENU</button>
+      </div>
+    </div>
+
+    <!-- INSPECTION MODAL -->
+    <div id="inspect-modal" class="modal-overlay">
+      <div class="card-box">
+        <div class="card-title" id="modal-relic-title">Relic Title</div>
+        <div id="modal-relic-desc" style="font-size: 12px; margin-bottom: 12px; color: #4b3621;"></div>
+        <div id="modal-question"></div>
+        <div class="q-options" id="modal-options"></div>
+        <button class="close-modal-btn" onclick="document.getElementById('inspect-modal').classList.remove('active')">CANCEL</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+  (function () {
+    'use strict';
+
+    // ==========================================
+    // AUDIO ASSET PATHS & FILE CONFIGURATION
+    // ==========================================
+    const sfxPaths = {
+      click: 'assets/Balay-Blueprint/05-Audio-Features/click-standard.mp3',
+      relicSelect: 'assets/Balay-Blueprint/05-Audio-Features/relic-hover-glow.mp3',
+      correct: 'assets/Balay-Blueprint/05-Audio-Features/relic-correct.mp3',
+      wrong: 'assets/Balay-Blueprint/05-Audio-Features/relic-wrong.mp3',
+      missClick: 'assets/Balay-Blueprint/05-Audio-Features/hover-soft.mp3',
+      pageOpen: 'assets/Balay-Blueprint/05-Audio-Features/click-book-page.mp3',
+      bgm: 'assets/Balay-Blueprint/05-Audio-Features/bgm-main-theme.wav'
+    };
+
+    const spritePaths = {
+      idle: 'assets/Balay-Blueprint/02-Relics-and-Sprites/sprite3_idle.png',
+      pointing: 'assets/Balay-Blueprint/02-Relics-and-Sprites/sprite3_pointing.png',
+      explaining: 'assets/Balay-Blueprint/02-Relics-and-Sprites/sprite3_explaining.png',
+      thinking: 'assets/Balay-Blueprint/02-Relics-and-Sprites/sprite3_thinking.png',
+      walking: 'assets/Balay-Blueprint/02-Relics-and-Sprites/sprite3_walking.png',
+      sunray: 'assets/Balay-Blueprint/02-Relics-and-Sprites/SpriteSunray.png'
+    };
+
+    // ==========================================
+    // GAME STATE & CONFIGURATION
+    // ==========================================
+    const state = {
+      currentRoom: 'sombra',
+      relicsFound: 0,
+      totalRelics: 8,
+      score: 0,
+      startTime: 0,
+      timerInterval: null,
+      activeHotspot: null,
+      images: {},
+      iconImages: {},
+      audioCache: {},
+      sfxCache: {},
+      bgmAudio: null,
+      missClickParticles: [],
+      targetQueue: [],
+      currentTargetIndex: 0,
+      audioPlaying: false
+    };
+
+    const storyTutorialSteps = [
+      {
+        text: "The heavy wooden doors creak open... Warm sunlight filters through the Capiz windows, illuminating dust mites dancing in the air of this ancient mansion.",
+        sprite: 'thinking',
+        speaker: 'System'
+      },
+      {
+        text: "Sshh... Listen closely. Do you hear that gentle echo? The walls of Balay are whispering secrets forgotten by time...",
+        sprite: 'pointing',
+        speaker: 'Guide'
+      },
+      {
+        text: "I am your guide through these historical halls. Ancient relics lie scattered across the rooms, hidden in plain sight.",
+        sprite: 'explaining',
+        speaker: 'Guide'
+      },
+      {
+        text: "To unlock the secrets of this heritage house, you must locate the relics in a specific sequence shown on your top HUD conveyor.",
+        sprite: 'pointing',
+        speaker: 'Guide'
+      },
+      {
+        text: "Click on the designated glowing artifact, answer its architectural riddle, and uncover the rich history hidden within!",
+        sprite: 'idle',
+        speaker: 'Guide'
+      }
+    ];
+
+    let currentTutorialIndex = 0;
+    let voiceoverAudio = null;
+
+    const roomData = {
+      sombra: {
+        title: 'Sombra (Ground Floor)',
+        bgPath: 'assets/Balay-Blueprint/01-Backdrops/bg-sombra.png',
+        bounds: { minX: 180, maxX: 1100, minY: 350, maxY: 580 },
+        hotspots: [
+          {
+            id: 'relic-loom',
+            room: 'sombra',
+            title: 'Handloom Structure',
+            radius: 30,
+            icon: 'assets/Balay-Blueprint/02-Relics-and-Sprites/relic-loom.png',
+            realImg: 'assets/Balay-Blueprint/02-Relics-and-Sprites/loom-real(1).jpg',
+            audioPath: 'assets/Balay-Blueprint/03-Audio/relic-loom.mp3',
+            fieldNotes: 'Large wooden tension apparatus strung with intertwined cotton threads.',
+            historyText: 'Weaving has long been an indigenous art form across the Philippine archipelago. In 19th-century Iloilo, often hailed as the "Textile Center of the Philippines," handlooms were central to household economics and regional trade, producing fine handwoven fabrics prized across the seas.',
+            usageText: 'Used by master weavers to manually intertwine warp and weft threads, creating regional textiles such as Hablon or Inabel. Operated via foot pedals and hand shuttles.',
+            question: 'What traditional textile product was woven using this equipment?',
+            options: ['Inabel', 'Hablon', 'Yakan', 'T’nalak'],
+            correctIndex: 1,
+            found: false,
+          },
+          {
+            id: 'relic-bulol',
+            room: 'sombra',
+            title: 'Structural Pillars & Foundation',
+            radius: 30,
+            icon: 'assets/Balay-Blueprint/02-Relics-and-Sprites/relic-bulol.png',
+            realImg: '',
+            audioPath: 'assets/Balay-Blueprint/03-Audio/relic-bulol.mp3',
+            fieldNotes: 'Heavy stone masonry forming the ground floor foundation below living quarters.',
+            historyText: 'Spanish colonial architectural designs adapted to local seismic activity and tropical storms. The heavy stone lower story provided a sturdy base designed to withstand earthquakes, while the wooden upper story offered flexibility.',
+            usageText: 'Serves as the structural foundation and enclosed ground-level entryway (Zaguan) of a traditional Bahay na Bato, originally used to house carriages, livestock, and heavy storage items.',
+            question: 'What is this ground level area of a Bahay na Bato architecturally named?',
+            options: ['Zaguan', 'Entresuelo', 'Volada', 'Caida'],
+            correctIndex: 0,
+            found: false,
+          },
+        ],
+      },
+      antesala: {
+        title: 'Antesala (Second Floor)',
+        bgPath: 'assets/Balay-Blueprint/01-Backdrops/bg-antesala.png',
+        bounds: { minX: 200, maxX: 1080, minY: 280, maxY: 520 },
+        hotspots: [
+          {
+            id: 'relic-rockingchair',
+            room: 'antesala',
+            title: 'Antique Rocking Chair',
+            radius: 30,
+            icon: 'assets/Balay-Blueprint/02-Relics-and-Sprites/relic-rockingchair.png',
+            realImg: 'assets/Balay-Blueprint/02-Relics-and-Sprites/rockingchair-real(1).jpg',
+            audioPath: 'assets/Balay-Blueprint/03-Audio/relic-rockingchair.mp3',
+            fieldNotes: 'Carved wooden armchair with curved legs designed for gentle rocking.',
+            historyText: 'Handcrafted by local artisans utilizing Philippine hardwoods like Narra and Kamagong. These chairs were staple fixtures in upper-class colonial homes during afternoon siestas.',
+            usageText: 'Placed in reception halls or living areas to allow house owners and visiting guests to relax, catch cool tropical breezes passing through open windows, and converse.',
+            question: 'What was the primary social function of the Antesala in colonial residences?',
+            options: ['Storage Room', 'Ante-room for Guests', 'Kitchen', 'Bedchamber'],
+            correctIndex: 1,
+            found: false,
+          },
+          {
+            id: 'relic-capiz',
+            room: 'antesala',
+            title: 'Capiz Shell Window',
+            radius: 30,
+            icon: 'assets/Balay-Blueprint/02-Relics-and-Sprites/relic-capiz.png',
+            realImg: 'assets/Balay-Blueprint/02-Relics-and-Sprites/capiz-real(1).jpg',
+            audioPath: 'assets/Balay-Blueprint/03-Audio/relic-capiz.mp3',
+            fieldNotes: 'Translucent window panels made from sea snail shells framed in hardwood.',
+            historyText: 'Before glass pane importations became widespread, Filipinos harvested Placuna placenta shells. Cleaned, flattened, and cut into squares, these shells became an iconic architectural signature across the islands.',
+            usageText: 'Fitted onto sliding wooden window frames to soften intense tropical sunlight into a soft, ambient glow while remaining durable enough to withstand high monsoon winds.',
+            question: 'Why were Capiz shells preferred over glass in traditional heritage houses?',
+            options: ['They filtered sunlight naturally', 'Glass was too fragile', 'They were cheaper to import', 'They were fireproof'],
+            correctIndex: 0,
+            found: false,
+          },
+          {
+            id: 'relic-clock',
+            room: 'antesala',
+            title: 'Grandfather Clock',
+            radius: 30,
+            icon: 'assets/Balay-Blueprint/02-Relics-and-Sprites/relic-clock.png',
+            realImg: 'assets/Balay-Blueprint/02-Relics-and-Sprites/clock-real(1).jpg',
+            audioPath: 'assets/Balay-Blueprint/03-Audio/relic-clock.mp3',
+            fieldNotes: 'Tall pendulum clock encased in polished dark hardwood with brass weights.',
+            historyText: 'Imported mechanical timepieces began arriving via maritime trade routes in the 19th century. Possessing an ornate pendulum clock was a notable indicator of status among affluent Ilustrado households.',
+            usageText: 'Kept in central living areas to keep precise time for household activities and to make a visual impression upon arriving social guests.',
+            question: 'What did owning imported timepieces symbolize in 19th-century Iloilo?',
+            options: ['Prestige & Wealth', 'Military Rank', 'Monastic Service', 'Trade Tax Immunity'],
+            correctIndex: 0,
+            found: false,
+          },
+        ],
+      },
+      comedor: {
+        title: 'Comedor (Dining Hall)',
+        bgPath: 'assets/Balay-Blueprint/01-Backdrops/bg-comedor.png',
+        bounds: { minX: 180, maxX: 1100, minY: 320, maxY: 550 },
+        hotspots: [
+          {
+            id: 'relic-tsokolatera',
+            room: 'comedor',
+            title: 'Bronze Tsokolatera',
+            radius: 30,
+            icon: 'assets/Balay-Blueprint/02-Relics-and-Sprites/relic-tsokolatera.png',
+            realImg: 'assets/Balay-Blueprint/02-Relics-and-Sprites/tsokolatera-real(1).jpg',
+            audioPath: 'assets/Balay-Blueprint/03-Audio/relic-tsokolatera.mp3',
+            fieldNotes: 'Pitcher used alongside a wooden molinillo to froth traditional hot chocolate.',
+            historyText: 'Chocolate culture in the Philippines stems from the Galleon Trade, which brought cacao from Mesoamerica. Hot cacao drinks quickly became integrated into Filipino hospitality traditions.',
+            usageText: 'A high-necked brass or copper vessel in which cacao tablea is boiled with water or milk, then briskly frothed using a carved wooden batidor (molinillo).',
+            question: 'What beverage was served using this pitcher during formal gatherings?',
+            options: ['Tsokolate de Batirol', 'Benguet Coffee', 'Salabat', 'Lambanog'],
+            correctIndex: 0,
+            found: false,
+          },
+          {
+            id: 'relic-candelabra',
+            room: 'comedor',
+            title: 'Ornate Candelabra',
+            radius: 30,
+            icon: 'assets/Balay-Blueprint/02-Relics-and-Sprites/relic-candelabra.png',
+            realImg: 'assets/Balay-Blueprint/02-Relics-and-Sprites/candelabra-real.jpg',
+            audioPath: 'assets/Balay-Blueprint/03-Audio/relic-candelabra.mp3',
+            fieldNotes: 'Multi-branched brass holder designed to hold candles above dining tables.',
+            historyText: 'Prior to electrical installations, large heritage homes depended on candles and oil lamps. Ornate metalwork candelabras were imported from Europe or forged locally by Chinese-Filipino metalsmiths.',
+            usageText: 'Positioned centrally along grand dining tables or suspended as chandeliers to illuminate lavish evening feasts and formal gatherings.',
+            question: 'Where was primary lighting positioned in large dining halls before electricity?',
+            options: ['Under tables', 'Suspended or centered on dining tables', 'Outside windows', 'In floor pits'],
+            correctIndex: 1,
+            found: false,
+          },
+          {
+            id: 'relic-piano',
+            room: 'comedor',
+            title: 'Upright Piano',
+            radius: 30,
+            icon: 'assets/Balay-Blueprint/02-Relics-and-Sprites/relic-piano.png',
+            realImg: '',
+            audioPath: 'assets/Balay-Blueprint/03-Audio/relic-piano.mp3',
+            fieldNotes: 'Polished piano instrument placed in reception areas for musical gatherings.',
+            historyText: 'European musical instruments became popular fixtures in 19th-century elite households. Mastery of the piano was considered an essential cultural accomplishment for young women and men in high society.',
+            usageText: 'Played during social gatherings known as tertulias, providing live accompaniment for poetry readings, classical dances, and vocal performances.',
+            question: 'What type of social events took place around music instruments in the Comedor?',
+            options: ['Tertulias & Feasts', 'Silent Prayer', 'Goods Bartering', 'Weaving Contests'],
+            correctIndex: 0,
+            found: false,
+          },
+        ],
+      },
+    };
+
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const mainMenuOverlay = document.getElementById('main-menu-overlay');
+    const inspectModal = document.getElementById('inspect-modal');
+
+    function playSFX(key) {
+      if (state.sfxCache[key]) {
+        const soundClone = state.sfxCache[key].cloneNode();
+        soundClone.volume = 0.6;
+        soundClone.play().catch(err => console.warn(`SFX playback issue for [${key}]:`, err));
+      }
+    }
+
+    function startAmbientBGM() {
+      if (state.bgmAudio) return;
+      if (state.sfxCache['bgm']) {
+        state.bgmAudio = state.sfxCache['bgm'];
+        state.bgmAudio.loop = true;
+        state.bgmAudio.volume = 0.35;
+        state.bgmAudio.play().catch(err => console.warn('BGM autostart blocked:', err));
+      }
+    }
+
+    function setupUIElements() {
+      const styleElem = document.createElement('style');
+      styleElem.textContent = `
+        .preloader-overlay {
+          position: fixed;
+          top: 0; left: 0; width: 100vw; height: 100vh;
+          background: #0d0a07;
+          z-index: 10000;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          color: #f4eae1;
+          font-family: "Space Grotesk", sans-serif;
+          transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+        .preloader-overlay.hidden {
+          opacity: 0;
+          visibility: hidden;
+          pointer-events: none;
+        }
+        .preloader-title {
+          font-family: "Instrument Serif", serif;
+          font-size: 2.5rem;
+          color: #d8b26e;
+          margin-bottom: 20px;
+          letter-spacing: 2px;
+        }
+        .preloader-bar-bg {
+          width: 320px;
+          height: 14px;
+          background: rgba(255,255,255,0.1);
+          border: 1px solid #c8a760;
+          border-radius: 7px;
+          overflow: hidden;
+          margin-bottom: 12px;
+        }
+        .preloader-bar-fill {
+          width: 0%;
+          height: 100%;
+          background: linear-gradient(90deg, #8c6332, #e2b458);
+          transition: width 0.2s ease;
+        }
+        .preloader-status {
+          font-size: 0.9rem;
+          color: #a89482;
+        }
+
+        .story-modal {
+          position: fixed;
+          top: 0; left: 0; width: 100vw; height: 100vh;
+          background: rgba(5, 8, 15, 0.88);
+          display: none;
+          flex-direction: column;
+          justify-content: space-between;
+          align-items: center;
+          z-index: 9999;
+          overflow: hidden;
+          backdrop-filter: blur(4px);
+        }
+        .story-modal.active { display: flex; }
+        
+        .cutscene-bar-top, .cutscene-bar-bottom {
+          width: 100%; height: 12%;
+          background: #000;
+          z-index: 3;
+          box-shadow: 0 0 20px rgba(0,0,0,0.8);
+        }
+
+        .story-stage {
+          position: relative;
+          flex: 1;
+          width: 100%;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
+
+        .sunray-bg {
+          position: absolute;
+          width: 480px;
+          height: 480px;
+          background: url('${spritePaths.sunray}') center/contain no-repeat;
+          opacity: 0.75;
+          animation: sunrayRotate 25s linear infinite;
+          z-index: 1;
+          pointer-events: none;
+        }
+
+        .sprite-framebar {
+          position: relative;
+          z-index: 2;
+          width: 280px;
+          height: 340px;
+          display: flex;
+          justify-content: center;
+          align-items: flex-end;
+          background: radial-gradient(circle, rgba(255,220,120,0.15) 0%, rgba(0,0,0,0) 70%);
+          border-bottom: 2px solid rgba(230, 190, 100, 0.4);
+        }
+
+        .sprite-img {
+          max-height: 100%;
+          max-width: 100%;
+          object-fit: contain;
+          filter: drop-shadow(0px 8px 16px rgba(0,0,0,0.6));
+          transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        .sprite-pop {
+          animation: spriteEnter 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .sprite-next-anim {
+          animation: spriteNext 0.35s ease-in-out;
+        }
+
+        .story-dialog-box {
+          position: absolute;
+          bottom: 14%;
+          width: 80%;
+          max-width: 750px;
+          background: linear-gradient(135deg, rgba(20, 15, 10, 0.95), rgba(35, 25, 18, 0.92));
+          border: 2px solid #c8a760;
+          border-radius: 8px;
+          padding: 20px 25px;
+          color: #f4eae1;
+          box-shadow: 0 10px 30px rgba(0,0,0,0.8), inset 0 0 15px rgba(200, 167, 96, 0.15);
+          z-index: 4;
+        }
+
+        .story-speaker {
+          font-family: "Space Grotesk", sans-serif;
+          font-size: 0.9rem;
+          font-weight: 700;
+          text-transform: uppercase;
+          color: #e2b458;
+          letter-spacing: 2px;
+          margin-bottom: 6px;
+        }
+
+        .story-text {
+          font-size: 1.05rem;
+          line-height: 1.5;
+          min-height: 50px;
+        }
+
+        .story-controls {
+          display: flex;
+          justify-content: flex-end;
+          margin-top: 12px;
+        }
+
+        .btn-story-next {
+          background: #c8a760;
+          color: #1a1008;
+          border: none;
+          padding: 8px 20px;
+          font-weight: 700;
+          border-radius: 4px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .btn-story-next:hover {
+          background: #e6c880;
+          transform: translateY(-2px);
+        }
+
+        .notebook-overlay {
+          position: fixed;
+          top: 0; left: 0; width: 100vw; height: 100vh;
+          background: rgba(12, 8, 5, 0.88);
+          display: none;
+          justify-content: center;
+          align-items: center;
+          z-index: 9998;
+          backdrop-filter: blur(6px);
+        }
+        .notebook-overlay.active { display: flex; }
+
+        .notebook-container {
+          width: 90vw;
+          max-width: 1020px;
+          height: 82vh;
+          max-height: 680px;
+          background: #2c1a0e;
+          border: 12px solid #1a0f08;
+          border-radius: 12px;
+          box-shadow: 0 20px 50px rgba(0,0,0,0.9), inset 0 0 100px rgba(0,0,0,0.8);
+          display: flex;
+          position: relative;
+          overflow: hidden;
+        }
+
+        .notebook-sidebar {
+          width: 280px;
+          background: #1e120a;
+          border-right: 3px solid #4a321a;
+          display: flex;
+          flex-direction: column;
+          padding: 20px 12px;
+          box-shadow: inset -10px 0 20px rgba(0,0,0,0.5);
+        }
+
+        .notebook-sidebar-title {
+          font-family: "Instrument Serif", serif;
+          font-size: 1.4rem;
+          color: #d8b26e;
+          text-align: center;
+          margin-bottom: 15px;
+          padding-bottom: 10px;
+          border-bottom: 1px solid #4a321a;
+          letter-spacing: 1px;
+        }
+
+        .notebook-relic-list {
+          overflow-y: auto;
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+          padding-right: 4px;
+        }
+
+        .relic-tab-btn {
+          background: rgba(255,255,255,0.03);
+          border: 1px solid #3d2715;
+          color: #c9b097;
+          padding: 10px 12px;
+          text-align: left;
+          font-family: "Space Grotesk", sans-serif;
+          font-size: 0.85rem;
+          font-weight: 600;
+          border-radius: 6px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .relic-tab-btn:hover {
+          background: rgba(216, 178, 110, 0.15);
+          color: #f3e5ab;
+          border-color: #8c6332;
+        }
+
+        .relic-tab-btn.active {
+          background: #8c6332;
+          color: #fff8e7;
+          border-color: #d8b26e;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+        }
+
+        .notebook-pages {
+          flex: 1;
+          background: #f4ede1;
+          background-image: radial-gradient(#e2d5c3 1px, transparent 0);
+          background-size: 24px 24px;
+          display: flex;
+          flex-direction: column;
+          position: relative;
+          padding: 30px 40px;
+          overflow-y: auto;
+          color: #2c1e11;
+        }
+
+        .notebook-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          border-bottom: 2px dashed #b89f80;
+          padding-bottom: 12px;
+          margin-bottom: 20px;
+        }
+
+        .notebook-page-title {
+          font-family: "Instrument Serif", serif;
+          font-size: 2rem;
+          color: #5c1d1d;
+        }
+
+        .btn-close-notebook {
+          background: #5c1d1d;
+          color: #fdf8eb;
+          border: none;
+          padding: 6px 16px;
+          border-radius: 4px;
+          font-weight: bold;
+          cursor: pointer;
+          transition: background 0.2s;
+        }
+
+        .btn-close-notebook:hover {
+          background: #8c2d2d;
+        }
+
+        .relic-reading-body {
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+          font-size: 0.98rem;
+          line-height: 1.6;
+        }
+
+        .notebook-voiceover-toolbar {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          margin-bottom: 12px;
+          background: rgba(140, 99, 50, 0.1);
+          padding: 8px 14px;
+          border-radius: 6px;
+          border: 1px solid rgba(140, 99, 50, 0.25);
+        }
+
+        .btn-notebook-audio {
+          background: #8c6332;
+          color: #fff8e7;
+          border: none;
+          padding: 6px 16px;
+          border-radius: 4px;
+          font-weight: 700;
+          cursor: pointer;
+          font-size: 0.85rem;
+          transition: background 0.2s;
+        }
+
+        .btn-notebook-audio:hover {
+          background: #a6773e;
+        }
+
+        .notebook-audio-status {
+          font-size: 0.85rem;
+          font-weight: 600;
+          color: #5c1d1d;
+        }
+
+        .notebook-section-tag {
+          font-family: "Space Grotesk", sans-serif;
+          font-size: 0.75rem;
+          font-weight: 700;
+          letter-spacing: 1.5px;
+          text-transform: uppercase;
+          color: #8c6332;
+          margin-bottom: 4px;
+        }
+
+        .notebook-text-block {
+          background: rgba(255, 255, 255, 0.5);
+          border-left: 3px solid #8c6332;
+          padding: 12px 16px;
+          border-radius: 0 6px 6px 0;
+        }
+
+        .notebook-riddle-box {
+          margin-top: 10px;
+          background: #e8dcc8;
+          border: 1px dashed #8c6332;
+          padding: 14px;
+          border-radius: 6px;
+          font-style: italic;
+        }
+
+        .sprite-audio-overlay {
+          position: fixed;
+          bottom: 70px;
+          left: 30px;
+          z-index: 9001;
+          width: 180px;
+          height: 220px;
+          pointer-events: none;
+          display: none;
+          opacity: 0;
+          transition: opacity 0.4s ease;
+        }
+
+        .sprite-audio-overlay.active {
+          display: block;
+          opacity: 1;
+          animation: floatAndSway 3s ease-in-out infinite;
+        }
+
+        .sprite-audio-overlay img {
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
+          filter: drop-shadow(0 10px 15px rgba(0,0,0,0.7));
+        }
+
+        @keyframes floatAndSway {
+          0% { transform: translateY(0px) translateX(0px) rotate(0deg); }
+          25% { transform: translateY(-8px) translateX(-6px) rotate(-2deg); }
+          50% { transform: translateY(-12px) translateX(0px) rotate(0deg); }
+          75% { transform: translateY(-6px) translateX(6px) rotate(2deg); }
+          100% { transform: translateY(0px) translateX(0px) rotate(0deg); }
+        }
+
+        @keyframes sunrayRotate {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+
+        @keyframes spriteEnter {
+          0% { opacity: 0; transform: translateY(30px) scale(0.9); }
+          100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @keyframes spriteNext {
+          0% { transform: scale(1) translateY(0); }
+          50% { transform: scale(1.05) translateY(-8px); }
+          100% { transform: scale(1) translateY(0); }
+        }
+      `;
+      document.head.appendChild(styleElem);
+
+      const preloaderHTML = `
+        <div id="game-preloader" class="preloader-overlay">
+          <div class="preloader-title">BALAY BLUEPRINT</div>
+          <div class="preloader-bar-bg">
+            <div id="preloader-fill" class="preloader-bar-fill"></div>
+          </div>
+          <div id="preloader-status" class="preloader-status">Loading assets... 0%</div>
+        </div>
+      `;
+
+      const tutorialHTML = `
+        <div id="story-tutorial-modal" class="story-modal">
+          <div class="cutscene-bar-top"></div>
+          <div class="story-stage">
+            <div class="sunray-bg"></div>
+            <div class="sprite-framebar">
+              <img id="story-sprite-img" class="sprite-img sprite-pop" src="${spritePaths.thinking}" alt="Guide Sprite" />
+            </div>
+            <div class="story-dialog-box">
+              <div id="story-speaker-name" class="story-speaker">SYSTEM</div>
+              <div id="story-dialog-text" class="story-text">Loading prologue...</div>
+              <div class="story-controls">
+                <button id="btn-story-next" class="btn-story-next">NEXT ▶</button>
+              </div>
+            </div>
+          </div>
+          <div class="cutscene-bar-bottom"></div>
+        </div>
+      `;
+
+      const notebookHTML = `
+        <div id="study-archive-modal" class="notebook-overlay">
+          <div class="notebook-container">
+            <div class="notebook-sidebar">
+              <div class="notebook-sidebar-title">📜 ARCHIVE INDEX</div>
+              <div class="notebook-relic-list" id="notebook-relic-list"></div>
+            </div>
+            <div class="notebook-pages">
+              <div class="notebook-header">
+                <div class="notebook-page-title" id="notebook-item-title">Select an Artifact</div>
+                <button id="btn-close-study" class="btn-close-notebook">Close Book</button>
+              </div>
+              <div class="relic-reading-body" id="notebook-item-body">
+                <p style="color: #665241; font-style: italic;">Select a relic category from the left ledger panel to open its manuscript chapter.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      const audioPlayoverHTML = `
+        <div id="floating-sprite-popover" class="sprite-audio-overlay">
+          <img src="${spritePaths.explaining}" alt="Explaining Sprite" />
+        </div>
+      `;
+
+      document.body.insertAdjacentHTML('beforeend', preloaderHTML + tutorialHTML + notebookHTML + audioPlayoverHTML);
+
+      document.getElementById('btn-story-next').addEventListener('click', () => {
+        playSFX('click');
+        advanceStoryTutorial();
+      });
+
+      document.getElementById('btn-close-study').addEventListener('click', () => {
+        playSFX('click');
+        stopAudioPlayover();
+        document.getElementById('study-archive-modal').classList.remove('active');
+      });
+
+      populateNotebookSidebar();
+    }
+
+    // ==========================================
+    // UNIFIED ASSET PRELOADER
+    // ==========================================
+    function preloadAllAssets(onComplete) {
+      const imagesToLoad = [];
+      const audioToLoad = [];
+
+      Object.keys(roomData).forEach((key) => {
+        imagesToLoad.push({ type: 'room', id: key, src: roomData[key].bgPath });
+        roomData[key].hotspots.forEach((hs) => {
+          if (hs.icon) imagesToLoad.push({ type: 'icon', id: hs.id, src: hs.icon });
+          if (hs.realImg) imagesToLoad.push({ type: 'realImg', id: hs.id + '_real', src: hs.realImg });
+          if (hs.audioPath) audioToLoad.push({ category: 'voiceover', id: hs.id, src: hs.audioPath });
+        });
+      });
+
+      Object.keys(spritePaths).forEach((k) => {
+        imagesToLoad.push({ type: 'sprite', id: k, src: spritePaths[k] });
+      });
+
+      Object.keys(sfxPaths).forEach((k) => {
+        audioToLoad.push({ category: 'sfx', id: k, src: sfxPaths[k] });
+      });
+
+      const totalAssets = imagesToLoad.length + audioToLoad.length;
+      let loadedCount = 0;
+
+      const fillElem = document.getElementById('preloader-fill');
+      const statusElem = document.getElementById('preloader-status');
+
+      function updateProgress(assetName) {
+        loadedCount++;
+        const pct = Math.floor((loadedCount / totalAssets) * 100);
+        if (fillElem) fillElem.style.width = `${pct}%`;
+        if (statusElem) statusElem.textContent = `Loading ${assetName} (${pct}%)`;
+
+        if (loadedCount >= totalAssets) {
+          setTimeout(() => {
+            const preloader = document.getElementById('game-preloader');
+            if (preloader) preloader.classList.add('hidden');
+            if (onComplete) onComplete();
+          }, 300);
+        }
+      }
+
+      imagesToLoad.forEach((item) => {
+        const img = new Image();
+        img.src = item.src;
+        img.onload = () => {
+          if (item.type === 'room') state.images[item.id] = img;
+          if (item.type === 'icon') state.iconImages[item.id] = img;
+          updateProgress(item.id);
+        };
+        img.onerror = () => {
+          console.warn(`Failed image load: ${item.src}`);
+          updateProgress(item.id);
+        };
+      });
+
+      audioToLoad.forEach((item) => {
+        const audio = new Audio();
+        audio.src = item.src;
+        audio.preload = 'auto';
+        
+        const onAudioLoaded = () => {
+          if (item.category === 'sfx') {
+            state.sfxCache[item.id] = audio;
+          } else {
+            state.audioCache[item.id] = audio;
+          }
+          audio.removeEventListener('canplaythrough', onAudioLoaded);
+          updateProgress(item.id);
+        };
+
+        audio.addEventListener('canplaythrough', onAudioLoaded, false);
+        audio.load();
+
+        setTimeout(() => {
+          if (item.category === 'sfx' && !state.sfxCache[item.id]) {
+            state.sfxCache[item.id] = audio;
+            updateProgress(item.id);
+          } else if (item.category === 'voiceover' && !state.audioCache[item.id]) {
+            state.audioCache[item.id] = audio;
+            updateProgress(item.id);
+          }
+        }, 1500);
+      });
+    }
+
+    function playRelicVoiceover(relic) {
+      if (!relic || !relic.audioPath) return;
+
+      stopAudioPlayover();
+
+      const popover = document.getElementById('floating-sprite-popover');
+      const statusLabel = document.getElementById('notebook-audio-status');
+      const toggleBtn = document.getElementById('btn-notebook-audio');
+
+      voiceoverAudio = state.audioCache[relic.id] || new Audio(relic.audioPath);
+
+      voiceoverAudio.onended = () => {
+        stopAudioPlayover();
+      };
+
+      voiceoverAudio.onerror = () => {
+        console.warn(`Audio missing at: "${relic.audioPath}"`);
+        stopAudioPlayover();
+        if (statusLabel) statusLabel.textContent = 'Voiceover missing!';
+      };
+
+      state.audioPlaying = true;
+      if (popover) popover.classList.add('active');
+      if (statusLabel) statusLabel.textContent = `Playing voiceover...`;
+      if (toggleBtn) toggleBtn.textContent = '⏹ Stop Voiceover';
+
+      voiceoverAudio.play().catch((err) => {
+        console.warn('Playback waiting for user gesture:', err);
+      });
+    }
+
+    function toggleAudioPlayover() {
+      playSFX('click');
+      if (state.audioPlaying) {
+        stopAudioPlayover();
+      } else if (state.activeHotspot) {
+        playRelicVoiceover(state.activeHotspot);
+      }
+    }
+
+    function stopAudioPlayover() {
+      state.audioPlaying = false;
+      const popover = document.getElementById('floating-sprite-popover');
+      const statusLabel = document.getElementById('notebook-audio-status');
+      const toggleBtn = document.getElementById('btn-notebook-audio');
+
+      if (popover) popover.classList.remove('active');
+      if (statusLabel) statusLabel.textContent = 'Voiceover: Ready';
+      if (toggleBtn) toggleBtn.textContent = '🔊 Listen Voiceover';
+
+      if (voiceoverAudio) {
+        voiceoverAudio.pause();
+        voiceoverAudio.currentTime = 0;
+        voiceoverAudio = null;
+      }
+    }
+
+    function populateNotebookSidebar() {
+      const listContainer = document.getElementById('notebook-relic-list');
+      listContainer.innerHTML = '';
+
+      let firstRelic = null;
+
+      Object.keys(roomData).forEach((roomKey) => {
+        const room = roomData[roomKey];
+
+        room.hotspots.forEach((hs) => {
+          if (!firstRelic) firstRelic = hs;
+
+          const btn = document.createElement('button');
+          btn.className = 'relic-tab-btn';
+          btn.setAttribute('data-relic-id', hs.id);
+          btn.innerHTML = `<span>🏺</span> <span>${hs.title}</span>`;
+
+          btn.onclick = () => {
+            playSFX('click');
+            document.querySelectorAll('.relic-tab-btn').forEach((b) => b.classList.remove('active'));
+            btn.classList.add('active');
+            displayRelicChapter(hs);
+          };
+
+          listContainer.appendChild(btn);
+        });
+      });
+
+      if (firstRelic) {
+        setTimeout(() => {
+          const firstBtn = listContainer.querySelector('.relic-tab-btn');
+          if (firstBtn) firstBtn.click();
+        }, 50);
+      }
+    }
+
+    function displayRelicChapter(hs) {
+      stopAudioPlayover();
+      state.activeHotspot = hs;
+
+      document.getElementById('notebook-item-title').textContent = hs.title;
+
+      const bodyContainer = document.getElementById('notebook-item-body');
+      bodyContainer.innerHTML = `
+        <div class="notebook-voiceover-toolbar">
+          <button id="btn-notebook-audio" class="btn-notebook-audio">🔊 Listen Voiceover</button>
+          <span id="notebook-audio-status" class="notebook-audio-status">Voiceover: Ready</span>
+        </div>
+
+        <div>
+          <div class="notebook-section-tag">HISTORICAL CONTEXT</div>
+          <div class="notebook-text-block">
+            ${hs.historyText || hs.fieldNotes}
+          </div>
+        </div>
+
+        <div>
+          <div class="notebook-section-tag">PRACTICAL & CULTURAL USE</div>
+          <div class="notebook-text-block">
+            ${hs.usageText || 'Utilized throughout heritage structures as an integral functional component.'}
+          </div>
+        </div>
+
+        <div class="notebook-riddle-box">
+          <div class="notebook-section-tag" style="color: #5c1d1d;">ARCHITECTURAL RIDDLE</div>
+          <strong style="color: #2c1e11;">"${hs.question}"</strong>
+          <p style="font-size: 0.85rem; margin-top: 6px; color: #554130;">
+            💡 <em>Read the history and usage sections carefully above to discover the answer when inspecting this relic during the exploration phase!</em>
+          </p>
+        </div>
+      `;
+
+      document.getElementById('btn-notebook-audio').addEventListener('click', toggleAudioPlayover);
+    }
+
+    function openStudyArchive() {
+      playSFX('pageOpen');
+      document.getElementById('study-archive-modal').classList.add('active');
+    }
+
+    function startStoryTutorial() {
+      currentTutorialIndex = 0;
+      const modal = document.getElementById('story-tutorial-modal');
+      modal.classList.add('active');
+      updateStoryStep();
+    }
+
+    function updateStoryStep() {
+      const step = storyTutorialSteps[currentTutorialIndex];
+      const spriteImg = document.getElementById('story-sprite-img');
+      const speakerText = document.getElementById('story-speaker-name');
+      const dialogText = document.getElementById('story-dialog-text');
+      const nextBtn = document.getElementById('btn-story-next');
+
+      spriteImg.classList.remove('sprite-pop', 'sprite-next-anim');
+      void spriteImg.offsetWidth;
+
+      spriteImg.src = spritePaths[step.sprite] || spritePaths.idle;
+      spriteImg.classList.add('sprite-next-anim');
+
+      speakerText.textContent = step.speaker;
+      dialogText.textContent = step.text;
+
+      if (currentTutorialIndex === storyTutorialSteps.length - 1) {
+        nextBtn.textContent = 'START EXPLORING ▶';
+      } else {
+        nextBtn.textContent = 'NEXT ▶';
+      }
+    }
+
+    function advanceStoryTutorial() {
+      if (currentTutorialIndex < storyTutorialSteps.length - 1) {
+        currentTutorialIndex++;
+        updateStoryStep();
+      } else {
+        document.getElementById('story-tutorial-modal').classList.remove('active');
+        executeStartGame();
+      }
+    }
+
+    function randomizeRelicLocations() {
+      Object.keys(roomData).forEach((key) => {
+        const rm = roomData[key];
+        rm.hotspots.forEach((hs) => {
+          hs.x = Math.floor(Math.random() * (rm.bounds.maxX - rm.bounds.minX)) + rm.bounds.minX;
+          hs.y = Math.floor(Math.random() * (rm.bounds.maxY - rm.bounds.minY)) + rm.bounds.minY;
+        });
+      });
+    }
+
+    function initOrderQueue() {
+      state.targetQueue = [];
+      Object.keys(roomData).forEach((key) => {
+        roomData[key].hotspots.forEach((hs) => {
+          state.targetQueue.push(hs);
+        });
+      });
+
+      state.targetQueue.sort(() => Math.random() - 0.5);
+      updateConveyorUI();
+    }
+
+    function updateConveyorUI() {
+      const activeTarget = state.targetQueue[state.currentTargetIndex];
+      const nextTarget = state.targetQueue[state.currentTargetIndex + 1];
+
+      const activeImgElem = document.getElementById('conveyor-active-img');
+      const activeLabelElem = document.getElementById('conveyor-active-label');
+      const nextImgElem = document.getElementById('conveyor-next-img');
+
+      if (activeTarget) {
+        activeImgElem.src = activeTarget.icon;
+        activeLabelElem.textContent = activeTarget.title;
+      } else {
+        activeImgElem.src = '';
+        activeLabelElem.textContent = 'COMPLETED!';
+      }
+
+      if (nextTarget) {
+        nextImgElem.src = nextTarget.icon;
+        nextImgElem.style.display = 'block';
+      } else {
+        nextImgElem.style.display = 'none';
+      }
+    }
+
+    function initMenuHandlers() {
+      document.getElementById('btn-play-game').addEventListener('click', () => {
+        playSFX('click');
+        startAmbientBGM();
+        mainMenuOverlay.classList.add('hidden');
+        startStoryTutorial();
+      });
+      
+      const orientateBtn = document.getElementById('btn-orientate');
+      if (orientateBtn) {
+        orientateBtn.addEventListener('click', () => {
+          playSFX('click');
+          startAmbientBGM();
+          openStudyArchive();
+        });
+      }
+
+      const roomButtons = document.querySelectorAll('#room-nav-bar .room-btn');
+      roomButtons.forEach((btn) => {
+        btn.addEventListener('click', (e) => {
+          playSFX('click');
+          const targetRoom = e.target.getAttribute('data-room');
+          if (targetRoom && roomData[targetRoom]) {
+            state.currentRoom = targetRoom;
+            roomButtons.forEach((b) => b.classList.remove('active'));
+            e.target.classList.add('active');
+          }
+        });
+      });
+
+      bindCanvasEvents();
+    }
+
+    function executeStartGame() {
+      state.startTime = Date.now();
+      if (!state.timerInterval) {
+        state.timerInterval = setInterval(updateTimer, 1000);
+      }
+      gameLoop();
+    }
+
+    function updateTimer() {
+      const elapsed = Math.floor((Date.now() - state.startTime) / 1000);
+      document.getElementById('val-time').textContent = `${elapsed}s`;
+    }
+
+    function gameLoop() {
+      renderCanvas();
+      requestAnimationFrame(gameLoop);
+    }
+
+    function renderCanvas() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const room = roomData[state.currentRoom];
+      const now = Date.now();
+
+      if (state.images[state.currentRoom] && state.images[state.currentRoom].complete) {
+        ctx.drawImage(state.images[state.currentRoom], 0, 0, canvas.width, canvas.height);
+      } else {
+        ctx.fillStyle = '#080c14';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
+
+      const currentTarget = state.targetQueue[state.currentTargetIndex];
+
+      room.hotspots.forEach((hs, index) => {
+        const floatOffsetY = Math.sin((now / 450) + index) * 6;
+        const currentY = hs.y + floatOffsetY;
+        const iconImg = state.iconImages[hs.id];
+
+        ctx.save();
+
+        if (currentTarget && currentTarget.id === hs.id) {
+          const shimmerScale = 1 + Math.sin((now / 300) + index) * 0.15;
+          const glowGrad = ctx.createRadialGradient(
+            hs.x, currentY, 2,
+            hs.x, currentY, (hs.radius + 14) * shimmerScale
+          );
+          
+          glowGrad.addColorStop(0, 'rgba(255, 235, 180, 0.6)');
+          glowGrad.addColorStop(0.6, 'rgba(240, 200, 98, 0.3)');
+          glowGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+
+          ctx.fillStyle = glowGrad;
+          ctx.beginPath();
+          ctx.arc(hs.x, currentY, (hs.radius + 14) * shimmerScale, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        if (iconImg && iconImg.complete && !hs.found) {
+          ctx.drawImage(iconImg, hs.x - hs.radius, currentY - hs.radius, hs.radius * 2, hs.radius * 2);
+        }
+
+        ctx.restore();
+      });
+
+      for (let i = state.missClickParticles.length - 1; i >= 0; i--) {
+        const p = state.missClickParticles[i];
+        p.y -= 0.6;
+        p.alpha -= 0.02;
+
+        if (p.alpha <= 0) {
+          state.missClickParticles.splice(i, 1);
+          continue;
+        }
+
+        ctx.save();
+        ctx.font = '700 13px "Space Grotesk", sans-serif';
+        ctx.fillStyle = `rgba(232, 165, 181, ${p.alpha})`;
+        ctx.textAlign = 'center';
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+        ctx.shadowBlur = 4;
+        ctx.fillText(p.text || '✕ Not the target!', p.x, p.y);
+        ctx.restore();
+      }
+    }
+
+    function handleCanvasClick(evt) {
+      if (inspectModal.classList.contains('active')) return;
+
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+
+      const clickX = (evt.clientX - rect.left) * scaleX;
+      const clickY = (evt.clientY - rect.top) * scaleY;
+
+      const hotspots = roomData[state.currentRoom].hotspots;
+      const activeTarget = state.targetQueue[state.currentTargetIndex];
+      let hitFound = false;
+
+      for (let hs of hotspots) {
+        if (Math.hypot(clickX - hs.x, clickY - hs.y) <= hs.radius + 15) {
+          hitFound = true;
+          
+          if (activeTarget && hs.id === activeTarget.id) {
+            playSFX('relicSelect');
+            openInspectModal(hs);
+          } else {
+            playSFX('wrong');
+            state.missClickParticles.push({
+              x: clickX,
+              y: clickY,
+              alpha: 1.0,
+              text: '✕ Wrong Target Order!'
+            });
+          }
+          break;
+        }
+      }
+
+      if (!hitFound) {
+        playSFX('missClick');
+        state.missClickParticles.push({
+          x: clickX,
+          y: clickY,
+          alpha: 1.0,
+          text: '✕ Not a Relic'
+        });
+      }
+    }
+
+    function handleCanvasMouseMove(evt) {
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+
+      const mouseX = (evt.clientX - rect.left) * scaleX;
+      const mouseY = (evt.clientY - rect.top) * scaleY;
+
+      const hotspots = roomData[state.currentRoom].hotspots;
+      const activeTarget = state.targetQueue[state.currentTargetIndex];
+      let hovering = false;
+
+      for (let hs of hotspots) {
+        if (Math.hypot(mouseX - hs.x, mouseY - hs.y) <= hs.radius + 12) {
+          if (activeTarget && hs.id === activeTarget.id) {
+            hovering = true;
+          }
+          break;
+        }
+      }
+
+      if (hovering) {
+        canvas.classList.add('hovering-relic');
+      } else {
+        canvas.classList.remove('hovering-relic');
+      }
+    }
+
+    function openInspectModal(hs) {
+      state.activeHotspot = hs;
+
+      document.getElementById('modal-relic-title').textContent = hs.title;
+      document.getElementById('modal-relic-desc').textContent = hs.fieldNotes;
+
+      const questionContainer = document.getElementById('modal-question');
+      questionContainer.innerHTML = '';
+
+      if (hs.realImg) {
+        const realImgElem = document.createElement('img');
+        realImgElem.src = hs.realImg;
+        realImgElem.style.width = '100%';
+        realImgElem.style.maxHeight = '140px';
+        realImgElem.style.objectFit = 'cover';
+        realImgElem.style.borderRadius = '6px';
+        realImgElem.style.marginBottom = '10px';
+        realImgElem.style.border = '1px solid var(--wood-light)';
+        questionContainer.appendChild(realImgElem);
+      }
+
+      const qText = document.createElement('p');
+      qText.style.fontWeight = '700';
+      qText.style.marginBottom = '12px';
+      qText.style.color = 'var(--wood-dark)';
+      qText.textContent = hs.question;
+      questionContainer.appendChild(qText);
+
+      const optionsContainer = document.getElementById('modal-options');
+      optionsContainer.innerHTML = '';
+
+      hs.options.forEach((optText, index) => {
+        const btn = document.createElement('button');
+        btn.className = 'opt-btn';
+        btn.textContent = `${index + 1}. ${optText}`;
+        btn.onclick = () => {
+          if (index === hs.correctIndex) {
+            playSFX('correct');
+            hs.found = true;
+            state.relicsFound++;
+            state.score += 100;
+            state.currentTargetIndex++;
+            
+            document.getElementById('val-relics').textContent = `${state.relicsFound}/8`;
+            document.getElementById('val-score').textContent = state.score;
+            
+            updateConveyorUI();
+            stopAudioPlayover();
+            inspectModal.classList.remove('active');
+          } else {
+            playSFX('wrong');
+            btn.style.background = '#8c2d2d';
+          }
+        };
+        optionsContainer.appendChild(btn);
+      });
+
+      inspectModal.classList.add('active');
+    }
+
+    function bindCanvasEvents() {
+      canvas.onclick = handleCanvasClick;
+      canvas.onmousemove = handleCanvasMouseMove;
+    }
+
+    // Initialize UI & game systems
+    setupUIElements();
+    randomizeRelicLocations();
+    initOrderQueue();
+    initMenuHandlers();
+
+    // Run asset preloader before opening interaction
+    preloadAllAssets(() => {
+      console.log('All image and audio assets preloaded successfully.');
+    });
+  })();
+  </script>
+</body>
+</html>

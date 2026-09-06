@@ -1,0 +1,722 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Project Bahandi — GIS Dashboard Revamp</title>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<style>
+  :root{
+    --slate-900:#0F172A;
+    --slate-800:#1E293B;
+    --slate-700:#334155;
+    --slate-500:#64748B;
+    --slate-400:#94A3B8;
+    --ice:#F8FAFC;
+    --royal:#2563EB;
+    --electric:#3B82F6;
+    --sky:#38BDF8;
+    --success:#22C55E;
+    --amber:#F59E0B;
+    --glass:rgba(30,41,59,0.55);
+    --glass-strong:rgba(15,23,42,0.72);
+    --line:rgba(148,163,184,0.18);
+    --line-2:rgba(148,163,184,0.3);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;height:100%;background:var(--slate-900);color:var(--ice);font-family:'Space Grotesk',system-ui,sans-serif}
+  body{overflow:hidden}
+
+  /* =================================================================
+     MAP CANVAS
+     ================================================================= */
+  #map{position:absolute;inset:0;background:#0B1220;z-index:1}
+  /* Filter/greyscale the tiles a touch to keep chrome dominant */
+  .leaflet-tile-pane{filter:brightness(0.85) saturate(0.9) contrast(1.05)}
+  .leaflet-control-attribution{
+    background:rgba(15,23,42,0.7)!important;color:var(--slate-400)!important;
+    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.05em;
+    backdrop-filter:blur(6px);border:1px solid var(--line);border-radius:4px;padding:2px 8px!important;
+  }
+  .leaflet-control-attribution a{color:var(--sky)!important}
+  .leaflet-control-zoom{display:none} /* We'll use a custom bottom-right */
+
+  /* =================================================================
+     1. HEADER — Floating Glassmorphic Navbar
+     ================================================================= */
+  .header{
+    position:fixed;top:16px;left:16px;right:16px;height:64px;z-index:1000;
+    background:var(--glass);
+    backdrop-filter:blur(16px) saturate(1.2);
+    -webkit-backdrop-filter:blur(16px) saturate(1.2);
+    border:1px solid var(--line);border-radius:14px;
+    box-shadow:0 10px 30px -10px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.02) inset;
+    display:grid;grid-template-columns:minmax(240px,auto) 1fr auto;align-items:center;
+    padding:0 14px 0 18px;gap:20px;
+  }
+  .brand{display:flex;align-items:center;gap:12px}
+  .brand-mark{
+    width:38px;height:38px;border-radius:10px;
+    background:linear-gradient(135deg, var(--royal) 0%, var(--sky) 100%);
+    display:flex;align-items:center;justify-content:center;color:#fff;
+    box-shadow:0 6px 20px -6px rgba(37,99,235,0.7), inset 0 0 0 1px rgba(255,255,255,0.15);
+    position:relative;
+  }
+  .brand-mark svg{width:22px;height:22px}
+  .brand-text{display:flex;flex-direction:column;line-height:1.05}
+  .brand-name{font-size:16px;font-weight:600;letter-spacing:-0.01em}
+  .brand-name .dot{color:var(--sky)}
+  .brand-name .tld{color:var(--slate-400);font-weight:400}
+  .brand-badge{
+    display:inline-flex;align-items:center;gap:5px;font-family:'JetBrains Mono',monospace;
+    font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--sky);
+    padding:2px 6px;background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.3);border-radius:4px;margin-top:3px;width:fit-content;white-space:nowrap;
+  }
+  .brand-badge::before{content:"";width:5px;height:5px;background:var(--sky);border-radius:50%;box-shadow:0 0 8px var(--sky)}
+
+  .nav-links{display:flex;align-items:center;gap:4px;justify-self:center}
+  .nav-link{
+    position:relative;padding:8px 14px;border-radius:8px;
+    color:var(--slate-400);font-size:14px;font-weight:500;text-decoration:none;
+    display:flex;align-items:center;gap:8px;transition:all .2s ease;cursor:pointer;white-space:nowrap;
+  }
+  .nav-link:hover{color:var(--ice);background:rgba(148,163,184,0.06)}
+  .nav-link.active{color:var(--ice);background:linear-gradient(180deg, rgba(37,99,235,0.18), rgba(37,99,235,0.06));box-shadow:inset 0 0 0 1px rgba(59,130,246,0.35)}
+  .nav-link.active::after{
+    content:"";position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);
+    width:22px;height:2px;background:var(--electric);border-radius:2px;box-shadow:0 0 12px var(--electric);
+  }
+
+  .header-right{display:flex;align-items:center;gap:10px}
+  .search{
+    position:relative;display:flex;align-items:center;
+    background:rgba(15,23,42,0.6);border:1px solid var(--line-2);border-radius:10px;
+    padding:0 12px;height:38px;width:260px;transition:all .2s ease;
+  }
+  .search:focus-within{border-color:var(--electric);box-shadow:0 0 0 3px rgba(59,130,246,0.15)}
+  .search svg{width:16px;height:16px;color:var(--slate-400);flex-shrink:0}
+  .search input{
+    background:transparent;border:0;outline:0;color:var(--ice);
+    font-family:'Space Grotesk',sans-serif;font-size:13px;padding:0 8px;width:100%;
+  }
+  .search input::placeholder{color:var(--slate-500)}
+  .search .kbd{
+    font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--slate-400);
+    padding:2px 6px;border:1px solid var(--line-2);border-radius:4px;background:rgba(148,163,184,0.05);
+  }
+  .icon-btn{
+    width:38px;height:38px;border-radius:10px;background:rgba(15,23,42,0.5);
+    border:1px solid var(--line-2);color:var(--slate-400);cursor:pointer;
+    display:flex;align-items:center;justify-content:center;transition:all .2s ease;position:relative;
+  }
+  .icon-btn:hover{color:var(--ice);border-color:var(--electric);background:rgba(37,99,235,0.15)}
+  .icon-btn svg{width:16px;height:16px}
+  .stats-pill{
+    display:flex;align-items:center;gap:8px;height:38px;padding:0 12px;
+    background:rgba(37,99,235,0.1);border:1px solid rgba(37,99,235,0.35);border-radius:10px;
+    font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--sky);letter-spacing:0.08em;
+  }
+  .stats-pill b{color:var(--ice);font-weight:600}
+  .stats-pill svg{width:14px;height:14px}
+
+  /* =================================================================
+     2. FLOATING FILTER PANEL — Left
+     ================================================================= */
+  .filter-panel{
+    position:fixed;top:100px;left:16px;width:320px;z-index:900;
+    background:var(--glass);
+    backdrop-filter:blur(16px) saturate(1.2);
+    -webkit-backdrop-filter:blur(16px) saturate(1.2);
+    border:1px solid var(--line);border-radius:16px;
+    box-shadow:0 20px 50px -20px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(255,255,255,0.02);
+    transition:transform .35s cubic-bezier(0.4,0,0.2,1), opacity .3s ease;
+    overflow:hidden;
+  }
+  .filter-panel.collapsed{transform:translateX(calc(-100% - 20px));opacity:0.9}
+  .fp-head{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:16px 18px 14px;border-bottom:1px solid var(--line);
+  }
+  .fp-title{display:flex;flex-direction:column;gap:2px}
+  .fp-title .kicker{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:0.2em;color:var(--sky);text-transform:uppercase}
+  .fp-title h3{margin:0;font-size:15px;font-weight:600;color:var(--ice);letter-spacing:-0.01em}
+  .fp-actions{display:flex;gap:6px}
+  .fp-btn{
+    width:28px;height:28px;border-radius:6px;background:rgba(148,163,184,0.06);
+    border:1px solid var(--line);color:var(--slate-400);cursor:pointer;
+    display:flex;align-items:center;justify-content:center;transition:all .18s ease;
+  }
+  .fp-btn:hover{color:var(--ice);border-color:var(--electric);background:rgba(37,99,235,0.14)}
+  .fp-btn svg{width:13px;height:13px}
+
+  .fp-body{padding:14px 18px 18px}
+  .fp-section{margin-bottom:16px}
+  .fp-section:last-child{margin-bottom:0}
+  .fp-label{
+    display:flex;align-items:center;justify-content:space-between;
+    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.18em;
+    color:var(--slate-400);text-transform:uppercase;margin-bottom:10px;
+  }
+  .fp-label .count{color:var(--sky);background:rgba(56,189,248,0.1);padding:2px 6px;border-radius:4px;letter-spacing:0.1em}
+
+  /* Region selector — sleek */
+  .fp-select{
+    display:flex;align-items:center;justify-content:space-between;
+    background:rgba(15,23,42,0.6);border:1px solid var(--line-2);border-radius:10px;
+    padding:10px 12px;cursor:pointer;transition:all .2s ease;
+  }
+  .fp-select:hover{border-color:var(--electric)}
+  .fp-select .val{display:flex;align-items:center;gap:8px}
+  .fp-select .val svg{width:15px;height:15px;color:var(--sky)}
+  .fp-select .val span{font-size:13px;color:var(--ice)}
+  .fp-select .chev{color:var(--slate-400)}
+  .fp-select .chev svg{width:14px;height:14px}
+
+  /* Category chips */
+  .chips{display:flex;flex-wrap:wrap;gap:6px}
+  .chip{
+    display:inline-flex;align-items:center;gap:7px;
+    padding:7px 12px 7px 10px;border-radius:999px;
+    background:rgba(15,23,42,0.5);border:1px solid var(--line-2);
+    font-size:12px;color:var(--slate-400);cursor:pointer;
+    transition:all .18s ease;user-select:none;white-space:nowrap;
+  }
+  .chip svg{width:13px;height:13px;flex-shrink:0}
+  .chip .n{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--slate-500);margin-left:2px}
+  .chip:hover{color:var(--ice);border-color:var(--slate-400);background:rgba(148,163,184,0.06)}
+  .chip.active{
+    color:var(--ice);
+    background:linear-gradient(180deg, rgba(37,99,235,0.22) 0%, rgba(37,99,235,0.08) 100%);
+    border-color:var(--royal);
+    box-shadow:0 0 0 1px var(--royal), 0 0 16px -4px rgba(37,99,235,0.6);
+  }
+  .chip.active svg{color:var(--sky)}
+  .chip.active .n{color:var(--sky)}
+
+  /* Toggles */
+  .fp-toggle-row{display:flex;flex-direction:column;gap:8px}
+  .fp-toggle{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:10px 12px;background:rgba(15,23,42,0.5);border:1px solid var(--line);border-radius:10px;
+    cursor:pointer;transition:all .18s ease;
+  }
+  .fp-toggle:hover{border-color:var(--line-2)}
+  .fp-toggle .lbl{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--ice)}
+  .fp-toggle .lbl svg{width:15px;height:15px;color:var(--sky)}
+  .switch{
+    width:32px;height:18px;background:var(--slate-700);border-radius:999px;position:relative;transition:background .2s ease;
+  }
+  .switch::after{
+    content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;background:var(--ice);border-radius:50%;
+    transition:transform .2s ease, background .2s ease;
+  }
+  .fp-toggle.on .switch{background:var(--royal);box-shadow:0 0 12px -2px rgba(37,99,235,0.6)}
+  .fp-toggle.on .switch::after{transform:translateX(14px)}
+
+  /* Reset row */
+  .fp-foot{display:flex;gap:8px;padding-top:14px;border-top:1px solid var(--line);margin-top:16px}
+  .fp-primary{
+    flex:1;padding:10px;border-radius:10px;background:var(--royal);color:#fff;border:0;cursor:pointer;
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;font-weight:500;
+    display:flex;align-items:center;justify-content:center;gap:8px;
+    box-shadow:0 8px 20px -8px rgba(37,99,235,0.7);
+    transition:background .2s ease;
+  }
+  .fp-primary:hover{background:var(--electric)}
+  .fp-ghost{
+    padding:10px 12px;border-radius:10px;background:transparent;color:var(--slate-400);
+    border:1px solid var(--line-2);cursor:pointer;font-size:11px;font-family:'JetBrains Mono',monospace;letter-spacing:0.14em;text-transform:uppercase;
+  }
+  .fp-ghost:hover{color:var(--ice);border-color:var(--slate-400)}
+
+  /* Reopen tab when collapsed */
+  .fp-reopen{
+    position:fixed;top:100px;left:16px;z-index:899;
+    background:var(--glass);backdrop-filter:blur(16px);
+    border:1px solid var(--line);border-radius:12px;
+    width:44px;height:44px;display:flex;align-items:center;justify-content:center;
+    color:var(--sky);cursor:pointer;opacity:0;pointer-events:none;transition:opacity .25s ease;
+  }
+  .fp-reopen.visible{opacity:1;pointer-events:auto}
+  .fp-reopen svg{width:20px;height:20px}
+
+  /* =================================================================
+     3. CUSTOM PIN MARKERS
+     ================================================================= */
+  .bh-pin{
+    position:relative;width:36px;height:36px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .bh-pin .ring{
+    position:absolute;inset:-6px;border-radius:50%;
+    border:2px solid var(--electric);opacity:0;
+    animation:pulse 2.4s ease-out infinite;
+  }
+  .bh-pin .ring:nth-child(2){animation-delay:1.2s}
+  @keyframes pulse{
+    0%{transform:scale(0.6);opacity:0.9}
+    100%{transform:scale(1.5);opacity:0}
+  }
+  .bh-pin .badge{
+    position:relative;z-index:2;width:32px;height:32px;border-radius:50%;
+    background:linear-gradient(135deg, var(--royal) 0%, var(--electric) 100%);
+    box-shadow:0 4px 12px -2px rgba(37,99,235,0.6), inset 0 0 0 2px rgba(255,255,255,0.15);
+    display:flex;align-items:center;justify-content:center;color:#fff;
+    cursor:pointer;transition:transform .2s ease;
+  }
+  .bh-pin:hover .badge{transform:scale(1.15)}
+  .bh-pin.church .badge{background:linear-gradient(135deg,#7C3AED,#A78BFA)}
+  .bh-pin.plaza .badge{background:linear-gradient(135deg,#059669,#34D399)}
+  .bh-pin.food .badge{background:linear-gradient(135deg,#DC2626,#F87171)}
+  .bh-pin .badge svg{width:16px;height:16px}
+  .bh-pin.selected .badge{
+    box-shadow:0 0 0 3px var(--ice), 0 0 0 6px var(--electric), 0 8px 24px -4px rgba(37,99,235,0.9);
+    transform:scale(1.2);
+  }
+
+  /* =================================================================
+     4. FOOTER TOOLBAR
+     ================================================================= */
+  .toolbar{
+    position:fixed;left:16px;right:16px;bottom:16px;z-index:1000;
+    background:var(--glass);backdrop-filter:blur(16px) saturate(1.2);-webkit-backdrop-filter:blur(16px) saturate(1.2);
+    border:1px solid var(--line);border-radius:14px;
+    box-shadow:0 -10px 30px -10px rgba(0,0,0,0.4), inset 0 0 0 1px rgba(255,255,255,0.02);
+    display:flex;align-items:center;justify-content:space-between;padding:10px 16px;gap:16px;
+    height:56px;
+  }
+  .tb-stats{display:flex;align-items:center;gap:20px}
+  .tb-stat{display:flex;flex-direction:column;line-height:1.1}
+  .tb-stat .k{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:0.18em;color:var(--slate-400);text-transform:uppercase}
+  .tb-stat .v{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--ice);letter-spacing:0.02em}
+  .tb-stat .v b{color:var(--sky);font-weight:500}
+  .tb-divider{width:1px;height:22px;background:var(--line)}
+
+  .tb-center{display:flex;align-items:center;gap:12px}
+  .scale-bar{display:flex;align-items:center;gap:8px}
+  .scale-bar .track{position:relative;width:120px;height:6px;border-radius:3px;background:rgba(148,163,184,0.1);border:1px solid var(--line)}
+  .scale-bar .track::before{content:"";position:absolute;left:0;top:0;bottom:0;width:60%;background:linear-gradient(90deg,var(--royal),var(--sky));border-radius:3px}
+  .scale-bar .marks{position:absolute;top:100%;left:0;right:0;display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--slate-400);margin-top:2px}
+  .scale-bar .lbl{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--slate-400)}
+  .scale-bar .lbl b{color:var(--sky)}
+
+  .tb-right{display:flex;align-items:center;gap:6px}
+  .tb-link{
+    display:flex;align-items:center;gap:6px;padding:6px 10px;border-radius:8px;
+    color:var(--slate-400);font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.14em;text-transform:uppercase;
+    cursor:pointer;transition:all .18s ease;text-decoration:none;
+  }
+  .tb-link:hover{color:var(--sky);background:rgba(56,189,248,0.06)}
+  .tb-link svg{width:13px;height:13px}
+
+  /* Zoom control (custom, bottom-right above toolbar) */
+  .zoom-ctl{
+    position:fixed;right:16px;bottom:88px;z-index:900;
+    display:flex;flex-direction:column;background:var(--glass);backdrop-filter:blur(12px);
+    border:1px solid var(--line);border-radius:10px;overflow:hidden;
+  }
+  .zoom-ctl button{
+    width:38px;height:38px;background:transparent;border:0;color:var(--ice);font-size:16px;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .zoom-ctl button:hover{background:rgba(37,99,235,0.15);color:var(--sky)}
+  .zoom-ctl button + button{border-top:1px solid var(--line)}
+  .zoom-ctl svg{width:14px;height:14px}
+
+  /* Legend (bottom-left above toolbar) */
+  .legend{
+    position:fixed;right:70px;bottom:88px;z-index:900;
+    background:var(--glass);backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:10px;
+    padding:10px 12px;display:flex;flex-direction:column;gap:6px;font-size:11px;
+  }
+  .legend .lg-title{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:0.18em;color:var(--slate-400);text-transform:uppercase;margin-bottom:4px}
+  .lg-row{display:flex;align-items:center;gap:8px;color:var(--slate-400)}
+  .lg-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+  .lg-dot.a{background:linear-gradient(135deg, var(--royal), var(--electric))}
+  .lg-dot.c{background:linear-gradient(135deg,#7C3AED,#A78BFA)}
+  .lg-dot.p{background:linear-gradient(135deg,#059669,#34D399)}
+  .lg-dot.f{background:linear-gradient(135deg,#DC2626,#F87171)}
+
+  /* =================================================================
+     Little detail: Command menu preview list under search
+     ================================================================= */
+  .cmd{
+    position:absolute;top:calc(100% + 8px);left:0;right:0;
+    background:var(--glass-strong);backdrop-filter:blur(16px);
+    border:1px solid var(--line);border-radius:12px;padding:6px;
+    box-shadow:0 20px 40px -10px rgba(0,0,0,0.5);
+    opacity:0;pointer-events:none;transform:translateY(-4px);transition:all .2s ease;
+  }
+  .search:focus-within .cmd{opacity:1;pointer-events:auto;transform:translateY(0)}
+  .cmd-item{
+    display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer;
+  }
+  .cmd-item:hover, .cmd-item.hi{background:rgba(37,99,235,0.15)}
+  .cmd-item .ci{width:26px;height:26px;border-radius:6px;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);display:flex;align-items:center;justify-content:center;color:var(--sky)}
+  .cmd-item .ci svg{width:12px;height:12px}
+  .cmd-item .txt{display:flex;flex-direction:column;line-height:1.15}
+  .cmd-item .txt b{font-size:12.5px;font-weight:500;color:var(--ice)}
+  .cmd-item .txt small{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:0.12em;color:var(--slate-400)}
+
+  /* Responsive nudges */
+  @media (max-width:1100px){
+    .search{width:180px}
+    .nav-links{gap:0}
+    .stats-pill{display:none}
+  }
+  @media (max-width:820px){
+    .filter-panel{width:280px}
+    .nav-links{display:none}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ MAP CANVAS ============ -->
+<div id="map"></div>
+
+<!-- ============ HEADER ============ -->
+<header class="header">
+  <!-- Brand -->
+  <div class="brand">
+    <div class="brand-mark" aria-hidden="true">
+      <!-- Logo mark: layered map-pin diamond -->
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2 L20 8 L12 22 L4 8 Z"/>
+        <circle cx="12" cy="9" r="2.5" fill="currentColor" stroke="none"/>
+      </svg>
+    </div>
+    <div class="brand-text">
+      <span class="brand-name"><b>project</b><span class="dot">bahandi</span><span class="tld">.com</span></span>
+      <span class="brand-badge">Molo Cultural GIS</span>
+    </div>
+  </div>
+
+  <!-- Nav -->
+  <nav class="nav-links">
+    <a class="nav-link">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12 L12 4 L21 12"/><path d="M5 10 V20 h14 V10"/></svg>
+      Home
+    </a>
+    <a class="nav-link active">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 8 3 16 6 23 3 23 18 16 21 8 18 1 21"/><line x1="8" y1="3" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="21"/></svg>
+      Interactive Map
+    </a>
+    <a class="nav-link">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="13"/><circle cx="12" cy="16.5" r="0.8" fill="currentColor"/></svg>
+      About
+    </a>
+    <a class="nav-link">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5 h16 v14 H4 Z"/><path d="M4 7 L12 13 L20 7"/></svg>
+      Contact
+    </a>
+  </nav>
+
+  <!-- Right utilities -->
+  <div class="header-right">
+    <div class="search" id="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg>
+      <input id="search-input" placeholder="Search landmarks, streets…" />
+      <span class="kbd">⌘K</span>
+      <!-- Command palette -->
+      <div class="cmd">
+        <div class="cmd-item hi">
+          <div class="ci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21 h18"/><path d="M5 21 V10"/><path d="M19 21 V10"/><path d="M2 10 L12 3 L22 10"/></svg></div>
+          <div class="txt"><b>Molo Mansion (Yusay–Consing)</b><small>Ancestral House · 0.4 km</small></div>
+        </div>
+        <div class="cmd-item">
+          <div class="ci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 L4 8 v12 h16 V8 Z"/><path d="M12 3 v5"/><path d="M9 20 v-6 h6 v6"/></svg></div>
+          <div class="txt"><b>St. Anne Parish Church</b><small>Church · 0.6 km</small></div>
+        </div>
+        <div class="cmd-item">
+          <div class="ci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3 v18"/><path d="M3 12 h18"/></svg></div>
+          <div class="txt"><b>Molo Plaza</b><small>Plaza &amp; Park · 0.7 km</small></div>
+        </div>
+      </div>
+    </div>
+    <button class="icon-btn" title="Theme">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8 A9 9 0 1 1 11.2 3 A7 7 0 0 0 21 12.8 Z"/></svg>
+    </button>
+    <button class="icon-btn" title="Language">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12 h18"/><path d="M12 3 c3 3 4.5 6 4.5 9 s-1.5 6 -4.5 9"/><path d="M12 3 c-3 3 -4.5 6 -4.5 9 s1.5 6 4.5 9"/></svg>
+    </button>
+    <div class="stats-pill" title="Landmarks displayed">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 C7.5 2 4 5.5 4 10 c0 6 8 12 8 12 s8 -6 8 -12 c0 -4.5 -3.5 -8 -8 -8 Z"/><circle cx="12" cy="10" r="3"/></svg>
+      <span><b id="pin-count">12</b> Landmarks</span>
+    </div>
+  </div>
+</header>
+
+<!-- ============ FILTER PANEL ============ -->
+<aside class="filter-panel" id="filter-panel">
+  <header class="fp-head">
+    <div class="fp-title">
+      <span class="kicker">Layer Controls</span>
+      <h3>Filter Landmarks</h3>
+    </div>
+    <div class="fp-actions">
+      <button class="fp-btn" title="Reset" id="fp-reset">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12 a9 9 0 1 0 3 -6.7"/><polyline points="3 3 3 9 9 9"/></svg>
+      </button>
+      <button class="fp-btn" title="Collapse panel" id="fp-collapse">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="fp-body">
+
+    <!-- Region -->
+    <div class="fp-section">
+      <div class="fp-label"><span>Region</span></div>
+      <div class="fp-select">
+        <div class="val">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 L20 8 L12 22 L4 8 Z"/><circle cx="12" cy="9" r="2.5"/></svg>
+          <span>Molo, Iloilo City</span>
+        </div>
+        <div class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+      </div>
+    </div>
+
+    <!-- Categories -->
+    <div class="fp-section">
+      <div class="fp-label"><span>Categories</span><span class="count">4 · 12 pins</span></div>
+      <div class="chips">
+        <div class="chip active" data-cat="ancestral">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21 h18"/><path d="M5 21 V10"/><path d="M19 21 V10"/><path d="M9 21 V13"/><path d="M15 21 V13"/><path d="M2 10 L12 3 L22 10"/></svg>
+          Ancestral Houses <span class="n">05</span>
+        </div>
+        <div class="chip active" data-cat="church">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 L4 8 v12 h16 V8 Z"/><path d="M12 3 v5"/><path d="M10 8 h4"/><path d="M9 20 v-6 h6 v6"/></svg>
+          Churches <span class="n">02</span>
+        </div>
+        <div class="chip active" data-cat="plaza">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3 v18"/><path d="M3 12 h18"/></svg>
+          Plazas &amp; Parks <span class="n">03</span>
+        </div>
+        <div class="chip" data-cat="food">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4 v16"/><path d="M5 4 c3 0 3 5 0 6 c-3 -1 -3 -6 0 -6 Z"/><path d="M13 4 v7 c0 1.5 1 2 3 2 v7"/><path d="M19 4 v7"/></svg>
+          Culinary Sites <span class="n">02</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toggles / Overlays -->
+    <div class="fp-section">
+      <div class="fp-label"><span>Overlays</span></div>
+      <div class="fp-toggle-row">
+        <div class="fp-toggle on" data-toggle>
+          <div class="lbl">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3 v18"/><path d="M3 12 h18"/></svg>
+            Show pin labels
+          </div>
+          <div class="switch"></div>
+        </div>
+        <div class="fp-toggle on" data-toggle>
+          <div class="lbl">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="9"/></svg>
+            Pulse rings on pins
+          </div>
+          <div class="switch"></div>
+        </div>
+        <div class="fp-toggle" data-toggle>
+          <div class="lbl">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20 h16"/><path d="M6 20 V10 l6 -6 l6 6 V20"/><path d="M10 20 v-6 h4 v6"/></svg>
+            Heritage boundaries
+          </div>
+          <div class="switch"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="fp-foot">
+      <button class="fp-primary">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        Apply Filters
+      </button>
+      <button class="fp-ghost">Reset</button>
+    </div>
+  </div>
+</aside>
+
+<!-- Reopen tab -->
+<button class="fp-reopen" id="fp-reopen" title="Show filter panel">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6 h16"/><path d="M7 12 h13"/><path d="M10 18 h10"/></svg>
+</button>
+
+<!-- ============ LEGEND ============ -->
+<div class="legend">
+  <div class="lg-title">Legend</div>
+  <div class="lg-row"><span class="lg-dot a"></span>Ancestral Houses</div>
+  <div class="lg-row"><span class="lg-dot c"></span>Churches</div>
+  <div class="lg-row"><span class="lg-dot p"></span>Plazas &amp; Parks</div>
+  <div class="lg-row"><span class="lg-dot f"></span>Culinary Sites</div>
+</div>
+
+<!-- ============ ZOOM CONTROL ============ -->
+<div class="zoom-ctl">
+  <button id="zoom-in" title="Zoom in">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+  </button>
+  <button id="zoom-out" title="Zoom out">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+  </button>
+</div>
+
+<!-- ============ TOOLBAR ============ -->
+<footer class="toolbar">
+  <div class="tb-stats">
+    <div class="tb-stat">
+      <span class="k">Displayed</span>
+      <span class="v"><b id="tb-count">12</b> / 12</span>
+    </div>
+    <div class="tb-divider"></div>
+    <div class="tb-stat">
+      <span class="k">Coordinates</span>
+      <span class="v" id="tb-coords">10.6960° N · 122.5490° E</span>
+    </div>
+    <div class="tb-divider"></div>
+    <div class="tb-stat">
+      <span class="k">Zoom</span>
+      <span class="v"><b id="tb-zoom">16</b></span>
+    </div>
+  </div>
+
+  <div class="tb-center">
+    <div class="scale-bar">
+      <span class="lbl">Scale · <b>1 : 3,200</b></span>
+      <div class="track"></div>
+      <span class="lbl"><b>200 m</b></span>
+    </div>
+  </div>
+
+  <div class="tb-right">
+    <a class="tb-link" href="#" title="GitHub">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19 c-4 1 -4 -3 -6 -3 M15 22 v-4 a3 3 0 0 0 -1 -2 c3 -0.5 6 -1.5 6 -6 a4.5 4.5 0 0 0 -1.2 -3.2 a4 4 0 0 0 -0.2 -3.2 s-1 -0.5 -3.6 1.2 a12 12 0 0 0 -6 0 c-2.6 -1.7 -3.6 -1.2 -3.6 -1.2 a4 4 0 0 0 -0.2 3.2 A4.5 4.5 0 0 0 3 9 c0 4.5 3 5.5 6 6 a3 3 0 0 0 -1 2 v4"/></svg>
+      Repo
+    </a>
+    <a class="tb-link" href="#" title="Documentation">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5 a2 2 0 0 1 2 -2 h10 l4 4 v12 a2 2 0 0 1 -2 2 H6 a2 2 0 0 1 -2 -2 Z"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="16" y2="14"/><line x1="8" y1="18" x2="13" y2="18"/></svg>
+      Docs
+    </a>
+    <a class="tb-link" href="#" title="Academic paper">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 8 L12 3 L2 8 l10 5 z"/><path d="M6 10 v6 c0 1 3 3 6 3 s6 -2 6 -3 v-6"/></svg>
+      Cite
+    </a>
+  </div>
+</footer>
+
+<!-- ============ LEAFLET ============ -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+  // ------ Landmark data ------
+  const landmarks = [
+    {id:'molo-mansion', name:'Molo Mansion (Yusay–Consing)', cat:'ancestral', lat:10.6968, lng:122.5471},
+    {id:'st-anne', name:'St. Anne Parish Church', cat:'church', lat:10.6955, lng:122.5485},
+    {id:'molo-plaza', name:'Molo Plaza', cat:'plaza', lat:10.6961, lng:122.5480},
+    {id:'lopez-house', name:'Lopez Ancestral House', cat:'ancestral', lat:10.6975, lng:122.5462},
+    {id:'jocson-house', name:'Jocson Heritage House', cat:'ancestral', lat:10.6952, lng:122.5501},
+    {id:'locsin-house', name:'Locsin Ancestral', cat:'ancestral', lat:10.6980, lng:122.5495},
+    {id:'infante', name:'Infante House', cat:'ancestral', lat:10.6944, lng:122.5470},
+    {id:'panaderia', name:'Panaderia de Molo', cat:'food', lat:10.6963, lng:122.5477},
+    {id:'kap-ising', name:"Kap Ising's Pancit Molo", cat:'food', lat:10.6949, lng:122.5493},
+    {id:'plaza-park', name:'Freedom Grandstand', cat:'plaza', lat:10.6957, lng:122.5478},
+    {id:'children-park', name:'Molo Kids Park', cat:'plaza', lat:10.6970, lng:122.5488},
+    {id:'san-thomas', name:'San Thomas de Aquino Chapel', cat:'church', lat:10.6985, lng:122.5468},
+  ];
+
+  const catIcon = {
+    ancestral: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21 h18"/><path d="M5 21 V10"/><path d="M19 21 V10"/><path d="M9 21 V13"/><path d="M15 21 V13"/><path d="M2 10 L12 3 L22 10"/></svg>`,
+    church:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 L4 8 v12 h16 V8 Z"/><path d="M12 3 v5"/><path d="M10 8 h4"/><path d="M9 20 v-6 h6 v6"/></svg>`,
+    plaza:     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3 v18"/><path d="M3 12 h18"/></svg>`,
+    food:      `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4 v16"/><path d="M5 4 c3 0 3 5 0 6 c-3 -1 -3 -6 0 -6 Z"/><path d="M13 4 v7 c0 1.5 1 2 3 2 v7"/><path d="M19 4 v7"/></svg>`,
+  };
+
+  // ------ Map init ------
+  const map = L.map('map', {
+    zoomControl:false,
+    attributionControl:true,
+    minZoom:14, maxZoom:18,
+  }).setView([10.6963, 122.5482], 16);
+
+  // Dark tile: Carto Dark Matter (free)
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution:'&copy; <a href="https://openstreetmap.org">OSM</a> · <a href="https://carto.com/attributions">CARTO</a>',
+    subdomains:'abcd', maxZoom:19,
+  }).addTo(map);
+
+  // ------ Custom pin factory ------
+  function pinIcon(cat, selected){
+    return L.divIcon({
+      className:'',
+      html:`<div class="bh-pin ${cat} ${selected?'selected':''}">
+              <span class="ring"></span><span class="ring"></span>
+              <div class="badge">${catIcon[cat]}</div>
+            </div>`,
+      iconSize:[36,36], iconAnchor:[18,18],
+    });
+  }
+
+  const markers = {};
+  landmarks.forEach(l=>{
+    markers[l.id] = L.marker([l.lat,l.lng], {icon:pinIcon(l.cat,false), title:l.name}).addTo(map);
+  });
+
+  // ------ Filter behavior ------
+  const state = {cats:new Set(['ancestral','church','plaza'])};
+  function applyFilter(){
+    let visible=0;
+    landmarks.forEach(l=>{
+      const on = state.cats.has(l.cat);
+      if (on){ markers[l.id].addTo(map); visible++; }
+      else { map.removeLayer(markers[l.id]); }
+    });
+    document.getElementById('pin-count').textContent = visible;
+    document.getElementById('tb-count').textContent = visible;
+  }
+  document.querySelectorAll('.chip[data-cat]').forEach(chip=>{
+    chip.addEventListener('click', ()=>{
+      const c = chip.dataset.cat;
+      if (chip.classList.contains('active')){chip.classList.remove('active');state.cats.delete(c)}
+      else {chip.classList.add('active');state.cats.add(c)}
+      applyFilter();
+    });
+  });
+  applyFilter();
+
+  // ------ Toggles ------
+  document.querySelectorAll('[data-toggle]').forEach(t=>{
+    t.addEventListener('click', ()=>t.classList.toggle('on'));
+  });
+
+  // ------ Collapse panel ------
+  const panel = document.getElementById('filter-panel');
+  const reopen = document.getElementById('fp-reopen');
+  document.getElementById('fp-collapse').addEventListener('click', ()=>{
+    panel.classList.add('collapsed'); reopen.classList.add('visible');
+  });
+  reopen.addEventListener('click', ()=>{
+    panel.classList.remove('collapsed'); reopen.classList.remove('visible');
+  });
+
+  // ------ Zoom ------
+  document.getElementById('zoom-in').addEventListener('click',()=>map.zoomIn());
+  document.getElementById('zoom-out').addEventListener('click',()=>map.zoomOut());
+
+  // ------ Toolbar live values ------
+  map.on('move', ()=>{
+    const c=map.getCenter();
+    document.getElementById('tb-coords').textContent = `${c.lat.toFixed(4)}° N · ${c.lng.toFixed(4)}° E`;
+  });
+  map.on('zoom', ()=>document.getElementById('tb-zoom').textContent = map.getZoom());
+
+  // ------ Search interactivity (visual only) ------
+  document.getElementById('search-input').addEventListener('keydown', e=>{
+    if (e.key==='Escape') e.target.blur();
+  });
+</script>
+</body>
+</html>

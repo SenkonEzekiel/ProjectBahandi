@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Molo Mansion — Heritage Maze Quest</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@500;700;800&family=Press+Start+2P&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0b1220;
+      --panel: #1e293b;
+      --panel-border: #c77389;
+      --gold: #f0c862;
+      --gold-deep: #8b6f1d;
+      --rose: #e8a5b5;
+      --rose-blush: #f7d6de;
+      --cream: #f6efe0;
+      --ink: #2a1e2a;
+      --accent: #7fa98b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--cream);
+      font-family: 'Space Grotesk', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+    }
+
+    #game-container {
+      position: relative;
+      width: 100%;
+      max-width: 960px;
+      aspect-ratio: 16 / 9;
+      background: #0f172a;
+      border: 3px solid var(--rose);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .hud-bar {
+      height: 54px;
+      background: var(--panel);
+      border-bottom: 2px solid rgba(232, 165, 181, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      z-index: 10;
+    }
+
+    .hud-group {
+      display: flex;
+      gap: 12px;
+    }
+
+    .hud-badge {
+      background: #0b1220;
+      border: 1px solid var(--rose-blush);
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--gold);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .hud-badge span.label {
+      color: var(--rose-blush);
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    .arena-wrap {
+      flex: 1;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg);
+    }
+
+    canvas#mazeCanvas {
+      background: #121826;
+      border-radius: 6px;
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
+      image-rendering: pixelated;
+    }
+
+    .modal-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(11, 18, 32, 0.92);
+      backdrop-filter: blur(4px);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      z-index: 20;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    /* Loading Screen Elements */
+    #loading-modal {
+      z-index: 50;
+      display: flex;
+    }
+
+    .loading-card {
+      background: var(--panel);
+      border: 2px solid var(--rose);
+      border-radius: 12px;
+      padding: 32px;
+      width: 100%;
+      max-width: 420px;
+      text-align: center;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.8);
+    }
+
+    .loading-bar-bg {
+      width: 100%;
+      height: 16px;
+      background: #0b1220;
+      border: 1px solid var(--rose-blush);
+      border-radius: 8px;
+      margin: 20px 0;
+      overflow: hidden;
+      padding: 2px;
+    }
+
+    .loading-bar-fill {
+      width: 0%;
+      height: 100%;
+      background: var(--gold);
+      border-radius: 6px;
+      transition: width 0.2s ease;
+    }
+
+    .start-btn {
+      background: var(--gold);
+      color: var(--bg);
+      border: none;
+      border-radius: 8px;
+      padding: 12px 24px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 16px;
+      cursor: pointer;
+      display: none;
+      margin-top: 10px;
+      width: 100%;
+    }
+
+    .start-btn:hover {
+      background: #ffd875;
+    }
+
+    .q-card {
+      background: var(--panel);
+      border: 2px solid var(--gold);
+      border-radius: 12px;
+      width: 100%;
+      max-width: 580px;
+      padding: 24px 24px 24px 100px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
+      text-align: left;
+      position: relative;
+    }
+
+    .ghost-avatar {
+      position: absolute;
+      left: 18px;
+      top: 24px;
+      width: 64px;
+      height: 64px;
+      animation: floaty 2.4s ease-in-out infinite;
+      image-rendering: pixelated;
+    }
+
+    @keyframes floaty {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    .q-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--gold);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .q-text {
+      font-family: 'Instrument Serif', serif;
+      font-size: 1.35rem;
+      font-style: italic;
+      color: var(--cream);
+      margin-bottom: 20px;
+      line-height: 1.3;
+    }
+
+    .q-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .opt-btn {
+      background: #0b1220;
+      border: 1px solid var(--rose-blush);
+      border-radius: 8px;
+      padding: 12px;
+      color: var(--cream);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-align: left;
+    }
+
+    .opt-btn:hover {
+      border-color: var(--gold);
+      background: #192438;
+    }
+
+    .opt-btn.correct {
+      background: #4e7a5c !important;
+      border-color: var(--accent) !important;
+      color: #fff;
+    }
+
+    .opt-btn.wrong {
+      background: #c77389 !important;
+      border-color: var(--rose) !important;
+      color: #fff;
+    }
+
+    .controls-hint {
+      position: absolute;
+      bottom: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--rose-blush);
+      background: rgba(11, 18, 32, 0.8);
+      padding: 4px 10px;
+      border-radius: 4px;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="game-container">
+    <div class="hud-bar">
+      <div class="hud-group">
+        <div class="hud-badge"><span class="label">COINS:</span> <span id="val-coins" style="color:var(--gold);">0/5</span></div>
+        <div class="hud-badge"><span class="label">SCORE:</span> <span id="val-score" style="color:var(--accent);">0</span></div>
+      </div>
+      <div class="hud-group">
+        <div class="hud-badge"><span class="label">TIME:</span> <span id="val-time" style="color:var(--cream);">0s</span></div>
+      </div>
+    </div>
+
+    <div class="arena-wrap">
+      <canvas id="mazeCanvas" width="640" height="360"></canvas>
+      <div class="controls-hint">Use WASD or ARROW KEYS to navigate the mansion maze</div>
+
+      <!-- Preloader Screen -->
+      <div id="loading-modal" class="modal-overlay">
+        <div class="loading-card">
+          <div class="q-title" style="color:var(--rose);">MOLO MANSION MAZE</div>
+          <div id="loading-status" style="font-family:'JetBrains Mono'; font-size:13px;">Loading Assets...</div>
+          <div class="loading-bar-bg">
+            <div id="loading-bar-fill" class="loading-bar-fill"></div>
+          </div>
+          <button id="start-game-btn" class="start-btn">ENTER MANOR</button>
+        </div>
+      </div>
+
+      <!-- Quiz Overlay -->
+      <div id="quiz-modal" class="modal-overlay">
+        <div class="q-card">
+          <img class="ghost-avatar" src="assets/Heritage-Coin-Quest/npc-ghost.png" alt="Ancestor Ghost" />
+          <div class="q-title" id="q-header">Ancestor Ghost · Question 1</div>
+          <div class="q-text" id="q-prompt">Question text will load here...</div>
+          <div class="q-options" id="q-opts"></div>
+        </div>
+      </div>
+
+      <!-- Victory Screen -->
+      <div id="end-modal" class="modal-overlay">
+        <div class="q-card" style="padding-left: 24px; text-align: center;">
+          <img src="assets/Heritage-Coin-Quest/master-badge.png" alt="Badge" style="max-height: 120px; margin-bottom: 12px;" />
+          <div class="q-title" style="color:var(--gold); font-family: 'Press Start 2P', monospace;">HERITAGE MASTER BADGE</div>
+          <div class="q-text" id="end-stats" style="font-family: 'JetBrains Mono', monospace; font-size: 1rem; font-style: normal; margin-top: 10px;">You cleared the maze!</div>
+          <button class="opt-btn" onclick="location.reload()" style="width:100%; text-align: center; border-color:var(--gold);">Play Again</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="Game-Handlers/Heritage-Coin-Quest.js"></script>
+</body>
+</html>

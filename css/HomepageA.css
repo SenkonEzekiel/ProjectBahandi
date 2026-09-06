@@ -1,0 +1,9 @@
+/* Home-only stage behavior. Shared visual language lives in institution.css */
+
+.sprite-slide.hidden-slide {
+  display: none;
+}
+
+.sprite-slide.active-slide {
+  display: grid;
+}
