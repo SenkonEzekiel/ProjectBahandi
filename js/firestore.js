@@ -54,7 +54,7 @@
     var siteId = rawId ? rawId : "firestore-" + docId.replace(/\s+/g, "-").toLowerCase();
     var coords = parseCoordinates(data);
 
-    return {
+    var site = {
       site_id: siteId,
       site_name: data.Title || data.site_name || data.name || docId,
       district: data.District || data.district || "Molo",
@@ -65,8 +65,18 @@
       description: data.Description || data.description || data.desc || "",
       fun_facts: data["Fun Facts"] || data.fun_facts || data.funFacts || "",
       funFactDeck: data.funFactDeck || data.fun_fact_deck || null,
-      image: data.Image || data.image || "assets/images/MoloFront.jpg"
+      image: "",
+      image_url: ""
     };
+
+    if (typeof window.applyLandmarkImage === "function") {
+      window.applyLandmarkImage(site);
+    } else {
+      site.image = "assets/Landmark_images/placeholder.jpeg";
+      site.image_url = site.image;
+    }
+
+    return site;
   }
 
   function hasValidCoordinates(site) {

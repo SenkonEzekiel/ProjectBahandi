@@ -41,9 +41,20 @@ function hoverLandmark(siteId) {
     if (site) {
         const previewTag = document.getElementById('preview-tag-text');
         const previewTitle = document.getElementById('preview-title-text');
+        const previewImage = document.getElementById('preview-image');
 
         if (previewTag) previewTag.textContent = site.category || "Cultural Site";
         if (previewTitle) previewTitle.textContent = site.site_name || "Landmark";
+        if (typeof window.bindLandmarkImage === "function") {
+            window.bindLandmarkImage(previewImage, site);
+        } else if (previewImage) {
+            previewImage.onerror = function () {
+                this.onerror = null;
+                this.src = "assets/Landmark_images/placeholder.jpeg";
+            };
+            previewImage.src = site.localImage || site.image || "assets/Landmark_images/placeholder.jpeg";
+            previewImage.alt = site.site_name || "Landmark";
+        }
 
         if (previewCard) previewCard.classList.remove('hidden');
     }
@@ -70,8 +81,16 @@ function selectLandmark(siteId) {
     }
 
     if (sidebarImage) {
-        sidebarImage.src = site.image || "assets/MoloFront.jpg";
-        sidebarImage.alt = site.site_name || "Landmark Image";
+        if (typeof window.bindLandmarkImage === "function") {
+            window.bindLandmarkImage(sidebarImage, site, site.site_name || "Landmark Image");
+        } else {
+            sidebarImage.onerror = function () {
+                this.onerror = null;
+                this.src = "assets/Landmark_images/placeholder.jpeg";
+            };
+            sidebarImage.src = site.localImage || site.image || "assets/Landmark_images/placeholder.jpeg";
+            sidebarImage.alt = site.site_name || "Landmark Image";
+        }
         sidebarImage.style.display = 'block';
     }
 
@@ -260,7 +279,7 @@ function handleHistoricalSignificance() {
 
     const content = `
         <div class="frame-editorial-card">
-            <div class="editorial-left-panel" style="background-image: url('${currentSelectedSite.image || 'assets/MoloFront.jpg'}')">
+            <div class="editorial-left-panel" style="background-image: url('${(typeof window.resolveLandmarkImage === 'function' ? window.resolveLandmarkImage(currentSelectedSite) : currentSelectedSite.localImage || currentSelectedSite.image) || 'assets/Landmark_images/placeholder.jpeg'}')">
                 <div class="editorial-left-overlay">
                     <div class="editorial-home-badge">🏛️</div>
                     <div class="editorial-left-footer">
@@ -382,7 +401,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const map = L.map("map", { minZoom: 15, maxZoom: 19 }).setView([10.697008, 122.544031], 18);
     window.map = map;
 
-    const southWest = L.latLng(10.690000, 122.535000);
+    const southWest = L.latLng(10.686000, 122.534000);
     const northEast = L.latLng(10.705000, 122.555000);
     map.setMaxBounds(L.latLngBounds(southWest, northEast));
 
@@ -410,11 +429,38 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const sitesById = {};
 
+    function normalizeSiteName(value) {
+        return String(value || "")
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/[^a-z0-9]+/g, "");
+    }
+
+    function findLocalMatch(dbSite) {
+        if (dbSite?.site_id && sitesById[dbSite.site_id]) return sitesById[dbSite.site_id];
+        const dbName = normalizeSiteName(dbSite?.site_name || dbSite?.title);
+        if (!dbName) return null;
+        return Object.values(sitesById).find((local) => {
+            const localName = normalizeSiteName(local.site_name);
+            return localName && (localName.includes(dbName) || dbName.includes(localName));
+        }) || null;
+    }
+
+    function stashSite(site, preferId) {
+        if (!site) return;
+        const prepared = typeof window.applyLandmarkImage === "function"
+            ? window.applyLandmarkImage(Object.assign({}, site))
+            : Object.assign({}, site);
+        const id = preferId || prepared.site_id;
+        if (!id) return;
+        prepared.site_id = id;
+        sitesById[id] = prepared;
+    }
+
     if (Array.isArray(window.BAHANDI_SITES)) {
         window.BAHANDI_SITES.forEach((site) => {
-            if (site && site.site_id) {
-                sitesById[site.site_id] = site;
-            }
+            if (site && site.site_id) stashSite(site, site.site_id);
         });
     }
 
@@ -423,8 +469,24 @@ document.addEventListener("DOMContentLoaded", async () => {
             const dbSites = await window.fetchSitesFromFirestore();
             if (Array.isArray(dbSites)) {
                 dbSites.forEach((site) => {
-                    if (site && site.site_id) {
-                        sitesById[site.site_id] = site;
+                    if (!site) return;
+                    const local = findLocalMatch(site);
+                    if (local) {
+                        stashSite(Object.assign({}, local, site, {
+                            site_id: local.site_id,
+                            landmark_key: local.landmark_key,
+                            image: local.image,
+                            image_url: local.image,
+                            localImage: local.localImage || local.image,
+                            description: site.description || local.description,
+                            category: site.category || local.category,
+                            location: site.location || local.location,
+                            coordinates: (Array.isArray(site.coordinates) && site.coordinates[0])
+                                ? site.coordinates
+                                : local.coordinates
+                        }), local.site_id);
+                    } else {
+                        stashSite(site, site.site_id);
                     }
                 });
             }
