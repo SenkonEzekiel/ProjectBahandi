@@ -4,6 +4,14 @@
 
 let selectedGameMode = '3d-model'; // Default selected mode
 
+function pgSiteName(site, fb) {
+    if (site && window.PBH && window.PBH.i18n) {
+        const entry = window.PBH.i18n.site(site.site_id);
+        if (entry && entry.name) return entry.name;
+    }
+    return site?.site_name || site?.title || fb;
+}
+
 const DEFAULT_3D_MODEL_URL = 'https://karlchestersapiomain-create.github.io/project_bahandi_3d_molo_map/';
 
 const LANDMARK_GAME_ROUTES = [
@@ -14,13 +22,15 @@ const LANDMARK_GAME_ROUTES = [
 ];
 
 function resolveLandmarkExperience(site) {
+    const i18n = (window.PBH && window.PBH.i18n) ? window.PBH.i18n : null;
+    const loc = function(key, fb) { return i18n ? i18n.get(key, fb) : fb; };
     const haystack = [site?.site_id, site?.site_name, site?.title, site?.category, site?.location]
         .filter(Boolean).join(' ');
     const match = LANDMARK_GAME_ROUTES.find(route => route.test.test(haystack));
     return {
         modelUrl: site?.model_3d_url || DEFAULT_3D_MODEL_URL,
         gameUrl: site?.game_url || site?.gameUrl || match?.url || '',
-        gameTitle: match?.title || 'Site Challenge',
+        gameTitle: match?.title || loc('pg.m2.title.fallback', 'Site'),
         gameDesc: site?.game_desc || match?.desc || ''
     };
 }
@@ -34,18 +44,20 @@ function openPGModal() {
 
     const site = window.currentSelectedSite;
     const experience = resolveLandmarkExperience(site);
+    const i18n = (window.PBH && window.PBH.i18n) ? window.PBH.i18n : null;
+    const loc = function(key, fb) { return i18n ? i18n.get(key, fb) : fb; };
 
     // Update Header Details
     const titleEl = document.getElementById('pg-landmark-title');
     const subEl = document.getElementById('pg-sub-desc');
 
     if (titleEl) {
-        const titleText = site?.site_name || site?.title || 'Molo Heritage Site';
-        titleEl.innerHTML = `${titleText.replace(/\b(\w+)$/, '<em>$1</em>')} <em>Interactive</em>`;
+        const titleText = pgSiteName(site, 'Molo Heritage Site');
+        titleEl.innerHTML = `${titleText.replace(/\b(\w+)$/, '<em>$1</em>')} <em>${loc('pg.title.interactive', 'Interactive')}</em>`;
     }
 
     if (subEl) {
-        subEl.innerText = `Explore ${site?.site_name || 'this landmark'} through interactive 3D modeling or test your heritage knowledge with its site-specific game challenge.`;
+        subEl.innerText = loc('pg.subDesc.fallback', 'Choose between inspecting the 3D model of this structure or playing its personal landmark challenge game.');
     }
 
     // Set dynamic metadata for Mode 1 (3D Model)
@@ -54,9 +66,9 @@ function openPGModal() {
     const m1Meta = document.getElementById('pg-m1-meta');
     const m1Bar = document.getElementById('pg-m1-bar');
 
-    if (m1Title) m1Title.innerHTML = `3D Model <em>Viewer</em>`;
-    if (m1Desc) m1Desc.innerText = `Inspect the real-time architectural 3D rendering of ${site?.site_name || 'the structure'}.`;
-    if (m1Meta) m1Meta.innerText = site?.has_3d ? 'MODEL READY · 100%' : 'HIGH-RES MODEL · 100%';
+    if (m1Title) m1Title.innerHTML = loc('pg.m1.title', '3D Model Viewer');
+    if (m1Desc) m1Desc.innerText = loc('pg.m1.desc.fallback', 'Inspect the real-time architectural 3D rendering of the landmark structure in 360 degrees.');
+    if (m1Meta) m1Meta.innerText = site?.has_3d ? loc('pg.m1.meta.ready', 'MODEL READY · 100%') : loc('pg.m1.meta.highres', 'HIGH-RES MODEL · 100%');
     if (m1Bar) m1Bar.style.width = '100%';
 
     // Set dynamic metadata for Mode 2 (Personal Site Game)
@@ -65,9 +77,9 @@ function openPGModal() {
     const m2Meta = document.getElementById('pg-m2-meta');
     const m2Bar = document.getElementById('pg-m2-bar');
 
-    if (m2Title) m2Title.innerHTML = `${site?.site_name || 'Site'} <em>Challenge</em>`;
-    if (m2Desc) m2Desc.innerText = experience.gameDesc || `Play the custom mini-game designed specifically around the history of ${site?.site_name || 'this landmark'}.`;
-    if (m2Meta) m2Meta.innerText = experience.gameUrl ? `${experience.gameTitle.toUpperCase()} · READY` : 'NO SITE GAME · UNAVAILABLE';
+    if (m2Title) m2Title.innerHTML = `${pgSiteName(site, loc('pg.m2.title.fallback', 'Site'))} <em>${loc('pg.title.challenge', 'Challenge')}</em>`;
+    if (m2Desc) m2Desc.innerText = experience.gameDesc || loc('pg.m2.desc.fallback', 'Play the custom mini-game designed specifically around the unique history and trivia of this site.');
+    if (m2Meta) m2Meta.innerText = experience.gameUrl ? `${experience.gameTitle.toUpperCase()} ${loc('pg.m2.meta.ready', '· READY')}` : loc('pg.m2.meta.unavailable', 'NO SITE GAME · UNAVAILABLE');
     if (m2Bar) m2Bar.style.width = experience.gameUrl ? '100%' : '0%';
 
     // Default to initial mode selection
@@ -90,12 +102,14 @@ function selectPGMode(modeKey) {
     if (card2) card2.classList.toggle('selected', modeKey === 'personal-game');
 
     if (launchBtn) {
+        const i18n = (window.PBH && window.PBH.i18n) ? window.PBH.i18n : null;
+        const loc = function(key, fb) { return i18n ? i18n.get(key, fb) : fb; };
         const experience = resolveLandmarkExperience(window.currentSelectedSite);
         if (modeKey === '3d-model') {
-            launchBtn.innerText = 'LAUNCH 3D MODEL →';
+            launchBtn.innerText = loc('pg.launch3d', 'LAUNCH 3D MODEL →');
             launchBtn.setAttribute('href', experience.modelUrl || '#');
         } else {
-            launchBtn.innerText = experience.gameUrl ? `PLAY ${experience.gameTitle.toUpperCase()} →` : 'GAME UNAVAILABLE';
+            launchBtn.innerText = experience.gameUrl ? `${loc('pg.launchGame', 'PLAY')} ${experience.gameTitle.toUpperCase()} →` : loc('pg.gameUnavailable', 'GAME UNAVAILABLE');
             launchBtn.setAttribute('href', experience.gameUrl || '#');
         }
     }
@@ -107,18 +121,20 @@ function selectPGMode(modeKey) {
 function launchSelectedGame() {
     const site = window.currentSelectedSite;
     const experience = resolveLandmarkExperience(site);
-    const siteName = site?.site_name || 'this site';
+    const i18n = (window.PBH && window.PBH.i18n) ? window.PBH.i18n : null;
+    const loc = function(key, fb) { return i18n ? i18n.get(key, fb) : fb; };
+    const siteName = pgSiteName(site, 'this site');
 
     if (selectedGameMode === '3d-model') {
         if (experience.modelUrl) {
             window.open(experience.modelUrl, '_blank');
         } else {
-            alert(`Loading 3D Model Viewer for ${siteName}...`);
+            alert(`${loc('pg.alert.loading3d', 'Loading 3D Model Viewer for')} ${siteName}...`);
         }
     } else if (experience.gameUrl) {
         window.open(experience.gameUrl, '_blank');
     } else {
-        alert(`No designated mini-game is linked for ${siteName} yet.`);
+        alert(`${loc('pg.alert.noGame', 'No designated mini-game is linked for')} ${siteName} ${loc('pg.alert.yet', 'yet.')}`);
     }
 }
 

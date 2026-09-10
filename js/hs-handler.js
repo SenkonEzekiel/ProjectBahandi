@@ -2,6 +2,14 @@
  * Project Bahandi - Heritage Status (HS) Controller
  */
 
+function hsSiteName(site, fb) {
+    if (site && window.PBH && window.PBH.i18n) {
+        const entry = window.PBH.i18n.site(site.site_id);
+        if (entry && entry.name) return entry.name;
+    }
+    return site?.site_name || site?.title || fb;
+}
+
 /**
  * Opens and populates the Heritage Status (HS) Certificate Modal
  */
@@ -10,6 +18,8 @@ function openHSModal() {
     if (!hsOverlay) return;
 
     const site = window.currentSelectedSite;
+    const i18n = (window.PBH && window.PBH.i18n) ? window.PBH.i18n : null;
+    const loc = function(key, fb) { return i18n ? i18n.get(key, fb) : fb; };
 
     // Registry Header Fields
     const regCodeEl = document.getElementById('hs-reg-code');
@@ -23,14 +33,14 @@ function openHSModal() {
     const summaryEl = document.getElementById('hs-summary-text');
 
     if (titleEl) {
-        const titleText = site?.site_name || site?.title || 'Molo Heritage Site';
+        const titleText = hsSiteName(site, 'Molo Heritage Site');
         titleEl.innerHTML = titleText.replace(/\b(\w+)$/, '<em>$1</em>');
     }
 
     if (summaryEl) {
         summaryEl.innerText = site?.hs_summary 
             || site?.heritage_description 
-            || "Officially certified as an active cultural heritage structure under local and national preservation standards.";
+            || loc('hs.summary.fallback', "Officially certified as an active cultural heritage structure under local and national preservation standards.");
     }
 
     // Grid Data Fields
@@ -38,9 +48,9 @@ function openHSModal() {
     const fieldMarker = document.getElementById('hs-val-marker');
     const fieldOrdinance = document.getElementById('hs-val-ordinance');
 
-    if (fieldReg) fieldReg.innerText = site?.legal_classification || site?.heritage_status || 'NATIONAL HERITAGE LANDMARK';
-    if (fieldMarker) fieldMarker.innerText = site?.marker_year || site?.built_year || '19TH CENTURY';
-    if (fieldOrdinance) fieldOrdinance.innerText = site?.ordinance_no || site?.declaration_no || 'ORD NO. 2012-084';
+    if (fieldReg) fieldReg.innerText = site?.legal_classification || site?.heritage_status || loc('hs.classification.fallback', 'NATIONAL HERITAGE LANDMARK');
+    if (fieldMarker) fieldMarker.innerText = site?.marker_year || site?.built_year || loc('hs.markerYear.fallback', '19TH CENTURY');
+    if (fieldOrdinance) fieldOrdinance.innerText = site?.ordinance_no || site?.declaration_no || loc('hs.ordinance.fallback', 'ORD NO. 2012-084');
 
     // Footer Source Link
     const sourceLink = document.getElementById('hs-source-link');

@@ -3,11 +3,23 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script>
+    (function () {
+      var t = null;
+      try { t = window.localStorage.getItem("bahandi_theme"); } catch (e) {}
+      var d = t === "dark" || (t !== "light" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light";
+      document.documentElement.setAttribute("data-theme", d);
+      document.documentElement.style.colorScheme = d;
+    })();
+  </script>
   <title>Login · Project Bahandi</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;0,6..72,700;1,6..72,400&family=Public+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/institution.css" />
+  <script src="js/theme.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/consent.js"></script>
 </head>
 <body class="site-body">
   <header class="masthead">
@@ -21,78 +33,90 @@
         </span>
         <span class="brand-text">
           <span class="brand-name">projectbahandi<span class="tld">.com</span></span>
-          <span class="brand-meta">Molo Cultural GIS · Iloilo City</span>
+          <span class="brand-meta" data-i18n="brand.meta">Molo Cultural GIS · Iloilo City</span>
         </span>
       </a>
       <nav class="site-nav" aria-label="Primary">
-        <a href="index.html">Home</a>
-        <a href="DigitalMap.html">Interactive Map</a>
-        <a href="about.html">About</a>
-        <a href="contact.html">Contact</a>
+        <a href="index.html" data-i18n="nav.home">Home</a>
+        <a href="DigitalMap.html" data-i18n="nav.map">Interactive Map</a>
+        <a href="about.html" data-i18n="nav.about">About</a>
+        <a href="contact.html" data-i18n="nav.contact">Contact</a>
       </nav>
       <div class="mast-actions">
-        <a class="nav-login is-current" href="Login.html">Login</a>
+        <div class="nav-actions">
+          <select class="nav-lang" data-i18n-aria="nav.lang" data-i18n-title="nav.lang">
+            <option value="en">EN</option>
+            <option value="ms">MS</option>
+            <option value="th">TH</option>
+            <option value="tl">TL</option>
+          </select>
+          <button type="button" class="theme-toggle" data-i18n-aria="nav.theme" data-i18n-title="nav.theme" aria-pressed="false">
+            <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+            <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8 A9 9 0 1 1 11.2 3 A7 7 0 0 0 21 12.8 Z"/></svg>
+          </button>
+        </div>
+        <a class="nav-login is-current" href="Login.html" data-i18n="nav.login">Login</a>
         <button type="button" class="nav-toggle" id="mobile-toggle" aria-label="Toggle navigation" aria-expanded="false">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
         </button>
       </div>
     </div>
     <div class="drawer" id="mobile-menu">
-      <a href="index.html">Home</a>
-      <a href="DigitalMap.html">Interactive Map</a>
-      <a href="about.html">About</a>
-      <a href="contact.html">Contact</a>
-      <a href="Login.html" class="is-current">Login</a>
+      <a href="index.html" data-i18n="nav.home">Home</a>
+      <a href="DigitalMap.html" data-i18n="nav.map">Interactive Map</a>
+      <a href="about.html" data-i18n="nav.about">About</a>
+      <a href="contact.html" data-i18n="nav.contact">Contact</a>
+      <a href="Login.html" class="is-current" data-i18n="nav.login">Login</a>
     </div>
   </header>
 
   <main class="page">
     <section class="folio">
       <div class="dateline">
-        <span>Access desk</span>
-        <span>Authorized users</span>
+        <span data-i18n="login.dateline1">Access desk</span>
+        <span data-i18n="login.dateline2">Authorized users</span>
       </div>
       <div class="auth-folio">
         <aside class="auth-aside">
           <img src="assets/STVEPLG.jpg" alt="" />
           <div class="copy">
             <div>
-              <p class="kicker" style="color:#f3c7be;">Account login</p>
-              <h2>Return to the register</h2>
-              <p>Enter your email and password to reach the Project Bahandi dashboard.</p>
+              <p class="kicker" style="color:#f3c7be;" data-i18n="login.kicker">Account login</p>
+              <h2 data-i18n="login.title">Return to the register</h2>
+              <p data-i18n="login.sub">Enter your email and password to reach the Project Bahandi dashboard.</p>
             </div>
-            <p class="legal" style="color:#cfc6b4;">Project Bahandi · Heritage showcase</p>
+            <p class="legal" style="color:#cfc6b4;" data-i18n="login.legal">Project Bahandi · Heritage showcase</p>
           </div>
         </aside>
 
         <div class="auth-form">
           <div class="auth-form-top">
-            <h1>Log in</h1>
-            <a class="inline-link" href="index.html">Back to home</a>
+            <h1 data-i18n="login.head">Log in</h1>
+            <a class="inline-link" href="index.html" data-i18n="login.back">Back to home</a>
           </div>
 
           <div id="loginMessage" class="hidden"></div>
 
           <form id="loginForm" onsubmit="return false;">
             <div class="field">
-              <label for="email">Email</label>
-              <input id="email" type="email" placeholder="name@example.com" required />
+              <label for="email" data-i18n="login.email">Email</label>
+              <input id="email" type="email" placeholder="name@example.com" data-i18n-placeholder="login.emailPh" required />
             </div>
             <div class="field">
-              <label for="password">Password</label>
-              <input id="password" type="password" placeholder="Enter your password" required />
+              <label for="password" data-i18n="login.password">Password</label>
+              <input id="password" type="password" placeholder="Enter your password" data-i18n-placeholder="login.passPh" required />
             </div>
-            <button id="btnLocalSignIn" type="submit" class="btn btn-full">Log in</button>
-            <button id="btnGoogleSignIn" type="button" class="btn btn-google">
+            <button id="btnLocalSignIn" type="submit" class="btn btn-full" data-i18n="login.btn">Log in</button>
+            <button id="btnGoogleSignIn" type="button" class="btn btn-google" data-i18n="login.google">
               Sign in with Google
             </button>
             <p class="auth-note">
-              Don’t have an account? <a href="signup.html">Sign up</a>
+              <span data-i18n="login.noAcc">Don't have an account?</span> <a href="signup.html" data-i18n="login.signup">Sign up</a>
             </p>
           </form>
 
           <div class="auth-foot">
-            <a class="btn btn-ghost" href="index.html">Proceed to user home</a>
+            <a class="btn btn-ghost" href="index.html" data-i18n="login.proceed">Proceed to user home</a>
           </div>
         </div>
       </div>
@@ -102,29 +126,29 @@
   <footer class="colophon" id="contact-us">
     <div class="colophon-inner">
       <div>
-        <h2>Project Bahandi</h2>
-        <p>An interactive showcase of heritage and identity of Molo, Iloilo City, Philippines.</p>
-        <a class="btn" href="DigitalMap.html">Explore map</a>
+        <h2 data-i18n="footer.title">Project Bahandi</h2>
+        <p data-i18n="footer.descLogin">An interactive showcase of heritage and identity of Molo, Iloilo City, Philippines.</p>
+        <a class="btn" href="DigitalMap.html" data-i18n="footer.explore">Explore map</a>
       </div>
       <div>
-        <h3>Explore</h3>
+        <h3 data-i18n="contact.exp">Explore</h3>
         <ul>
-          <li><a href="index.html">Home</a></li>
-          <li><a href="about.html">About</a></li>
-          <li><a href="contact.html">Contact</a></li>
+          <li><a href="index.html" data-i18n="nav.home">Home</a></li>
+          <li><a href="about.html" data-i18n="nav.about">About</a></li>
+          <li><a href="contact.html" data-i18n="nav.contact">Contact</a></li>
         </ul>
       </div>
       <div>
-        <h3>Contact</h3>
+        <h3 data-i18n="contact.txt">Contact</h3>
         <ul>
-          <li>stvepstudentcouncil18@gmail.com</li>
-          <li>Luna St., La Paz, Iloilo City, Iloilo, Philippines, 5000</li>
-          <li>INHS - STVEP Local Learner Government</li>
+          <li data-i18n="footer.mail">stvepstudentcouncil18@gmail.com</li>
+          <li data-i18n="footer.addr">Luna St., La Paz, Iloilo City, Iloilo, Philippines, 5000</li>
+          <li data-i18n="footer.lg">INHS - STVEP Local Learner Government</li>
         </ul>
       </div>
     </div>
     <div class="colophon-end">
-      <p class="legal">© <span id="current-year"></span> Project Bahandi. All rights reserved.</p>
+      <p class="legal" data-i18n="login.legalFoot">© 2026 Project Bahandi. All rights reserved.</p>
     </div>
   </footer>
 

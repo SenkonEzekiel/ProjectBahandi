@@ -3,11 +3,23 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script>
+    (function () {
+      var t = null;
+      try { t = window.localStorage.getItem("bahandi_theme"); } catch (e) {}
+      var d = t === "dark" || (t !== "light" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light";
+      document.documentElement.setAttribute("data-theme", d);
+      document.documentElement.style.colorScheme = d;
+    })();
+  </script>
   <title>Contact · Project Bahandi</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;0,6..72,700;1,6..72,400&family=Public+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/institution.css" />
+  <script src="js/theme.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/consent.js"></script>
 </head>
 <body class="site-body">
   <header class="masthead">
@@ -21,28 +33,40 @@
         </span>
         <span class="brand-text">
           <span class="brand-name">projectbahandi<span class="tld">.com</span></span>
-          <span class="brand-meta">Molo Cultural GIS · Iloilo City</span>
+          <span class="brand-meta" data-i18n="brand.meta">Molo Cultural GIS · Iloilo City</span>
         </span>
       </a>
       <nav class="site-nav" aria-label="Primary">
-        <a href="index.html">Home</a>
-        <a href="DigitalMap.html">Interactive Map</a>
-        <a href="about.html">About</a>
-        <a href="contact.html" class="is-current">Contact</a>
+        <a href="index.html" data-i18n="nav.home">Home</a>
+        <a href="DigitalMap.html" data-i18n="nav.map">Interactive Map</a>
+        <a href="about.html" data-i18n="nav.about">About</a>
+        <a href="contact.html" class="is-current" data-i18n="nav.contact">Contact</a>
       </nav>
       <div class="mast-actions">
-        <a class="nav-login" href="Login.html">Login</a>
+        <div class="nav-actions">
+          <select class="nav-lang" data-i18n-aria="nav.lang" data-i18n-title="nav.lang">
+            <option value="en">EN</option>
+            <option value="ms">MS</option>
+            <option value="th">TH</option>
+            <option value="tl">TL</option>
+          </select>
+          <button type="button" class="theme-toggle" data-i18n-aria="nav.theme" data-i18n-title="nav.theme" aria-pressed="false">
+            <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+            <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8 A9 9 0 1 1 11.2 3 A7 7 0 0 0 21 12.8 Z"/></svg>
+          </button>
+        </div>
+        <a class="nav-login" href="Login.html" data-i18n="nav.login">Login</a>
         <button type="button" class="nav-toggle" id="mobile-toggle" aria-label="Toggle navigation" aria-expanded="false">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
         </button>
       </div>
     </div>
     <div class="drawer" id="mobile-menu">
-      <a href="index.html">Home</a>
-      <a href="DigitalMap.html">Interactive Map</a>
-      <a href="about.html">About</a>
-      <a href="contact.html" class="is-current">Contact</a>
-      <a href="Login.html">Login</a>
+      <a href="index.html" data-i18n="nav.home">Home</a>
+      <a href="DigitalMap.html" data-i18n="nav.map">Interactive Map</a>
+      <a href="about.html" data-i18n="nav.about">About</a>
+      <a href="contact.html" class="is-current" data-i18n="nav.contact">Contact</a>
+      <a href="Login.html" data-i18n="nav.login">Login</a>
     </div>
   </header>
 
@@ -50,41 +74,41 @@
     <section class="mast-hero">
       <img src="assets/MoloFront.jpg" alt="" />
       <div class="inner">
-        <p class="kicker" style="color:#f3c7be;">Correspondence</p>
-        <h1>Share your <em>stories</em></h1>
-        <p>Questions, suggestions, or heritage accounts are welcome. Write to Project Bahandi if you can help keep the culture and history of Molo in public view.</p>
+        <p class="kicker" style="color:#f3c7be;" data-i18n="contact.mast.kicker">Correspondence</p>
+        <h1 data-i18n-html="contact.mast.title">Share your <em>stories</em></h1>
+        <p data-i18n="contact.mast.lede">Questions, suggestions, or heritage accounts are welcome. Write to Project Bahandi if you can help keep the culture and history of Molo in public view.</p>
       </div>
     </section>
 
     <section class="folio">
       <div class="section-head">
         <div>
-          <p class="kicker">Directory</p>
-          <h2>Contact information</h2>
+<p class="kicker" data-i18n="dir.kicker">Directory</p>
+          <h2 data-i18n="dir.title">Contact information</h2>
         </div>
       </div>
-      <p class="lede" style="margin-bottom: 1.75rem;">
-        Your notes help us improve Project Bahandi and keep sharing Molo’s heritage through the map and its supporting records.
+      <p class="lede" style="margin-bottom: 1.75rem;" data-i18n="dir.lede">
+        Your notes help us improve Project Bahandi and keep sharing Molo's heritage through the map and its supporting records.
       </p>
 
       <dl class="directory">
-        <dt>Seat</dt>
+        <dt data-i18n="dir.seat">Seat</dt>
         <dd>
-          <strong>Iloilo National High School</strong><br />
-          Strengthened Technical-Vocational Education Program<br />
-          Luna St., La Paz, Iloilo City, Iloilo, Philippines 5000<br />
-          <span style="display:block;margin-top:0.45rem;font-size:0.9rem;">A student-led initiative celebrating the heritage of Molo, Iloilo.</span>
+          <strong data-i18n="dir.seatSchool">Iloilo National High School</strong><br />
+          <span data-i18n="dir.seatProg">Strengthened Technical-Vocational Education Program</span><br />
+          <span data-i18n="dir.seatAddr">Luna St., La Paz, Iloilo City, Iloilo, Philippines 5000</span><br />
+          <span style="display:block;margin-top:0.45rem;font-size:0.9rem;" data-i18n="contact.mast.subAlt">A student-led initiative celebrating the heritage of Molo, Iloilo.</span>
         </dd>
-        <dt>School email</dt>
-        <dd><a href="mailto:iloilonhs.ph@gmail.com">iloilonhs.ph@gmail.com</a></dd>
-        <dt>Project email</dt>
-        <dd><a href="mailto:stvepstudencouncil18@gmail.com">stvepstudencouncil18@gmail.com</a></dd>
-        <dt>School Facebook</dt>
-        <dd><a href="https://www.facebook.com/Iloilonhs" target="_blank" rel="noreferrer">Iloilo National High School</a></dd>
-        <dt>School site</dt>
-        <dd><a href="https://www.iloilonhs.edu.ph/" target="_blank" rel="noreferrer">iloilonhs.edu.ph</a></dd>
-        <dt>Learner Government</dt>
-        <dd><a href="https://www.facebook.com/STVEPStudentCouncil" target="_blank" rel="noreferrer">INHS - STVEP Learner Government</a></dd>
+        <dt data-i18n="dir.schoolEmail">School email</dt>
+        <dd><a href="mailto:iloilonhs.ph@gmail.com" data-i18n="dir.schoolEmailVal">iloilonhs.ph@gmail.com</a></dd>
+        <dt data-i18n="dir.projEmail">Project email</dt>
+        <dd><a href="mailto:stvepstudencouncil18@gmail.com" data-i18n="dir.projEmailVal">stvepstudencouncil18@gmail.com</a></dd>
+        <dt data-i18n="dir.fb">School Facebook</dt>
+        <dd><a href="https://www.facebook.com/Iloilonhs" target="_blank" rel="noreferrer" data-i18n="dir.fbVal">Iloilo National High School</a></dd>
+        <dt data-i18n="dir.site">School site</dt>
+        <dd><a href="https://www.iloilonhs.edu.ph/" target="_blank" rel="noreferrer" data-i18n="dir.siteVal">iloilonhs.edu.ph</a></dd>
+        <dt data-i18n="dir.lg">Learner Government</dt>
+        <dd><a href="https://www.facebook.com/STVEPStudentCouncil" target="_blank" rel="noreferrer" data-i18n="dir.lgVal">INHS - STVEP Learner Government</a></dd>
       </dl>
     </section>
   </main>
@@ -92,32 +116,32 @@
   <footer class="colophon">
     <div class="colophon-inner">
       <div>
-        <img src="assets/INHS_STVEP_LOGO.png" alt="INHS STVEP logo" style="height:72px;width:auto;background:#f3ede1;padding:0.35rem;margin-bottom:0.85rem;border:1px solid #cfc6b4;" />
-        <h2>Project Bahandi</h2>
-        <p>Preserving Molo’s stories, connecting generations, and celebrating the heritage shaped by its people.</p>
-        <a class="btn" href="DigitalMap.html">Explore map</a>
+        <img src="assets/INHS_STVEP_LOGO.png" alt="INHS STVEP logo" data-i18n-alt="img.inhsLogo" style="height:72px;width:auto;background:#f3ede1;padding:0.35rem;margin-bottom:0.85rem;border:1px solid #cfc6b4;" />
+        <h2 data-i18n="footer.title">Project Bahandi</h2>
+        <p data-i18n="footer.descContact">Preserving Molo’s stories, connecting generations, and celebrating the heritage shaped by its people.</p>
+        <a class="btn" href="DigitalMap.html" data-i18n="footer.explore">Explore map</a>
       </div>
       <div>
-        <h3>Explore</h3>
+        <h3 data-i18n="contact.exp">Explore</h3>
         <ul>
-          <li><a href="index.html">Home</a></li>
-          <li><a href="about.html">About</a></li>
-          <li><a href="contact.html">Contact</a></li>
-          <li><a href="DigitalMap.html">Interactive Map</a></li>
+          <li><a href="index.html" data-i18n="nav.home">Home</a></li>
+          <li><a href="about.html" data-i18n="nav.about">About</a></li>
+          <li><a href="contact.html" data-i18n="nav.contact">Contact</a></li>
+          <li><a href="DigitalMap.html" data-i18n="nav.map">Interactive Map</a></li>
         </ul>
       </div>
       <div>
-        <h3>Contact</h3>
+        <h3 data-i18n="contact.txt">Contact</h3>
         <ul>
-          <li><a href="mailto:stvepstudentcouncil18@gmail.com">stvepstudentcouncil18@gmail.com</a></li>
-          <li>Luna St., La Paz, Iloilo City, Iloilo, Philippines, 5000</li>
-          <li><a href="https://www.facebook.com/STVEPStudentCouncil" target="_blank" rel="noreferrer">INHS - STVEP Local Learner Government</a></li>
+          <li><a href="mailto:stvepstudentcouncil18@gmail.com" data-i18n="footer.mail">stvepstudentcouncil18@gmail.com</a></li>
+          <li data-i18n="footer.addr">Luna St., La Paz, Iloilo City, Iloilo, Philippines, 5000</li>
+          <li><a href="https://www.facebook.com/STVEPStudentCouncil" target="_blank" rel="noreferrer" data-i18n="footer.lg">INHS - STVEP Local Learner Government</a></li>
         </ul>
       </div>
     </div>
     <div class="colophon-end">
-      <p class="legal" style="margin-bottom:0.75rem;">Mateo, Full Stack · Sapio, Full Stack · Dato-on, UI Designer · Porras, Database Admin</p>
-      <p class="legal">© 2026 Project Bahandi. An interactive showcase of heritage and identity of Molo, Iloilo City, Philippines. All rights reserved.</p>
+      <p class="legal" style="margin-bottom:0.75rem;" data-i18n="footer.team">Mateo, Full Stack · Sapio, Full Stack · Dato-on, UI Designer · Porras, Database Admin</p>
+      <p class="legal" data-i18n="footer.legal">© 2026 Project Bahandi. An interactive showcase of heritage and identity of Molo, Iloilo City, Philippines. All rights reserved.</p>
     </div>
   </footer>
 

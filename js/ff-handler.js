@@ -64,24 +64,25 @@ function positionAndShowFFPopover() {
     if (extractedFacts) {
         currentFactList = extractedFacts;
     } else {
+        const loc = function(key, fb) { return (window.PBH && window.PBH.i18n) ? window.PBH.i18n.get(key, fb) : fb; };
         currentFactList = [
             {
-                headline: "Built with <em>Coral Stones & Egg Whites</em>",
-                body: "Local lore and historical accounts note that thousands of egg whites were mixed with lime as mortar to bind the massive stone walls.",
-                tags: ["Architecture", "Masonry"],
-                dyk: "This traditional Spanish colonial formula allowed walls to absorb ground tremors during earthquakes!"
+                headline: loc('ff.fallback.1.head', "Built with <em>Coral Stones & Egg Whites</em>"),
+                body: loc('ff.fallback.1.body', "Local lore and historical accounts note that thousands of egg whites were mixed with lime as mortar to bind the massive stone walls."),
+                tags: [loc('cat.architecture', 'Architecture'), loc('cat.masonry', 'Masonry')],
+                dyk: loc('ff.fallback.1.dyk', "This traditional Spanish colonial formula allowed walls to absorb ground tremors during earthquakes!")
             },
             {
-                headline: "The <em>Feminist Church Legend</em>",
-                body: "Molo Church is widely nicknamed 'The Feminist Church' because sixteen statues of female saints line the primary nave pillars.",
-                tags: ["Heritage", "Culture"],
-                dyk: "It stands as one of the few cathedrals in the Philippines featuring exclusively female patron saints."
+                headline: loc('ff.fallback.2.head', "The <em>Feminist Church Legend</em>"),
+                body: loc('ff.fallback.2.body', "Molo Church is widely nicknamed 'The Feminist Church' because sixteen statues of female saints line the primary nave pillars."),
+                tags: [loc('cat.heritage', 'Heritage'), loc('cat.culture', 'Culture')],
+                dyk: loc('ff.fallback.2.dyk', "It stands as one of the few cathedrals in the Philippines featuring exclusively female patron saints.")
             },
             {
-                headline: "Visited by <em>Dr. Jose Rizal</em>",
-                body: "National Hero Dr. Jose Rizal stopped by Molo Church in 1896 to admire its Neo-Gothic architecture while traveling to Manila.",
-                tags: ["History", "1890s"],
-                dyk: "Rizal explicitly recorded his admiration for the church in his personal travel diary entries!"
+                headline: loc('ff.fallback.3.head', "Visited by <em>Dr. Jose Rizal</em>"),
+                body: loc('ff.fallback.3.body', "National Hero Dr. Jose Rizal stopped by Molo Church in 1896 to admire its Neo-Gothic architecture while traveling to Manila."),
+                tags: [loc('cat.history', 'History'), '1890s'],
+                dyk: loc('ff.fallback.3.dyk', "Rizal explicitly recorded his admiration for the church in his personal travel diary entries!")
             }
         ];
     }
@@ -114,9 +115,26 @@ function renderFFCard() {
     const bodyTextEl = document.getElementById('ff-body-text');
     const dykTextEl = document.getElementById('ff-dyk-text');
 
-    if (headlineEl) headlineEl.innerHTML = fact.headline || fact.title || 'Landmark Trivia';
-    if (bodyTextEl) bodyTextEl.innerText = fact.body || fact.description || '';
-    if (dykTextEl) dykTextEl.innerText = fact.dyk || fact.didYouKnow || '';
+    let head = fact.headline || fact.title || '';
+    let body = fact.body || fact.description || '';
+    let dyk = fact.dyk || fact.didYouKnow || '';
+
+    const sid = window.currentSelectedSite && window.currentSelectedSite.site_id;
+    if (sid && window.PBH && window.PBH.i18n) {
+        const i18n = window.PBH.i18n;
+        const n = currentFactIndex + 1;
+        const t = i18n.localized('site.' + sid + '.fact.' + n + '.title', '');
+        const d = i18n.localized('site.' + sid + '.fact.' + n + '.desc', '');
+        const y = i18n.localized('site.' + sid + '.fact.' + n + '.dyk', '');
+        if (t) head = t;
+        if (d) body = d;
+        if (y) dyk = y;
+    }
+    if (!head) head = (window.PBH && window.PBH.i18n) ? window.PBH.i18n.get('ff.label', 'Landmark Trivia') : 'Landmark Trivia';
+
+    if (headlineEl) headlineEl.innerHTML = head;
+    if (bodyTextEl) bodyTextEl.innerText = body;
+    if (dykTextEl) dykTextEl.innerText = dyk;
 
     // Tags (ensure tags is an array)
     const tagContainer = document.getElementById('ff-tag-container');

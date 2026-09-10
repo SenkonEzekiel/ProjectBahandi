@@ -3,6 +3,14 @@
  * Manages the slide-in QR sidebar panel and site image dynamic binding
  */
 
+function qrSiteName(site, fb) {
+    if (site && window.PBH && window.PBH.i18n) {
+        const entry = window.PBH.i18n.site(site.site_id);
+        if (entry && entry.name) return entry.name;
+    }
+    return site?.site_name || site?.title || fb;
+}
+
 /**
  * Opens and Populates the QR Code Panel
  */
@@ -18,6 +26,8 @@ function openQRPanel() {
     }
 
     const site = window.currentSelectedSite;
+    const i18n = (window.PBH && window.PBH.i18n) ? window.PBH.i18n : null;
+    const loc = function(key, fb) { return i18n ? i18n.get(key, fb) : fb; };
 
     // 1. Reference Code & Title
     const refCodeEl = document.getElementById('qr-ref-code');
@@ -25,14 +35,14 @@ function openQRPanel() {
 
     if (refCodeEl) {
         const siteId = site?.site_id || site?.id || 'BHD-ML-0001';
-        refCodeEl.innerText = `REF · ${siteId} · QR ACCESS`;
+        refCodeEl.innerText = `REF · ${siteId} · ${loc('qr.accessSuffix', 'QR ACCESS')}`;
     }
 
     if (titleEl) {
-        const rawTitle = site?.site_name || site?.title || 'Molo Landmark';
+        const rawTitle = qrSiteName(site, 'Molo Landmark');
         // Formats the last word in italics for typography styling
         const formattedTitle = rawTitle.replace(/\b(\w+)$/, '<em>$1</em>');
-        titleEl.innerHTML = `${formattedTitle} <em>QR Code</em>`;
+        titleEl.innerHTML = `${formattedTitle} <em>${loc('qr.titleSuffix', 'QR Code')}</em>`;
     }
 
     // 2. QR Image Source Setup
@@ -47,7 +57,7 @@ function openQRPanel() {
             // Default placeholder QR code
             qrImgEl.src = 'https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=https://projectbahandi.com';
         }
-        qrImgEl.alt = `${site?.site_name || 'Landmark'} QR Code`;
+        qrImgEl.alt = `${qrSiteName(site, 'Landmark')} ${loc('qr.titleSuffix', 'QR Code')}`;
     }
 
     // 3. Populate Specification Values
@@ -59,7 +69,7 @@ function openQRPanel() {
     if (valId) valId.innerText = site?.site_id || 'BHD-ML-0001';
     if (valDistrict) valDistrict.innerText = site?.district || 'Molo, Iloilo City';
     if (valFormat) valFormat.innerText = site?.qr_format || 'PNG / 1024px';
-    if (valStatus) valStatus.innerText = site?.qr_status || 'ACTIVE & VERIFIED';
+    if (valStatus) valStatus.innerText = site?.qr_status || loc('qr.status.fallback', 'ACTIVE & VERIFIED');
 
     // 4. Slide-in the Panel
     qrPanel.classList.add('active');
@@ -81,9 +91,10 @@ function closeQRPanel() {
 function downloadQRCode() {
     const site = window.currentSelectedSite;
     const qrImgEl = document.getElementById('qr-code-img');
+    const loc = function(key, fb) { return (window.PBH && window.PBH.i18n) ? window.PBH.i18n.get(key, fb) : fb; };
 
     if (!qrImgEl || !qrImgEl.src) {
-        alert('QR code image unavailable.');
+        alert(loc('qr.alert.unavailable', 'QR code image unavailable.'));
         return;
     }
 
@@ -105,7 +116,7 @@ function shareQRLink() {
 
     if (navigator.clipboard && window.isSecureContext) {
         navigator.clipboard.writeText(accessUrl).then(() => {
-            alert('Access link copied to clipboard!');
+            alert((window.PBH && window.PBH.i18n) ? window.PBH.i18n.get('qr.alert.copied', 'Access link copied to clipboard!') : 'Access link copied to clipboard!');
         }).catch(() => {
             prompt('Copy link:', accessUrl);
         });

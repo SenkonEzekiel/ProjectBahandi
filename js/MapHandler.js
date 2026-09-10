@@ -4,9 +4,6 @@ const previewCard = document.getElementById('map-preview-card');
 const sidebarImage = document.getElementById('landmark-image');
 const sidebarTitle = document.getElementById('landmark-title');
 const sidebarDesc = document.getElementById('landmark-description');
-
-const featureModal = document.getElementById('feature-modal');
-const modalContent = document.getElementById('modal-content');
 let ffPopover = document.getElementById('ff-popover-wrapper');
 
 // State Memory & Window Exports
@@ -27,6 +24,96 @@ if (!ffPopover) {
     document.body.appendChild(ffPopover);
 }
 
+// ==================== IMAGE RESOLVER (Firebase passthrough → local → fallback) ====================
+window.PBH = window.PBH || {};
+window.PBH.image = (function () {
+    var FALLBACK = "assets/Landmark_images/_fallback.svg";
+
+    function keyFor(site) {
+        if (!site) return "";
+        var raw = site.landmark_key || site.image_key || site.site_name || site.name || site.title || "";
+        return String(raw).replace(/[^A-Za-z0-9]/g, "");
+    }
+
+    function isRemote(url) {
+        return /^https:\/\//i.test(String(url || "").trim());
+    }
+
+    function resolveSiteImage(site) {
+        if (!site) return FALLBACK;
+        var raw = site.image_url || site.localImage || site.image || "";
+        if (raw && isRemote(raw)) return raw;
+        var key = keyFor(site);
+        var base = "assets/Landmark_images/";
+        if (key) return base + key + ".png";
+        return FALLBACK;
+    }
+
+    function onError(img, site) {
+        if (!img) return;
+        site = site || {};
+        var base = "assets/Landmark_images/";
+        var current = String(img.getAttribute("src") || "");
+        var key = keyFor(site);
+        if (isRemote(current)) {
+            if (key) {
+                img.src = base + key + ".png";
+                return;
+            }
+            img.onerror = null;
+            img.src = FALLBACK;
+            return;
+        }
+        if (key && current.indexOf(".png") !== -1) {
+            img.src = base + key + ".jpg";
+            return;
+        }
+        img.onerror = null;
+        img.src = FALLBACK;
+    }
+
+    return {
+        keyFor: keyFor,
+        isRemote: isRemote,
+        resolveSiteImage: resolveSiteImage,
+        onError: onError
+    };
+})();
+
+// ==================== I18N HELPERS ====================
+function i18nGet(key, fallback) {
+    if (window.PBH && window.PBH.i18n) return window.PBH.i18n.localized(key, fallback);
+    return fallback;
+}
+
+function i18nSiteName(site) {
+    if (!site) return "";
+    if (window.PBH && window.PBH.i18n) {
+        var entry = window.PBH.i18n.site(site.site_id);
+        if (entry && entry.name) return entry.name;
+    }
+    return site.site_name || site.title || "";
+}
+
+function i18nSiteCategory(site) {
+    if (!site) return "";
+    if (window.PBH && window.PBH.i18n) {
+        var entry = window.PBH.i18n.site(site.site_id);
+        if (entry && entry.category !== undefined) return entry.category;
+        return window.PBH.i18n.category(site.category);
+    }
+    return site.category || i18nGet("site.catHeritage", "Heritage");
+}
+
+function i18nSiteDesc(site) {
+    if (!site) return "";
+    if (window.PBH && window.PBH.i18n) {
+        var entry = window.PBH.i18n.site(site.site_id);
+        if (entry && entry.desc) return entry.desc;
+    }
+    return site.description || site.historical_significance || i18nGet("site.noDesc", "No extended overview recorded.");
+}
+
 // ==================== 2. MOUSE TRAILING ====================
 document.addEventListener('mousemove', function (e) {
     if (previewCard && !previewCard.classList.contains('hidden')) {
@@ -43,8 +130,8 @@ function hoverLandmark(siteId) {
         const previewTitle = document.getElementById('preview-title-text');
         const previewImage = document.getElementById('preview-image');
 
-        if (previewTag) previewTag.textContent = site.category || "Cultural Site";
-        if (previewTitle) previewTitle.textContent = site.site_name || "Landmark";
+        if (previewTag) previewTag.textContent = i18nSiteCategory(site);
+        if (previewTitle) previewTitle.textContent = i18nSiteName(site) || i18nGet("site.label", "Landmark");
         if (typeof window.bindLandmarkImage === "function") {
             window.bindLandmarkImage(previewImage, site);
         } else if (previewImage) {
@@ -53,7 +140,7 @@ function hoverLandmark(siteId) {
                 this.src = "assets/Landmark_images/placeholder.jpeg";
             };
             previewImage.src = site.localImage || site.image || "assets/Landmark_images/placeholder.jpeg";
-            previewImage.alt = site.site_name || "Landmark";
+            previewImage.alt = i18nSiteName(site) || i18nGet("site.label", "Landmark");
         }
 
         if (previewCard) previewCard.classList.remove('hidden');
@@ -82,24 +169,24 @@ function selectLandmark(siteId) {
 
     if (sidebarImage) {
         if (typeof window.bindLandmarkImage === "function") {
-            window.bindLandmarkImage(sidebarImage, site, site.site_name || "Landmark Image");
+            window.bindLandmarkImage(sidebarImage, site, i18nSiteName(site) || "Landmark Image");
         } else {
             sidebarImage.onerror = function () {
                 this.onerror = null;
                 this.src = "assets/Landmark_images/placeholder.jpeg";
             };
             sidebarImage.src = site.localImage || site.image || "assets/Landmark_images/placeholder.jpeg";
-            sidebarImage.alt = site.site_name || "Landmark Image";
+            sidebarImage.alt = i18nSiteName(site) || "Landmark Image";
         }
         sidebarImage.style.display = 'block';
     }
 
     if (sidebarTitle) {
-        sidebarTitle.textContent = site.site_name || "Landmark Name";
+        sidebarTitle.textContent = i18nSiteName(site) || i18nGet("site.fallbackTitle", "Landmark Overview");
     }
 
     if (sidebarDesc) {
-        sidebarDesc.textContent = site.description || "No description available.";
+        sidebarDesc.textContent = i18nSiteDesc(site);
     }
 
     if (sidebar) {
@@ -128,10 +215,10 @@ function syncBlueprintPanel() {
     const bpStyle = document.getElementById('bp-data-style');
     const bpStatus = document.getElementById('bp-data-status');
 
-    if (bpTitle) bpTitle.innerHTML = site.site_name || "Landmark Overview";
-    if (bpRef) bpRef.innerText = `REF · ${site.site_id || 'BHD-ML-0001'} · FULL DETAILS`;
-    if (bpCoords && site.coordinates) bpCoords.innerText = `${site.coordinates[0]}° N · ${site.coordinates[1]}° E`;
-    if (bpDesc) bpDesc.innerText = site.description || site.historical_significance || "No extended overview recorded.";
+    if (bpTitle) bpTitle.textContent = i18nSiteName(site) || i18nGet("site.fallbackTitle", "Landmark Overview");
+    if (bpRef) bpRef.innerText = "REF · " + (site.site_id || "BHD-ML-0001") + " · " + i18nGet("bp.ref", "FULL DETAILS");
+    if (bpCoords && site.coordinates) bpCoords.innerText = site.coordinates[0] + "° N · " + site.coordinates[1] + "° E";
+    if (bpDesc) bpDesc.innerText = i18nSiteDesc(site);
     if (bpBuilt) bpBuilt.innerText = site.built_year || site.built || "—";
     if (bpStyle) bpStyle.innerText = site.architectural_style || site.style || "—";
     if (bpStatus) bpStatus.innerText = site.heritage_status || site.status || "—";
@@ -141,261 +228,6 @@ window.syncBlueprintPanel = syncBlueprintPanel;
 function closeSidebar() {
     if (typeof window.closeSidebar === 'function') {
         window.closeSidebar();
-    }
-}
-
-// ==================== 4. MODAL CONTROLLER ====================
-function openFeatureModal(htmlContent) {
-    if (featureModal && modalContent) {
-        modalContent.innerHTML = htmlContent;
-        featureModal.classList.remove('hidden');
-    }
-}
-
-function closeFeatureModal() {
-    if (featureModal) {
-        featureModal.classList.add('hidden');
-    }
-}
-
-// ==================== 5. CUSTOM UI FRAME RENDERERS ====================
-function handleFullDetails() {
-    if (!currentSelectedSite) return;
-
-    const refNo = currentSelectedSite.ref_no || currentSelectedSite.site_id || "BHD-ML-0001";
-    const coords = currentSelectedSite.coordinates ? `${currentSelectedSite.coordinates[0]}° N · ${currentSelectedSite.coordinates[1]}° E` : "10.6960° N · 122.5490° E";
-
-    const content = `
-        <div class="frame-blueprint-card">
-            <div class="bp-header-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-            </div>
-            <div class="bp-ref-line">REF · ${refNo} · FULL DETAILS</div>
-            <h2 class="bp-title">${currentSelectedSite.site_name}</h2>
-
-            <div class="bp-tabs">
-                <span class="bp-tab active">OVERVIEW</span>
-                <span class="bp-tab">ARCHITECTURE</span>
-                <span class="bp-tab">GALLERY</span>
-            </div>
-
-            <div class="bp-section">
-                <div class="bp-section-label">— OVERVIEW</div>
-                <p class="bp-description"><strong>${currentSelectedSite.site_name}</strong>, ${currentSelectedSite.description || 'A key heritage monument located in Iloilo.'}</p>
-            </div>
-
-            <div class="bp-section">
-                <div class="bp-section-label">— DATA SHEET</div>
-                <div class="bp-data-grid">
-                    <div><span>BUILT</span> <strong>${currentSelectedSite.built_year || '[ Year ]'}</strong></div>
-                    <div><span>STYLE</span> <strong>${currentSelectedSite.architectural_style || 'Neoclassical / Art Deco accents'}</strong></div>
-                    <div><span>STOREYS</span> <strong>${currentSelectedSite.storeys || 'Two'}</strong></div>
-                    <div><span>STATUS</span> <strong>${currentSelectedSite.heritage_status || 'Declared Heritage Site'}</strong></div>
-                </div>
-            </div>
-
-            <div class="bp-footer">
-                <span class="bp-coords">${coords}</span>
-                <button class="bp-action-btn" onclick="alert('Navigating to full archive record...')">OPEN FULL PAGE →</button>
-            </div>
-        </div>
-    `;
-
-    openFeatureModal(content);
-}
-
-function handleQRCode() {
-    if (!currentSelectedSite) return;
-    const qrUrl = currentSelectedSite.qrCodeUrl || 
-                  `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(window.location.href)}`;
-    
-    openFeatureModal(`
-        <div class="frame-qr-container" style="text-align: center; color: #f8fafc; padding: 20px;">
-            <div class="ff-counter" style="margin-bottom: 10px;">SCAN ACCESS · ${currentSelectedSite.site_id || 'BHD-ML'}</div>
-            <h3 style="font-family: 'Montserrat', serif; margin-bottom: 10px;">${currentSelectedSite.site_name}</h3>
-            <p style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 20px;">Scan using your smartphone camera to access mobile guided tour data.</p>
-            <div style="background: rgba(13, 21, 39, 0.8); border: 1px solid rgba(56, 189, 248, 0.3); padding: 15px; border-radius: 12px; display: inline-block;">
-                <img src="${qrUrl}" alt="QR Code" style="width: 180px; height: 180px; display: block;" />
-            </div>
-        </div>
-    `);
-}
-
-function handleHeritageStatus() {
-    if (!currentSelectedSite) return;
-
-    const refNo = currentSelectedSite.entry_no || currentSelectedSite.site_id || "BHD-ML-0001";
-    const status = currentSelectedSite.heritage_status || "Declared National Historical Landmark / Cultural Heritage Site";
-
-    const content = `
-        <div class="frame-seal-card">
-            <div class="seal-header">
-                <span>BAHANDI · HERITAGE REGISTRY</span>
-                <span>ENTRY · ${refNo}</span>
-            </div>
-
-            <div class="seal-body">
-                <div class="seal-badge-container">
-                    <div class="seal-shield-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="M9 12l2 2 4-4"></path></svg>
-                    </div>
-                </div>
-
-                <div class="seal-details">
-                    <div class="seal-certified-tag">CERTIFIED · HERITAGE LANDMARK</div>
-                    <h2 class="seal-title">${currentSelectedSite.site_name}</h2>
-                    <p class="seal-summary">${status}</p>
-
-                    <div class="seal-metrics-grid">
-                        <div class="seal-metric-box">
-                            <label>REGISTRY</label>
-                            <div>${currentSelectedSite.registry_authority || 'NHCP · Official'}</div>
-                        </div>
-                        <div class="seal-metric-box">
-                            <label>MARKER YR.</label>
-                            <div>[ ${currentSelectedSite.marker_year || 'Year'} ]</div>
-                        </div>
-                        <div class="seal-metric-box">
-                            <label>ORDINANCE</label>
-                            <div>No. [ ${currentSelectedSite.ordinance_no || '--'} ]</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="seal-footer">
-                <span class="seal-status-pill">● VERIFIED & ACTIVE</span>
-                <a class="seal-link" href="#" onclick="alert('Opening official designation record...'); return false;">VIEW SOURCE →</a>
-            </div>
-        </div>
-    `;
-
-    openFeatureModal(content);
-}
-
-function handleHistoricalSignificance() {
-    if (!currentSelectedSite) return;
-
-    const significance = currentSelectedSite.historical_significance || 
-                         currentSelectedSite.significance || 
-                         currentSelectedSite.description ||
-                         "Historical significance details are maintained under official cultural heritage record archives.";
-
-    const content = `
-        <div class="frame-editorial-card">
-            <div class="editorial-left-panel" style="background-image: url('${(typeof window.resolveLandmarkImage === 'function' ? window.resolveLandmarkImage(currentSelectedSite) : currentSelectedSite.localImage || currentSelectedSite.image) || 'assets/Landmark_images/placeholder.jpeg'}')">
-                <div class="editorial-left-overlay">
-                    <div class="editorial-home-badge">🏛️</div>
-                    <div class="editorial-left-footer">
-                        <div class="editorial-tag">CULTURAL RECORD · 04</div>
-                        <h3>${currentSelectedSite.site_name}</h3>
-                        <p>${currentSelectedSite.district || 'Molo, Iloilo City'} · Panay Island</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="editorial-right-panel">
-                <div class="editorial-breadcrumbs">BAHANDI / MOLO / HISTORICAL & CULTURAL</div>
-                <h2 class="editorial-headline">The Living <em>Archive</em> of a District</h2>
-
-                <div class="editorial-pills">
-                    <span class="ed-pill active">HISTORY</span>
-                    <span class="ed-pill">ARCHITECTURE</span>
-                    <span class="ed-pill">GALLERY</span>
-                </div>
-
-                <div class="editorial-body">
-                    <span class="drop-cap">${significance.charAt(0)}</span>
-                    <p>${significance.slice(1)}</p>
-                </div>
-
-                <div class="editorial-footer-bar">
-                    <div class="editorial-meta-box">
-                        <div>SOURCES · 04</div>
-                        <div>MEDIA · 12</div>
-                        <div>LAST VERIFIED · 2026-07</div>
-                    </div>
-                    <a href="#" class="editorial-cite-link" onclick="alert('Citation referenced.'); return false;">CITE ENTRY →</a>
-                </div>
-            </div>
-        </div>
-    `;
-
-    openFeatureModal(content);
-}
-
-function handleFunFacts() {
-    if (typeof openFrame === 'function') {
-        openFrame('FF');
-    }
-}
-
-function handlePlayGame() {
-    if (!currentSelectedSite) return;
-
-    const content = `
-        <div class="frame-game-card">
-            <div class="game-top-badge">
-                <div class="game-controller-icon">🎮</div>
-                <div class="game-module-tag">BAHANDI EXPERIENCE · MODULE 06</div>
-            </div>
-
-            <h2 class="game-title">Play the <em>Heritage</em></h2>
-            <p class="game-subtitle">Three interactive modes let visitors test what they've learned about ${currentSelectedSite.site_name}. Progress persists across sessions.</p>
-
-            <div class="game-modes-grid">
-                <div class="game-mode-card">
-                    <div class="gm-header">
-                        <span class="gm-tag">MODE 01</span>
-                        <div class="gm-icon">❓</div>
-                    </div>
-                    <h3>Heritage <em>Trivia</em></h3>
-                    <p>Quick-fire questions on ${currentSelectedSite.site_name}.</p>
-                    <div class="gm-progress-bar"><div style="width: 15%;"></div></div>
-                    <div class="gm-meta"><span>PROGRESS</span> <span>3 / 20</span></div>
-                </div>
-
-                <div class="game-mode-card">
-                    <div class="gm-header">
-                        <span class="gm-tag">MODE 02</span>
-                        <div class="gm-icon">📍</div>
-                    </div>
-                    <h3>Virtual <em>Tour</em></h3>
-                    <p>Guided pathway through landmark highlights.</p>
-                    <div class="gm-progress-bar"><div style="width: 0%;"></div></div>
-                    <div class="gm-meta"><span>PROGRESS</span> <span>0 / 6</span></div>
-                </div>
-
-                <div class="game-mode-card locked">
-                    <div class="gm-header">
-                        <span class="gm-tag">MODE 03</span>
-                        <span class="gm-lock">🔒 LOCKED</span>
-                    </div>
-                    <h3>Timeline <em>Puzzle</em></h3>
-                    <p>Arrange historical events in correct order.</p>
-                    <div class="gm-meta"><span>REQUIRES</span> <span>LEVEL 3</span></div>
-                </div>
-            </div>
-
-            <div class="game-footer">
-                <div class="game-player-stats">
-                    <span>XP <strong>240</strong></span>
-                    <span>RANK <strong>EXPLORER</strong></span>
-                    <span>STREAK <strong>3D</strong></span>
-                </div>
-                <button class="game-start-btn" onclick="launchGame()">START EXPERIENCE ❯</button>
-            </div>
-        </div>
-    `;
-
-    openFeatureModal(content);
-}
-
-function launchGame() {
-    if (currentSelectedSite && (currentSelectedSite.game_url || currentSelectedSite.gameUrl)) {
-        window.open(currentSelectedSite.game_url || currentSelectedSite.gameUrl, "_blank");
-    } else {
-        alert("Launching Heritage Trivia Mini-Game Engine...");
     }
 }
 
@@ -595,6 +427,16 @@ document.addEventListener("DOMContentLoaded", async () => {
             window.map.invalidateSize();
         }
     }, 400);
+
+    // Re-render dynamic content when the app language changes.
+    window.PBH.i18nOnChange = function () {
+        const sid = window.currentSelectedSite && window.currentSelectedSite.site_id;
+        if (sid && typeof selectLandmark === 'function') {
+            selectLandmark(sid);
+        }
+        window.dispatchEvent(new CustomEvent('bahandi-i18n-change'));
+        if (window.map) window.map.invalidateSize();
+    };
 
     window.dispatchEvent(new CustomEvent('bahandi-sites-ready'));
 });

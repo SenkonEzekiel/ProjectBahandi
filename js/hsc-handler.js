@@ -4,6 +4,14 @@
 
 let currentHSCTab = 'statement';
 
+function hscSiteName(site, fb) {
+    if (site && window.PBH && window.PBH.i18n) {
+        const entry = window.PBH.i18n.site(site.site_id);
+        if (entry && entry.name) return entry.name;
+    }
+    return site?.site_name || site?.title || fb;
+}
+
 /**
  * Opens and populates the Heritage Structure Citation (HSC) side panel
  */
@@ -21,7 +29,7 @@ function openHSCModal() {
 
     if (heroImg) {
         if (typeof window.bindLandmarkImage === 'function') {
-            window.bindLandmarkImage(heroImg, site, site?.site_name || 'Heritage Landmark');
+            window.bindLandmarkImage(heroImg, site, hscSiteName(site, 'Heritage Landmark'));
         } else {
             heroImg.onerror = function () {
                 this.onerror = null;
@@ -30,9 +38,9 @@ function openHSCModal() {
             heroImg.src = site?.localImage || site?.image || 'assets/Landmark_images/placeholder.jpeg';
         }
     }
-    if (heroBadge) heroBadge.innerText = site?.heritage_status || site?.designation || 'NATIONAL HERITAGE SITE';
-    if (heroTitle) heroTitle.innerText = site?.site_name || 'Molo Heritage Site';
-    if (heroSub) heroSub.innerText = `${site?.district || 'DISTRICT OF MOLO'} · ${site?.city || 'ILOILO CITY'}`;
+    if (heroBadge) heroBadge.innerText = site?.heritage_status || site?.designation || ((window.PBH && window.PBH.i18n) ? window.PBH.i18n.get('hsc.badge.fallback', 'NATIONAL HERITAGE SITE') : 'NATIONAL HERITAGE SITE');
+    if (heroTitle) heroTitle.innerText = hscSiteName(site, 'Molo Heritage Site');
+    if (heroSub) heroSub.innerText = `${site?.district || ((window.PBH && window.PBH.i18n) ? window.PBH.i18n.get('hsc.distDefault', 'DISTRICT OF MOLO') : 'DISTRICT OF MOLO')} · ${site?.city || ((window.PBH && window.PBH.i18n) ? window.PBH.i18n.get('hsc.cityDefault', 'ILOILO CITY') : 'ILOILO CITY')}`;
 
     // Populating Footer Metadata Chips
     const chipDesignation = document.getElementById('hsc-chip-designation');
@@ -70,6 +78,8 @@ function renderHSCContent() {
     const site = window.currentSelectedSite;
     const mainPara = document.getElementById('hsc-main-paragraph');
     const secPara = document.getElementById('hsc-sec-paragraph');
+    const i18n = (window.PBH && window.PBH.i18n) ? window.PBH.i18n : null;
+    const loc = function(key, fb) { return i18n ? i18n.get(key, fb) : fb; };
 
     if (!mainPara || !secPara) return;
 
@@ -77,29 +87,29 @@ function renderHSCContent() {
         mainPara.innerText = site?.architectural_statement 
             || site?.statement 
             || site?.description 
-            || "This structure displays distinct colonial architecture, preserving regional heritage through key historical elements.";
+            || loc('hsc.tab.statement.main', "This structure displays distinct colonial architecture, preserving regional heritage through key historical elements.");
             
         secPara.innerText = site?.architectural_details 
             || site?.statement_sub 
-            || "Featured details include traditional masonry, reinforced mortar composition, and characteristic district motifs.";
+            || loc('hsc.tab.statement.sub', "Featured details include traditional masonry, reinforced mortar composition, and characteristic district motifs.");
 
     } else if (currentHSCTab === 'significance') {
         mainPara.innerText = site?.historical_significance 
             || site?.significance 
-            || "Serving as a major community anchor, this site played a vital role during historical developments in Iloilo.";
+            || loc('hsc.tab.significance.main', "Serving as a major community anchor, this site played a vital role during historical developments in Iloilo.");
             
         secPara.innerText = site?.cultural_impact 
             || site?.significance_sub 
-            || "The landmark remains a key symbol of local identity and ongoing preservation efforts.";
+            || loc('hsc.tab.significance.sub', "The landmark remains a key symbol of local identity and ongoing preservation efforts.");
 
     } else if (currentHSCTab === 'citation') {
         mainPara.innerText = site?.official_citation 
             || site?.citation 
-            || `Official designation recognized under national heritage legislation. Reference Code: ${site?.site_id || 'BHD-ML-0001'}.`;
+            || loc('hsc.tab.citation.main', "Official designation recognized under national heritage legislation.") + ` Reference Code: ${site?.site_id || 'BHD-ML-0001'}.`;
             
         secPara.innerText = site?.citation_source 
             || site?.declaration_ref 
-            || "Archived under the National Historical Commission of the Philippines (NHCP) regional registry.";
+            || loc('hsc.tab.citation.sub', "Archived under the National Historical Commission of the Philippines (NHCP) regional registry.");
     }
 }
 

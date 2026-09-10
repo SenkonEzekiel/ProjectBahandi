@@ -3,6 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        (function () {
+            var t = null;
+            try { t = window.localStorage.getItem("bahandi_theme"); } catch (e) {}
+            var d = t === "dark" || (t !== "light" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light";
+            document.documentElement.setAttribute("data-theme", d);
+            document.documentElement.style.colorScheme = d;
+        })();
+    </script>
     <title>Project Bahandi - Interactive Map</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -24,14 +33,27 @@
             margin: 0;
             padding: 0;
             height: 100%;
+            height: 100dvh;
             width: 100%;
             overflow: hidden;
         }
 
+        body {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-header {
+            position: relative;
+            flex: 0 0 auto;
+        }
+
         .app-container {
             position: relative;
+            flex: 1 1 auto;
+            min-height: 0;
             width: 100%;
-            height: 100%;
+            height: auto;
             overflow: hidden;
         }
 
@@ -55,25 +77,25 @@
             </div>
             <div class="brand-text">
                 <span class="brand-name logo-main">project<span class="dot">bahandi</span><span class="tld domain">.com</span></span>
-                <span class="brand-badge subtitle">Molo Cultural GIS</span>
+                <span class="brand-badge subtitle" data-i18n="brand.short">Molo Cultural GIS</span>
             </div>
         </div>
         <nav class="nav-links">
             <a href="index.html" class="nav-link">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12 L12 4 L21 12"/><path d="M5 10 V20 h14 V10"/></svg>
-                Home
+                <span data-i18n="nav.home">Home</span>
             </a>
             <a href="DigitalMap.html" class="nav-link active active-nav">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 8 3 16 6 23 3 23 18 16 21 8 18 1 21"/><line x1="8" y1="3" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="21"/></svg>
-                Interactive Map
+                <span data-i18n="nav.map">Interactive Map</span>
             </a>
             <a href="about.html" class="nav-link">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="13"/><circle cx="12" cy="16.5" r="0.8" fill="currentColor"/></svg>
-                About
+                <span data-i18n="nav.about">About</span>
             </a>
             <a href="contact.html" class="nav-link">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5 h16 v14 H4 Z"/><path d="M4 7 L12 13 L20 7"/></svg>
-                Contact
+                <span data-i18n="nav.contact">Contact</span>
             </a>
         </nav>
         <div class="header-right">
@@ -82,19 +104,25 @@
             </button>
             <div class="search" id="search">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg>
-                <input id="search-input" type="search" placeholder="Search landmarks, streets…" autocomplete="off" />
+                <input id="search-input" type="search" placeholder="Search landmarks, streets…" data-i18n-placeholder="search.ph" autocomplete="off" />
                 <span class="kbd">⌘K</span>
                 <div class="cmd" id="search-cmd"></div>
             </div>
-            <button type="button" class="icon-btn" id="theme-toggle" title="Theme">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8 A9 9 0 1 1 11.2 3 A7 7 0 0 0 21 12.8 Z"/></svg>
-            </button>
-            <button type="button" class="icon-btn" id="lang-toggle" title="Language">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12 h18"/><path d="M12 3 c3 3 4.5 6 4.5 9 s-1.5 6 -4.5 9"/><path d="M12 3 c-3 3 -4.5 6 -4.5 9 s1.5 6 4.5 9"/></svg>
-            </button>
+            <div class="nav-actions">
+                <select class="nav-lang" data-i18n-aria="nav.lang" data-i18n-title="nav.lang">
+                    <option value="en">EN</option>
+                    <option value="ms">MS</option>
+                    <option value="th">TH</option>
+                    <option value="tl">TL</option>
+                </select>
+                <button type="button" class="theme-toggle" data-i18n-aria="nav.theme" data-i18n-title="nav.theme" aria-pressed="false">
+                    <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                    <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8 A9 9 0 1 1 11.2 3 A7 7 0 0 0 21 12.8 Z"/></svg>
+                </button>
+            </div>
             <div class="stats-pill" title="Landmarks displayed">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 C7.5 2 4 5.5 4 10 c0 6 8 12 8 12 s8 -6 8 -12 c0 -4.5 -3.5 -8 -8 -8 Z"/><circle cx="12" cy="10" r="3"/></svg>
-                <span><b id="pin-count">0</b> Landmarks</span>
+                <span><b id="pin-count">0</b> <span data-i18n="stats.landmarks">Landmarks</span></span>
             </div>
         </div>
     </header>
@@ -104,14 +132,14 @@
         <div id="filter-control-panel" class="filter-control-panel">
             <header class="fp-head">
                 <div class="fp-title">
-                    <span class="kicker">Layer Controls</span>
-                    <h3>Filter Landmarks</h3>
+                    <span class="kicker" data-i18n="fp.kicker">Layer Controls</span>
+                    <h3 data-i18n="fp.title">Filter Landmarks</h3>
                 </div>
                 <div class="fp-actions">
-                    <button type="button" class="fp-btn" id="fp-reset" title="Reset" aria-label="Reset filters">
+                    <button type="button" class="fp-btn" id="fp-reset" title="Reset" aria-label="Reset filters" data-i18n-title="fp.reset" data-i18n-aria="fp.reset">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12 a9 9 0 1 0 3 -6.7"/><polyline points="3 3 3 9 9 9"/></svg>
                     </button>
-                    <button type="button" class="fp-btn" id="fp-collapse" title="Collapse panel" aria-label="Collapse filter panel">
+                    <button type="button" class="fp-btn" id="fp-collapse" title="Collapse panel" aria-label="Collapse filter panel" data-i18n-title="fp.collapse" data-i18n-aria="fp.collapse">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
                     </button>
                 </div>
@@ -119,76 +147,76 @@
 
             <div class="fp-body">
                 <div class="filter-group fp-section">
-                    <label class="fp-label" for="region-select"><span>Region</span></label>
+                    <label class="fp-label" for="region-select"><span data-i18n="fp.region">Region</span></label>
                     <div class="fp-select-wrap">
                         <select id="region-select">
-                            <option value="molo">Molo, Iloilo City</option>
-                            <option value="jaro">Jaro, Iloilo City</option>
-                            <option value="city-proper">City Proper</option>
+                            <option value="molo" data-i18n="fp.region.molo">Molo, Iloilo City</option>
+                            <option value="jaro" data-i18n="fp.region.jaro">Jaro, Iloilo City</option>
+                            <option value="city-proper" data-i18n="fp.region.proper">City Proper</option>
                         </select>
                     </div>
                 </div>
 
                 <div class="filter-group fp-section">
                     <label class="fp-label" for="category-select">
-                        <span>Categories</span>
+                        <span data-i18n="fp.cat">Categories</span>
                         <span class="count" id="fp-cat-count">4 · all</span>
                     </label>
                     <select id="category-select" class="fp-sr-select">
-                        <option value="all">All Landmarks</option>
-                        <option value="church">Churches / Religious</option>
-                        <option value="mansion">Ancestral Houses</option>
-                        <option value="plaza">Plazas & Parks</option>
-                        <option value="food">Culinary Sites</option>
+                        <option value="all" data-i18n="fp.cat.all">All Landmarks</option>
+                        <option value="church" data-i18n="fp.cat.church">Churches / Religious</option>
+                        <option value="mansion" data-i18n="fp.cat.mansion">Ancestral Houses</option>
+                        <option value="plaza" data-i18n="fp.cat.plaza">Plazas &amp; Parks</option>
+                        <option value="food" data-i18n="fp.cat.food">Culinary Sites</option>
                     </select>
                     <div class="fp-chips" role="group" aria-label="Landmark categories">
                         <button type="button" class="fp-chip active" data-cat="mansion">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21 h18"/><path d="M5 21 V10"/><path d="M19 21 V10"/><path d="M9 21 V13"/><path d="M15 21 V13"/><path d="M2 10 L12 3 L22 10"/></svg>
-                            Ancestral Houses
+                            <span data-i18n="fp.cat.mansion">Ancestral Houses</span>
                         </button>
                         <button type="button" class="fp-chip active" data-cat="church">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 L4 8 v12 h16 V8 Z"/><path d="M12 3 v5"/><path d="M10 8 h4"/><path d="M9 20 v-6 h6 v6"/></svg>
-                            Churches
+                            <span data-i18n="lg.church">Churches</span>
                         </button>
                         <button type="button" class="fp-chip active" data-cat="plaza">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3 v18"/><path d="M3 12 h18"/></svg>
-                            Plazas &amp; Parks
+                            <span data-i18n="fp.cat.plaza">Plazas &amp; Parks</span>
                         </button>
                         <button type="button" class="fp-chip" data-cat="food">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4 v16"/><path d="M5 4 c3 0 3 5 0 6 c-3 -1 -3 -6 0 -6 Z"/><path d="M13 4 v7 c0 1.5 1 2 3 2 v7"/><path d="M19 4 v7"/></svg>
-                            Culinary Sites
+                            <span data-i18n="fp.cat.food">Culinary Sites</span>
                         </button>
                     </div>
                 </div>
 
                 <div class="fp-section">
-                    <div class="fp-label"><span>Overlays</span></div>
+                    <div class="fp-label"><span data-i18n="fp.ov">Overlays</span></div>
                     <div class="fp-toggle-row">
                         <button type="button" class="fp-toggle on" data-toggle="labels">
-                            <span class="lbl">Show pin labels</span>
+                            <span class="lbl" data-i18n="fp.ov.labels">Show pin labels</span>
                             <span class="switch" aria-hidden="true"></span>
                         </button>
                         <button type="button" class="fp-toggle on" data-toggle="pulse">
-                            <span class="lbl">Pulse rings on pins</span>
+                            <span class="lbl" data-i18n="fp.ov.pulse">Pulse rings on pins</span>
                             <span class="switch" aria-hidden="true"></span>
                         </button>
                         <button type="button" class="fp-toggle" data-toggle="bounds">
-                            <span class="lbl">Heritage boundaries</span>
+                            <span class="lbl" data-i18n="fp.ov.bounds">Heritage boundaries</span>
                             <span class="switch" aria-hidden="true"></span>
                         </button>
                     </div>
                 </div>
 
                 <div class="fp-foot">
-                    <button class="filter-btn-placeholder fp-primary" type="button" id="fp-apply">
+                    <button class="filter-btn-placeholder fp-primary" type="button" id="fp-apply" data-i18n="fp.apply">
                         Apply Filters
                     </button>
-                    <button type="button" class="fp-ghost" id="fp-reset-foot">Reset</button>
+                    <button type="button" class="fp-ghost" id="fp-reset-foot" data-i18n="fp.resetBtn">Reset</button>
                 </div>
             </div>
         </div>
 
-        <button type="button" class="fp-reopen" id="fp-reopen" title="Show filter panel" aria-label="Show filter panel">
+        <button type="button" class="fp-reopen" id="fp-reopen" title="Show filter panel" aria-label="Show filter panel" data-i18n-title="fp.reopen" data-i18n-aria="fp.reopen">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6 h16"/><path d="M7 12 h13"/><path d="M10 18 h10"/></svg>
         </button>
 
@@ -198,9 +226,9 @@
         <!-- Hover Preview Card -->
         <div id="map-preview-card" class="preview-card hidden">
             <div class="preview-card-content">
-                <span id="preview-tag-text" class="preview-tag">Category</span>
-                <h4 id="preview-title-text">Landmark Name</h4>
-                <p>Click pin to expand details...</p>
+                <span id="preview-tag-text" class="preview-tag" data-i18n="map.previewTag">Category</span>
+                <h4 id="preview-title-text" data-i18n="map.previewTitle">Landmark Name</h4>
+                <p data-i18n="map.previewHint">Click pin to expand details...</p>
             </div>
         </div>
 
@@ -210,93 +238,93 @@
         <!-- Main Info Sidebar -->
         <div id="info-sidebar" class="sidebar collapsed">
             <div class="sidebar-header">
-                <button type="button" class="close-btn" onclick="closeSidebar()" aria-label="Close sidebar">✕</button>
+                <button type="button" class="close-btn" onclick="closeSidebar()" aria-label="Close sidebar" data-i18n-aria="sidebar.closeAria">✕</button>
             </div>
 
             <div class="sidebar-image-container">
-                <img id="landmark-image" src="" alt="Landmark Image" />
+                <img id="landmark-image" src="" alt="Landmark Image" data-i18n-alt="img.landmarkImage" />
             </div>
 
             <div class="sidebar-body">
-                <h2 id="landmark-title">Select a Landmark</h2>
-                <p id="landmark-description" class="short-description">
+                <h2 id="landmark-title" data-i18n="sidebar.emptyTitle">Select a Landmark</h2>
+                <p id="landmark-description" class="short-description" data-i18n="sidebar.emptyDesc">
                     Select a pin on the map to view quick details.
                 </p>
             </div>
 
             <div class="sidebar-footer">
-                <span class="footer-label">Explore!</span>
+                <span class="footer-label" data-i18n="sidebar.explore">Explore!</span>
                 <div class="mini-button-row">
                     
                     <!-- BUTTON 1: Full Details (FD) -->
                     <div class="mini-btn-wrapper">
                         <button type="button" class="mini-btn" onclick="openFrame('FD')">
-                            <img src="assets/SidebarComp/v4-FD.png" alt="Full Details" class="mini-btn-icon">
-                            <span class="mini-btn-label">Details</span> 
+                            <img src="assets/SidebarComp/v4-FD.png" alt="Full Details" class="mini-btn-icon" data-i18n-alt="mini.details">
+                            <span class="mini-btn-label" data-i18n="mini.details">Details</span> 
                         </button>
                         <div class="btn-flyout">
-                            <strong>Full Details</strong>
-                            <span>Click to view complete history and details.</span>
+                            <strong data-i18n="mini.details">Full Details</strong>
+                            <span data-i18n="mini.flyout.details">Click to view complete history and details.</span>
                         </div>
                     </div>
 
                     <!-- BUTTON 2: Fun Facts (FF) -->
                     <div class="mini-btn-wrapper">
                         <button type="button" class="mini-btn" onclick="openFrame('FF')">
-                            <img src="assets/SidebarComp/v4-FF.png" alt="Fun Facts" class="mini-btn-icon">
-                            <span class="mini-btn-label">Facts</span> 
+                            <img src="assets/SidebarComp/v4-FF.png" alt="Fun Facts" class="mini-btn-icon" data-i18n-alt="mini.facts">
+                            <span class="mini-btn-label" data-i18n="mini.facts">Facts</span> 
                         </button>
                         <div class="btn-flyout">
-                            <strong>Fun Facts</strong>
-                            <span>Discover interesting trivia about this landmark.</span>
+                            <strong data-i18n="mini.facts">Fun Facts</strong>
+                            <span data-i18n="mini.flyout.facts">Discover interesting trivia about this landmark.</span>
                         </div>
                     </div>
 
                     <!-- BUTTON 3: Heritage Citation (HSC) -->
                     <div class="mini-btn-wrapper">
                         <button type="button" class="mini-btn" onclick="openFrame('HSC')">
-                            <img src="assets/SidebarComp/v4-HSC.png" alt="Heritage Citation" class="mini-btn-icon">
-                            <span class="mini-btn-label">Citation</span> 
+                            <img src="assets/SidebarComp/v4-HSC.png" alt="Heritage Citation" class="mini-btn-icon" data-i18n-alt="mini.citation">
+                            <span class="mini-btn-label" data-i18n="mini.citation">Citation</span> 
                         </button>
                         <div class="btn-flyout">
-                            <strong>Heritage Citation</strong>
-                            <span>View architectural significance and legal citations.</span>
+                            <strong data-i18n="mini.citation">Heritage Citation</strong>
+                            <span data-i18n="mini.flyout.citation">View architectural significance and legal citations.</span>
                         </div>
                     </div>
 
                     <!-- BUTTON 4: Heritage Status (HS) -->
                     <div class="mini-btn-wrapper">
                         <button type="button" class="mini-btn" onclick="openFrame('HS')">
-                            <img src="assets/SidebarComp/v4-HS.png" alt="Heritage Status" class="mini-btn-icon">
-                            <span class="mini-btn-label">Status</span> 
+                            <img src="assets/SidebarComp/v4-HS.png" alt="Heritage Status" class="mini-btn-icon" data-i18n-alt="mini.status">
+                            <span class="mini-btn-label" data-i18n="mini.status">Status</span> 
                         </button>
                         <div class="btn-flyout">
-                            <strong>Heritage Status</strong>
-                            <span>Inspect verified seal and official designation fields.</span>
+                            <strong data-i18n="mini.status">Heritage Status</strong>
+                            <span data-i18n="mini.flyout.status">Inspect verified seal and official designation fields.</span>
                         </div>
                     </div>
 
                     <!-- BUTTON 5: Play Game (PG) -->
                     <div class="mini-btn-wrapper">
                         <button type="button" class="mini-btn" onclick="openFrame('PG')">
-                            <img src="assets/SidebarComp/v4-PG.png" alt="Play Game" class="mini-btn-icon">
-                            <span class="mini-btn-label">Game</span> 
+                            <img src="assets/SidebarComp/v4-PG.png" alt="Play Game" class="mini-btn-icon" data-i18n-alt="mini.game">
+                            <span class="mini-btn-label" data-i18n="mini.game">Game</span> 
                         </button>
                         <div class="btn-flyout">
-                            <strong>Play Game</strong>
-                            <span>Explore 3D models and interactive landmark games.</span>
+                            <strong data-i18n="mini.game">Play Game</strong>
+                            <span data-i18n="mini.flyout.game">Explore 3D models and interactive landmark games.</span>
                         </div>
                     </div>
 
                     <!-- BUTTON 6: QR Code (QR) -->
                     <div class="mini-btn-wrapper">
                         <button type="button" class="mini-btn" onclick="openFrame('QR')">
-                            <img src="assets/SidebarComp/v4-QR.png" alt="QR Code" class="mini-btn-icon">
-                            <span class="mini-btn-label">QR Code</span> 
+                            <img src="assets/SidebarComp/v4-QR.png" alt="QR Code" class="mini-btn-icon" data-i18n-alt="mini.qr">
+                            <span class="mini-btn-label" data-i18n="mini.qr">QR Code</span> 
                         </button>
                         <div class="btn-flyout">
-                            <strong>QR Code</strong>
-                            <span>View and scan site QR code for quick access.</span>
+                            <strong data-i18n="mini.qr">QR Code</strong>
+                            <span data-i18n="mini.flyout.qr">View and scan site QR code for quick access.</span>
                         </div>
                     </div>
 
@@ -312,40 +340,40 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
                     </svg>
                 </div>
-                <button type="button" class="bp-back-btn" onclick="backToSidebar()">← BACK TO OVERVIEW</button>
+                <button type="button" class="bp-back-btn" onclick="backToSidebar()" data-i18n="fd.back">← BACK TO OVERVIEW</button>
             </div>
 
             <div class="bp-meta-ref" id="bp-ref-code">REF · BHD-ML-0001 · FULL DETAILS</div>
             <h2 class="bp-title" id="bp-landmark-title">Landmark <em>Name</em></h2>
 
             <div class="bp-tabs-bar" id="bp-tabs-bar">
-                <button type="button" class="bp-tab-btn active" onclick="switchBpTab(this, 'history')">History</button>
-                <button type="button" class="bp-tab-btn" onclick="switchBpTab(this, 'architecture')">Architecture</button>
-                <button type="button" class="bp-tab-btn" onclick="switchBpTab(this, 'gallery')">Gallery</button>
+                <button type="button" class="bp-tab-btn active" onclick="switchBpTab(this, 'history')" data-i18n="fd.tab.history">History</button>
+                <button type="button" class="bp-tab-btn" onclick="switchBpTab(this, 'architecture')" data-i18n="fd.tab.architecture">Architecture</button>
+                <button type="button" class="bp-tab-btn" onclick="switchBpTab(this, 'gallery')" data-i18n="fd.tab.gallery">Gallery</button>
             </div>
 
             <div id="bp-tab-content">
-                <div class="bp-section-label">Overview</div>
-                <p class="bp-description" id="bp-landmark-desc">
+                <div class="bp-section-label" data-i18n="fd.overview">Overview</div>
+                <p class="bp-description" id="bp-landmark-desc" data-i18n="fd.desc">
                     Select a landmark pin to load full historical data.
                 </p>
 
-                <div class="bp-section-label">Data Sheet</div>
+                <div class="bp-section-label" data-i18n="fd.datasheet">Data Sheet</div>
                 <div class="bp-data-sheet">
-                    <span class="bp-data-key">BUILT</span>
+                    <span class="bp-data-key" data-i18n="fd.key.built">BUILT</span>
                     <span class="bp-data-val" id="bp-data-built">—</span>
                     
-                    <span class="bp-data-key">STYLE</span>
+                    <span class="bp-data-key" data-i18n="fd.key.style">STYLE</span>
                     <span class="bp-data-val" id="bp-data-style">—</span>
                     
-                    <span class="bp-data-key">STATUS</span>
+                    <span class="bp-data-key" data-i18n="fd.key.status">STATUS</span>
                     <span class="bp-data-val" id="bp-data-status">—</span>
                 </div>
             </div>
 
             <div class="bp-footer">
                 <div class="bp-coordinates" id="bp-coords-text">0.0000° N · 0.0000° E</div>
-                <button type="button" class="bp-action-btn" onclick="alert('Opening Full Article Page...')">
+                <button type="button" class="bp-action-btn" onclick="alert('Opening Full Article Page...')" data-i18n="fd.openFull">
                     Open Full Page →
                 </button>
             </div>
@@ -370,7 +398,7 @@
                     </div>
 
                     <div class="ff-counter">
-                        Fact <span id="ff-current-idx">01</span> / <span id="ff-total-count">03</span>
+                        <span data-i18n="ff.label">Fact</span> <span id="ff-current-idx">01</span> / <span id="ff-total-count">03</span>
                     </div>
 
                     <h3 class="ff-title" id="ff-headline">The <em>octagonal turret</em> you can spot from the plaza...</h3>
@@ -388,7 +416,7 @@
 
                     <div class="ff-did-you-know-box">
                         <div class="ff-dyk-label">
-                            <span>💡 Did You Know?</span>
+                            <span data-i18n="ff.dyk">💡 Did You Know?</span>
                         </div>
                         <p class="ff-dyk-text" id="ff-dyk-text">
                             It was one of the earliest prominent structures constructed in the district.
@@ -402,10 +430,10 @@
                             <span class="ff-dot"></span>
                         </div>
                         <div class="ff-nav-btns">
-                            <button type="button" class="ff-arrow-btn" onclick="navigateFF(-1)" aria-label="Previous Fact">
+                            <button type="button" class="ff-arrow-btn" onclick="navigateFF(-1)" aria-label="Previous Fact" data-i18n-aria="ff.aria.prev">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
                             </button>
-                            <button type="button" class="ff-arrow-btn" onclick="navigateFF(1)" aria-label="Next Fact">
+                            <button type="button" class="ff-arrow-btn" onclick="navigateFF(1)" aria-label="Next Fact" data-i18n-aria="ff.aria.next">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
                             </button>
                         </div>
@@ -418,36 +446,36 @@
         <div id="hsc-panel" class="hsc-panel">
             <div class="hsc-panel-header">
                 <div class="hsc-breadcrumb">
-                    HERITAGE / ARCHITECTURE / <b id="hsc-bread-tag">CITATION</b>
+                    <span data-i18n="hsc.breadcrumb">HERITAGE / ARCHITECTURE /</span> <b id="hsc-bread-tag" data-i18n="hsc.breadTag">CITATION</b>
                 </div>
                 <button type="button" class="hsc-close-btn" onclick="closeHSCModal()" aria-label="Close sidebar">✕</button>
             </div>
 
             <div class="hsc-panel-content">
                 <div class="hsc-hero-banner">
-                    <img id="hsc-hero-img" src="assets/SidebarComp/v4-FD.png" alt="Heritage Landmark">
+                    <img id="hsc-hero-img" src="assets/SidebarComp/v4-FD.png" alt="Heritage Landmark" data-i18n-alt="img.heritageLandmark">
                     <div class="hsc-hero-overlay">
-                        <span class="hsc-badge" id="hsc-hero-badge">NATIONAL HERITAGE HOUSE</span>
+                        <span class="hsc-badge" id="hsc-hero-badge" data-i18n="hsc.badge">NATIONAL HERITAGE HOUSE</span>
                         <h3 id="hsc-hero-title">Molo Heritage Site</h3>
                         <p id="hsc-hero-sub">DISTRICT OF MOLO · ILOILO CITY</p>
                     </div>
                 </div>
 
-                <h2 class="hsc-editorial-title" id="hsc-modal-title">
+                <h2 class="hsc-editorial-title" id="hsc-modal-title" data-i18n-html="hsc.editorialTitle">
                     Architectural <em>Statement</em>
                 </h2>
 
                 <div class="hsc-pill-tabs">
-                    <button type="button" class="hsc-pill-btn active" onclick="switchHSCTab(this, 'statement')">Statement</button>
-                    <button type="button" class="hsc-pill-btn" onclick="switchHSCTab(this, 'significance')">Significance</button>
-                    <button type="button" class="hsc-pill-btn" onclick="switchHSCTab(this, 'citation')">Citation</button>
+                    <button type="button" class="hsc-pill-btn active" onclick="switchHSCTab(this, 'statement')" data-i18n="hsc.tab.statement">Statement</button>
+                    <button type="button" class="hsc-pill-btn" onclick="switchHSCTab(this, 'significance')" data-i18n="hsc.tab.significance">Significance</button>
+                    <button type="button" class="hsc-pill-btn" onclick="switchHSCTab(this, 'citation')" data-i18n="hsc.tab.citation">Citation</button>
                 </div>
 
                 <div class="hsc-body-box">
-                    <p class="hsc-dropcap-para" id="hsc-main-paragraph">
+                    <p class="hsc-dropcap-para" id="hsc-main-paragraph" data-i18n="hsc.placeholder1">
                         Select a landmark from the interactive map to inspect its full heritage citation, architectural significance, and official declaration references.
                     </p>
-                    <p class="hsc-placeholder-box" id="hsc-sec-paragraph">
+                    <p class="hsc-placeholder-box" id="hsc-sec-paragraph" data-i18n="hsc.placeholder2">
                         Additional preservation metadata and detailed citation records will render here when a site is actively loaded.
                     </p>
                 </div>
@@ -455,10 +483,10 @@
 
             <div class="hsc-panel-footer">
                 <div class="hsc-chips-group">
-                    <div class="hsc-chip">DESIGNATION: <b id="hsc-chip-designation">NHCP MARKER</b></div>
-                    <div class="hsc-chip">PERIOD: <b id="hsc-chip-era">19TH CENTURY</b></div>
+                    <div class="hsc-chip"><span data-i18n="hsc.chip.designation">DESIGNATION:</span> <b id="hsc-chip-designation">NHCP MARKER</b></div>
+                    <div class="hsc-chip"><span data-i18n="hsc.chip.period">PERIOD:</span> <b id="hsc-chip-era">19TH CENTURY</b></div>
                 </div>
-                <a href="#" class="hsc-cite-link" id="hsc-cite-link" onclick="alert('Opening official citation record...')">
+                <a href="#" class="hsc-cite-link" id="hsc-cite-link" onclick="alert('Opening official citation record...')" data-i18n="hsc.viewArchive">
                     VIEW ARCHIVE →
                 </a>
             </div>
@@ -471,11 +499,11 @@
                 <div class="hs-inner-border">
                     <div class="hs-cert-header">
                         <div class="hs-cert-header-left">
-                            <span>REGISTRY ID:</span>
+                            <span data-i18n="hs.registryId">REGISTRY ID:</span>
                             <strong id="hs-reg-code">BHD-REG-2026</strong>
                         </div>
                         <div class="hs-cert-header-right">
-                            AUTH BY: <span id="hs-auth-by">NHCP / ILOILO HERITAGE COUNCIL</span>
+                            <span data-i18n="hs.authBy">AUTH BY:</span> <span id="hs-auth-by">NHCP / ILOILO HERITAGE COUNCIL</span>
                         </div>
                     </div>
 
@@ -490,7 +518,7 @@
                             </div>
                         </div>
                         <div class="hs-details-wrapper">
-                            <div class="hs-status-subtitle">VERIFIED HERITAGE STATUS</div>
+                            <div class="hs-status-subtitle" data-i18n="hs.statusSubtitle">VERIFIED HERITAGE STATUS</div>
                             <h3 class="hs-landmark-title" id="hs-landmark-title">Molo Heritage <em>Site</em></h3>
                             <p class="hs-summary-text" id="hs-summary-text">
                                 Officially certified as an active cultural heritage structure under local and national preservation standards.
@@ -500,15 +528,15 @@
 
                     <div class="hs-fields-grid">
                         <div class="hs-field-box">
-                            <div class="hs-field-label">CLASSIFICATION</div>
+                            <div class="hs-field-label" data-i18n="hs.field.classification">CLASSIFICATION</div>
                             <div class="hs-field-value" id="hs-val-registry">NATIONAL HERITAGE LANDMARK</div>
                         </div>
                         <div class="hs-field-box">
-                            <div class="hs-field-label">MARKER YEAR</div>
+                            <div class="hs-field-label" data-i18n="hs.field.markerYear">MARKER YEAR</div>
                             <div class="hs-field-value" id="hs-val-marker">19TH CENTURY</div>
                         </div>
                         <div class="hs-field-box">
-                            <div class="hs-field-label">ORDINANCE NO.</div>
+                            <div class="hs-field-label" data-i18n="hs.field.ordinance">ORDINANCE NO.</div>
                             <div class="hs-field-value" id="hs-val-ordinance">ORD NO. 2012-084</div>
                         </div>
                     </div>
@@ -516,9 +544,9 @@
                     <div class="hs-cert-footer">
                         <div class="hs-active-badge">
                             <span class="hs-status-dot"></span>
-                            AUTHENTICATED RECORD
+                            <span data-i18n="hs.authBadge">AUTHENTICATED RECORD</span>
                         </div>
-                        <a href="#" class="hs-source-link" id="hs-source-link" onclick="alert('Opening legal record archive...')">
+                        <a href="#" class="hs-source-link" id="hs-source-link" onclick="alert('Opening legal record archive...')" data-i18n="hs.docArchive">
                             DOCUMENT ARCHIVE →
                         </a>
                     </div>
@@ -545,7 +573,7 @@
                     </div>
                 </div>
 
-                <div class="pg-badge">INTERACTIVE EXPERIENCES</div>
+                <div class="pg-badge" data-i18n="pg.badge">INTERACTIVE EXPERIENCES</div>
                 <h2 class="pg-title" id="pg-landmark-title">Molo Mansion <em>Interactive</em></h2>
                 <p class="pg-sub-description" id="pg-sub-desc">
                     Choose between inspecting the 3D model of this structure or playing its personal landmark challenge game.
@@ -556,7 +584,7 @@
                     <div class="pg-mode-card selected" id="pg-card-3d" onclick="selectPGMode('3d-model')">
                         <div>
                             <div class="pg-card-top">
-                                <span class="pg-mode-label">MODE 01</span>
+                                <span class="pg-mode-label" data-i18n="pg.mode.label1">MODE 01</span>
                                 <div class="pg-card-icon">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                                         <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
@@ -572,7 +600,7 @@
                         </div>
                         <div>
                             <div class="pg-progress-meta">
-                                <span>STATUS</span>
+                                <span data-i18n="pg.meta.status">STATUS</span>
                                 <span id="pg-m1-meta">MODEL READY · 100%</span>
                             </div>
                             <div class="pg-progress-bar-bg">
@@ -585,7 +613,7 @@
                     <div class="pg-mode-card" id="pg-card-game" onclick="selectPGMode('personal-game')">
                         <div>
                             <div class="pg-card-top">
-                                <span class="pg-mode-label">MODE 02</span>
+                                <span class="pg-mode-label" data-i18n="pg.mode.label2">MODE 02</span>
                                 <div class="pg-card-icon">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                                         <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
@@ -599,7 +627,7 @@
                         </div>
                         <div>
                             <div class="pg-progress-meta">
-                                <span>MINI-GAME</span>
+                                <span data-i18n="pg.meta.game">MINI-GAME</span>
                                 <span id="pg-m2-meta">PERSONAL GAME · READY</span>
                             </div>
                             <div class="pg-progress-bar-bg">
@@ -611,9 +639,9 @@
 
                 <div class="pg-footer-bar">
                     <div class="pg-stats-row">
-                        <span>AVAILABLE MODES: <strong>2/2</strong></span>
+                        <span><span data-i18n="pg.footer.modes">AVAILABLE MODES:</span> <strong>2/2</strong></span>
                     </div>
-                    <a href="#" id="pg-launch-btn" class="pg-launch-btn" onclick="launchSelectedGame(); return false;">ENTER EXPERIENCE →</a>
+                    <a href="#" id="pg-launch-btn" class="pg-launch-btn" onclick="launchSelectedGame(); return false;" data-i18n="pg.launch">ENTER EXPERIENCE →</a>
                 </div>
             </div>
         </div>
@@ -628,7 +656,7 @@
                         <rect x="3" y="14" width="7" height="7"/>
                     </svg>
                 </div>
-                <button type="button" class="qr-back-btn" onclick="closeQRPanel()">← BACK TO OVERVIEW</button>
+                <button type="button" class="qr-back-btn" onclick="closeQRPanel()" data-i18n="qr.back">← BACK TO OVERVIEW</button>
             </div>
 
             <div class="qr-meta-ref" id="qr-ref-code">REF · BHD-ML-0001 · QR ACCESS</div>
@@ -639,35 +667,35 @@
                 <div class="qr-image-wrapper">
                     <img id="qr-code-img" src="" alt="Landmark QR Code">
                 </div>
-                <div class="qr-scan-hint">SCAN TO INSTANTLY ACCESS ON MOBILE</div>
+                <div class="qr-scan-hint" data-i18n="qr.scanHint">SCAN TO INSTANTLY ACCESS ON MOBILE</div>
             </div>
 
             <!-- Spec Grid -->
             <div class="qr-spec-box">
                 <div class="qr-spec-item">
-                    <span class="qr-spec-key">SITE ID</span>
+                    <span class="qr-spec-key" data-i18n="qr.spec.siteId">SITE ID</span>
                     <span class="qr-spec-val" id="qr-val-id">BHD-ML-0001</span>
                 </div>
                 <div class="qr-spec-item">
-                    <span class="qr-spec-key">DISTRICT</span>
+                    <span class="qr-spec-key" data-i18n="qr.spec.district">DISTRICT</span>
                     <span class="qr-spec-val" id="qr-val-district">Molo, Iloilo City</span>
                 </div>
                 <div class="qr-spec-item">
-                    <span class="qr-spec-key">FORMAT</span>
+                    <span class="qr-spec-key" data-i18n="qr.spec.format">FORMAT</span>
                     <span class="qr-spec-val" id="qr-val-format">PNG / 1024px</span>
                 </div>
                 <div class="qr-spec-item">
-                    <span class="qr-spec-key">STATUS</span>
+                    <span class="qr-spec-key" data-i18n="qr.spec.status">STATUS</span>
                     <span class="qr-spec-val" id="qr-val-status">ACTIVE & VERIFIED</span>
                 </div>
             </div>
 
             <!-- Actions Footer -->
             <div class="qr-footer">
-                <button type="button" class="qr-action-btn" onclick="downloadQRCode()">
+                <button type="button" class="qr-action-btn" onclick="downloadQRCode()" data-i18n="qr.download">
                     DOWNLOAD QR CODE ↓
                 </button>
-                <button type="button" class="qr-share-btn" onclick="shareQRLink()">
+                <button type="button" class="qr-share-btn" onclick="shareQRLink()" data-i18n="qr.copyLink">
                     COPY ACCESS LINK 🔗
                 </button>
             </div>
@@ -676,18 +704,18 @@
         <div id="heritage-boundary-overlay" class="heritage-boundary-overlay" hidden></div>
 
         <div class="legend" id="map-legend">
-            <div class="lg-title">Legend</div>
-            <button type="button" class="lg-row" data-legend-cat="mansion"><span class="lg-dot a"></span>Ancestral Houses</button>
-            <button type="button" class="lg-row" data-legend-cat="church"><span class="lg-dot c"></span>Churches</button>
-            <button type="button" class="lg-row" data-legend-cat="plaza"><span class="lg-dot p"></span>Plazas &amp; Parks</button>
-            <button type="button" class="lg-row" data-legend-cat="food"><span class="lg-dot f"></span>Culinary Sites</button>
+            <div class="lg-title" data-i18n="lg.legend">Legend</div>
+            <button type="button" class="lg-row" data-legend-cat="mansion"><span class="lg-dot a"></span><span data-i18n="lg.mansion">Ancestral Houses</span></button>
+            <button type="button" class="lg-row" data-legend-cat="church"><span class="lg-dot c"></span><span data-i18n="lg.church">Churches</span></button>
+            <button type="button" class="lg-row" data-legend-cat="plaza"><span class="lg-dot p"></span><span data-i18n="lg.plaza">Plazas &amp; Parks</span></button>
+            <button type="button" class="lg-row" data-legend-cat="food"><span class="lg-dot f"></span><span data-i18n="lg.food">Culinary Sites</span></button>
         </div>
 
         <div class="zoom-ctl">
-            <button type="button" id="zoom-in" title="Zoom in" aria-label="Zoom in">
+            <button type="button" id="zoom-in" title="Zoom in" aria-label="Zoom in" data-i18n-title="map.zoomIn" data-i18n-aria="map.zoomIn">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             </button>
-            <button type="button" id="zoom-out" title="Zoom out" aria-label="Zoom out">
+            <button type="button" id="zoom-out" title="Zoom out" aria-label="Zoom out" data-i18n-title="map.zoomOut" data-i18n-aria="map.zoomOut">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
             </button>
         </div>
@@ -695,37 +723,37 @@
         <footer class="toolbar" id="map-toolbar">
             <div class="tb-stats">
                 <div class="tb-stat">
-                    <span class="k">Displayed</span>
+                    <span class="k" data-i18n="tb.displayed">Displayed</span>
                     <span class="v"><b id="tb-count">0</b> / <span id="tb-total">0</span></span>
                 </div>
                 <div class="tb-divider"></div>
                 <div class="tb-stat">
-                    <span class="k">Coordinates</span>
+                    <span class="k" data-i18n="tb.coords">Coordinates</span>
                     <span class="v" id="tb-coords">10.6970° N · 122.5440° E</span>
                 </div>
                 <div class="tb-divider"></div>
                 <div class="tb-stat">
-                    <span class="k">Zoom</span>
+                    <span class="k" data-i18n="tb.zoom">Zoom</span>
                     <span class="v"><b id="tb-zoom">18</b></span>
                 </div>
             </div>
             <div class="tb-center">
                 <div class="scale-bar">
-                    <span class="lbl">Scale · <b id="tb-scale">1 : 3,200</b></span>
+                    <span class="lbl"><span data-i18n="tb.scale">Scale ·</span> <b id="tb-scale">1 : 3,200</b></span>
                     <div class="track" id="tb-scale-track"></div>
                     <span class="lbl"><b>200 m</b></span>
                 </div>
             </div>
             <div class="tb-right">
-                <a class="tb-link" id="tb-repo" href="https://github.com" target="_blank" rel="noopener noreferrer" title="GitHub">
+                <a class="tb-link" id="tb-repo" href="https://github.com" target="_blank" rel="noopener noreferrer" title="GitHub" data-i18n="tb.repo">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19 c-4 1 -4 -3 -6 -3 M15 22 v-4 a3 3 0 0 0 -1 -2 c3 -0.5 6 -1.5 6 -6 a4.5 4.5 0 0 0 -1.2 -3.2 a4 4 0 0 0 -0.2 -3.2 s-1 -0.5 -3.6 1.2 a12 12 0 0 0 -6 0 c-2.6 -1.7 -3.6 -1.2 -3.6 -1.2 a4 4 0 0 0 -0.2 3.2 A4.5 4.5 0 0 0 3 9 c0 4.5 3 5.5 6 6 a3 3 0 0 0 -1 2 v4"/></svg>
                     Repo
                 </a>
-                <a class="tb-link" id="tb-docs" href="about.html" title="Documentation">
+                <a class="tb-link" id="tb-docs" href="about.html" title="Documentation" data-i18n="tb.docs">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5 a2 2 0 0 1 2 -2 h10 l4 4 v12 a2 2 0 0 1 -2 2 H6 a2 2 0 0 1 -2 -2 Z"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="16" y2="14"/><line x1="8" y1="18" x2="13" y2="18"/></svg>
                     Docs
                 </a>
-                <button type="button" class="tb-link" id="tb-cite" title="Academic paper">
+                <button type="button" class="tb-link" id="tb-cite" title="Academic paper" data-i18n="tb.cite">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 8 L12 3 L2 8 l10 5 z"/><path d="M6 10 v6 c0 1 3 3 6 3 s6 -2 6 -3 v-6"/></svg>
                     Cite
                 </button>
@@ -793,7 +821,8 @@
                 blueprintPanel.classList.add('active');
                 const refCode = document.getElementById('bp-ref-code');
                 if (refCode && window.currentSelectedSite) {
-                    refCode.innerText = `REF · ${window.currentSelectedSite.site_id || 'BHD-ML-0001'} · FULL DETAILS`;
+                    const full = (window.PBH && window.PBH.i18n) ? window.PBH.i18n.localized('bp.ref', 'FULL DETAILS') : 'FULL DETAILS';
+                    refCode.innerText = 'REF · ' + (window.currentSelectedSite.site_id || 'BHD-ML-0001') + ' · ' + full;
                 }
             }
         } else if (frameType === 'FF') {
@@ -1113,29 +1142,95 @@
     function renderSearchResults(query) {
         const cmd = document.getElementById('search-cmd');
         if (!cmd) return;
+        const i18n = window.PBH && window.PBH.i18n;
+        const l = (key, fb) => (i18n ? i18n.localized(key, fb) : fb);
         const sites = Object.values(window.siteStore || {});
         const q = (query || '').trim().toLowerCase();
         const matches = sites.filter(site => {
-            const blob = `${site.site_name || ''} ${site.category || ''} ${site.location || ''}`.toLowerCase();
+            const nm = i18n ? i18n.site(site.site_id) : null;
+            const searchName = (nm && nm.name) ? nm.name : (site.site_name || '');
+            const cat = (nm && nm.category !== undefined) ? nm.category : (i18n ? i18n.category(site.category) : (site.category || ''));
+            const blob = `${searchName} ${cat} ${site.location || ''}`.toLowerCase();
             return !q || blob.includes(q);
         }).slice(0, 6);
 
-        cmd.innerHTML = matches.map((site, idx) => `
-            <button type="button" class="cmd-item${idx === 0 ? ' hi' : ''}" data-site-id="${site.site_id}">
-                <div class="ci"></div>
-                <div class="txt">
-                    <b>${site.site_name || 'Landmark'}</b>
-                    <small>${site.category || 'Heritage'} · ${site.district || 'Molo'}</small>
-                </div>
-            </button>
-        `).join('') || `<div class="cmd-item"><div class="txt"><b>No matches</b><small>Try another landmark name</small></div></div>`;
+        while (cmd.firstChild) cmd.removeChild(cmd.firstChild);
 
-        cmd.querySelectorAll('[data-site-id]').forEach(item => {
-            item.addEventListener('click', () => focusLandmark(item.dataset.siteId));
+        function appendText(parent, tag, cls, text) {
+            const el = document.createElement(tag);
+            if (cls) el.className = cls;
+            el.textContent = text;
+            parent.appendChild(el);
+            return el;
+        }
+
+        if (!matches.length) {
+            const empty = document.createElement('div');
+            empty.className = 'cmd-item';
+            const txt = document.createElement('div');
+            txt.className = 'txt';
+            appendText(txt, 'b', null, l('search.noMatchesTitle', 'No matches'));
+            appendText(txt, 'small', null, l('search.noMatchesSub', 'Try another landmark name'));
+            empty.appendChild(txt);
+            cmd.appendChild(empty);
+            return;
+        }
+
+        matches.forEach((site, idx) => {
+            const nm = i18n ? i18n.site(site.site_id) : null;
+            const title = (nm && nm.name) ? nm.name : (site.site_name || l('site.label', 'Landmark'));
+            const cat = (nm && nm.category !== undefined) ? nm.category : (i18n ? i18n.category(site.category) : (site.category || l('site.catHeritage', 'Heritage')));
+            const src = (window.PBH && window.PBH.image)
+                ? window.PBH.image.resolveSiteImage(Object.assign({}, site, {
+                    image: site.image_url || site.localImage || site.image || ''
+                }))
+                : (site.image_url || site.localImage || site.image || 'assets/Landmark_images/_fallback.svg');
+
+            const item = document.createElement('button');
+            item.type = 'button';
+            item.className = 'cmd-item' + (idx === 0 ? ' hi' : '');
+            item.dataset.siteId = site.site_id;
+
+            const ci = document.createElement('div');
+            ci.className = 'ci';
+            const img = document.createElement('img');
+            img.src = src;
+            img.alt = title;
+            img.loading = 'lazy';
+            ci.appendChild(img);
+
+            const txt = document.createElement('div');
+            txt.className = 'txt';
+            appendText(txt, 'b', null, title);
+            appendText(txt, 'small', null, `${cat} · ${site.district || 'Molo'}`);
+
+            item.appendChild(ci);
+            item.appendChild(txt);
+            item.addEventListener('click', () => focusLandmark(site.site_id));
+            cmd.appendChild(item);
         });
     }
 
+    function attachSearchImageErrorDelegation() {
+        const cmd = document.getElementById('search-cmd');
+        if (!cmd) return;
+        cmd.addEventListener('error', (e) => {
+            const img = e.target;
+            if (!img || img.tagName !== 'IMG') return;
+            const btn = img.closest ? img.closest('.cmd-item') : null;
+            const sid = btn && btn.dataset.siteId;
+            const site = sid ? (window.siteStore && window.siteStore[sid]) : null;
+            if (window.PBH && window.PBH.image && window.PBH.image.onError) {
+                window.PBH.image.onError(img, site || {});
+            } else {
+                img.onerror = null;
+                img.src = 'assets/Landmark_images/_fallback.svg';
+            }
+        }, true);
+    }
+
     function initGisChrome() {
+        attachSearchImageErrorDelegation();
         const bindMapChrome = () => {
             const map = window.map;
             if (!map) return false;
@@ -1204,10 +1299,11 @@
                 searchInput?.focus();
             }
         });
-
-        document.getElementById('theme-toggle')?.addEventListener('click', () => {
-            document.body.classList.toggle('theme-light');
+        window.addEventListener('bahandi-i18n-change', () => {
+            renderSearchResults(searchInput.value || '');
+            if (typeof window.syncBlueprintPanel === 'function') window.syncBlueprintPanel();
         });
+
         document.getElementById('nav-menu-toggle')?.addEventListener('click', () => {
             const nav = document.querySelector('.nav-links');
             const btn = document.getElementById('nav-menu-toggle');
@@ -1218,12 +1314,6 @@
         window.addEventListener('resize', () => {
             clearTimeout(window.__bahandiResizeTimer);
             window.__bahandiResizeTimer = setTimeout(adaptChromeToViewport, 160);
-        });
-        document.getElementById('lang-toggle')?.addEventListener('click', () => {
-            const next = document.documentElement.lang === 'fil' ? 'en' : 'fil';
-            document.documentElement.lang = next;
-            const badge = document.querySelector('.brand-badge');
-            if (badge) badge.textContent = next === 'fil' ? 'GIS Pangkultura ng Molo' : 'Molo Cultural GIS';
         });
         document.getElementById('tb-cite')?.addEventListener('click', async () => {
             const citation = 'Project Bahandi (2026). Molo District Heritage Map. Iloilo City.';
@@ -1245,4 +1335,7 @@
     window.applyOverlayToggles = applyOverlayToggles;
     window.initFilterControlPanel = initFilterControlPanel;
     </script>
+    <script src="js/theme.js"></script>
+    <script src="js/i18n.js"></script>
+    <script src="js/consent.js"></script>
 </html>

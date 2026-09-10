@@ -59,7 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       showStatus("Log in successful! Redirecting...", true);
       setTimeout(() => {
-        window.location.href = "../User/user-home.html";
+        window.location.href = "index.html";
       }, 1000);
     } catch (error) {
       showStatus(`Login failed: ${error.message}`);
@@ -76,7 +76,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       showStatus("Google login successful! Redirecting...", true);
       setTimeout(() => {
-        window.location.href = "../User/user-home.html";
+        window.location.href = "index.html";
       }, 1000);
     } catch (error) {
       showStatus(`Google login failed: ${error.message}`);

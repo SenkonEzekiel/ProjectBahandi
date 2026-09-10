@@ -3,12 +3,24 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script>
+    (function () {
+      var t = null;
+      try { t = window.localStorage.getItem("bahandi_theme"); } catch (e) {}
+      var d = t === "dark" || (t !== "light" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light";
+      document.documentElement.setAttribute("data-theme", d);
+      document.documentElement.style.colorScheme = d;
+    })();
+  </script>
   <title>About · Project Bahandi</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;0,6..72,700;1,6..72,400&family=Public+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/institution.css" />
   <link rel="stylesheet" href="css/AboutStyle.css" />
+  <script src="js/theme.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/consent.js"></script>
 </head>
 <body class="site-body">
   <header class="masthead">
@@ -22,28 +34,40 @@
         </span>
         <span class="brand-text">
           <span class="brand-name">projectbahandi<span class="tld">.com</span></span>
-          <span class="brand-meta">Molo Cultural GIS · Iloilo City</span>
+          <span class="brand-meta" data-i18n="brand.meta">Molo Cultural GIS · Iloilo City</span>
         </span>
       </a>
       <nav class="site-nav" aria-label="Primary">
-        <a href="index.html">Home</a>
-        <a href="DigitalMap.html">Interactive Map</a>
-        <a href="about.html" class="is-current">About</a>
-        <a href="contact.html">Contact</a>
+        <a href="index.html" data-i18n="nav.home">Home</a>
+        <a href="DigitalMap.html" data-i18n="nav.map">Interactive Map</a>
+        <a href="about.html" class="is-current" data-i18n="nav.about">About</a>
+        <a href="contact.html" data-i18n="nav.contact">Contact</a>
       </nav>
       <div class="mast-actions">
-        <a class="nav-login" href="Login.html">Login</a>
+        <div class="nav-actions">
+          <select class="nav-lang" data-i18n-aria="nav.lang" data-i18n-title="nav.lang">
+            <option value="en">EN</option>
+            <option value="ms">MS</option>
+            <option value="th">TH</option>
+            <option value="tl">TL</option>
+          </select>
+          <button type="button" class="theme-toggle" data-i18n-aria="nav.theme" data-i18n-title="nav.theme" aria-pressed="false">
+            <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+            <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8 A9 9 0 1 1 11.2 3 A7 7 0 0 0 21 12.8 Z"/></svg>
+          </button>
+        </div>
+        <a class="nav-login" href="Login.html" data-i18n="nav.login">Login</a>
         <button type="button" class="nav-toggle" id="mobile-toggle" aria-label="Toggle navigation" aria-expanded="false">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
         </button>
       </div>
     </div>
     <div class="drawer" id="mobile-menu">
-      <a href="index.html">Home</a>
-      <a href="DigitalMap.html">Interactive Map</a>
-      <a href="about.html" class="is-current">About</a>
-      <a href="contact.html">Contact</a>
-      <a href="Login.html">Login</a>
+      <a href="index.html" data-i18n="nav.home">Home</a>
+      <a href="DigitalMap.html" data-i18n="nav.map">Interactive Map</a>
+      <a href="about.html" class="is-current" data-i18n="nav.about">About</a>
+      <a href="contact.html" data-i18n="nav.contact">Contact</a>
+      <a href="Login.html" data-i18n="nav.login">Login</a>
     </div>
   </header>
 
@@ -51,38 +75,38 @@
     <section class="mast-hero">
       <img src="assets/AboutUsPagePicture.jpg" alt="" />
       <div class="inner">
-        <p class="kicker" style="color:#f3c7be;">Institutional record</p>
-        <h1>The story behind <em>Bahandi</em></h1>
-        <p>History, stories, and cultural identity of Molo, Iloilo City, held on an interactive platform that keeps heritage, community memory, and the present in one register.</p>
+        <p class="kicker" style="color:#f3c7be;" data-i18n="about.mast.kicker">Institutional record</p>
+        <h1 data-i18n-html="about.mast.title">The story behind <em>Bahandi</em></h1>
+        <p data-i18n="about.mast.lede">History, stories, and cultural identity of Molo, Iloilo City, held on an interactive platform that keeps heritage, community memory, and the present in one register.</p>
       </div>
     </section>
 
     <section class="folio section">
       <div class="section-head">
         <div>
-          <p class="kicker">About the project</p>
-          <h2>A digital heritage initiative</h2>
+          <p class="kicker" data-i18n="about.kicker">About the project</p>
+          <h2 data-i18n="about.title">A digital heritage initiative</h2>
         </div>
       </div>
       <div class="split">
         <figure class="frame">
           <div class="frame-photo" style="height: 380px;">
-            <img src="assets/MoloFront.jpg" alt="Molo Church front" />
+            <img src="assets/MoloFront.jpg" alt="Molo Church front" data-i18n-alt="img.moloChurch" />
           </div>
           <figcaption class="caption-bar">
-            <span>Plate 02</span>
-            <b>Molo Church</b>
+            <span data-i18n="about.plate">Plate 02</span>
+            <b data-i18n="about.plateLoc">Molo Church</b>
           </figcaption>
         </figure>
         <div class="body-copy">
-          <h3 class="display" style="font-size: 1.8rem; margin-bottom: 0.85rem;">Project Bahandi</h3>
-          <p>
+          <h3 class="display" style="font-size: 1.8rem; margin-bottom: 0.85rem;" data-i18n="about.head">Project Bahandi</h3>
+          <p data-i18n-html="about.p1">
             <strong>Project Bahandi: An Interactive Showcase of Heritage and Identity of Molo, Iloilo City, Philippines</strong> is a digital heritage platform built to show and keep the cultural identity of the Molo district.
           </p>
-          <p>
+          <p data-i18n="about.p2">
             It offers learners and visitors a way to move through historical landmarks, culinary arts, notable figures, oral traditions, and community memories.
           </p>
-          <p>
+          <p data-i18n="about.p3">
             Through digital mapping and storytelling, heritage study becomes a working experience: users find the values and memories behind Molo’s cultural assets.
           </p>
         </div>
@@ -93,14 +117,14 @@
       <div class="folio">
         <div class="section-head">
           <div>
-            <p class="kicker">District note</p>
-            <h2>Molo: history and culture</h2>
+<p class="kicker" data-i18n="dist.kicker">District note</p>
+            <h2 data-i18n="dist.title">Molo: history and culture</h2>
           </div>
         </div>
         <div class="body-copy" style="max-width: 46rem;">
-          <p>Molo is one of the historic districts of Iloilo City, known for its part in the cultural and economic development of the province.</p>
-          <p>During the Spanish colonial period, Molo became an important trading center where cultures mixed. Historical structures, ancestral houses, culinary traditions, and community stories still mark the district’s identity.</p>
-          <p>Today the heritage of Molo remains active through the people who keep, share, and assign meaning to its cultural resources.</p>
+          <p data-i18n="dist.p1">Molo is one of the historic districts of Iloilo City, known for its part in the cultural and economic development of the province.</p>
+          <p data-i18n="dist.p2">During the Spanish colonial period, Molo became an important trading center where cultures mixed. Historical structures, ancestral houses, culinary traditions, and community stories still mark the district's identity.</p>
+          <p data-i18n="dist.p3">Today the heritage of Molo remains active through the people who keep, share, and assign meaning to its cultural resources.</p>
         </div>
       </div>
     </section>
@@ -108,18 +132,18 @@
     <section class="folio section">
       <div class="section-head">
         <div>
-          <p class="kicker">Working definition</p>
-          <h2>Heritage is made by people</h2>
+          <p class="kicker" data-i18n="def.kicker">Working definition</p>
+          <h2 data-i18n="def.title">Heritage is made by people</h2>
         </div>
       </div>
       <div class="split">
         <blockquote class="quote-rule">
-          <p>Heritage is a social and cultural process where people actively create and shape heritage based on the values, meanings, and importance they assign to objects, places, and traditions.</p>
-          <cite>Kurmo Konsa, 2013</cite>
+          <p data-i18n="def.quote">Heritage is a social and cultural process where people actively create and shape heritage based on the values, meanings, and importance they assign to objects, places, and traditions.</p>
+          <cite data-i18n="def.cite">Kurmo Konsa, 2013</cite>
         </blockquote>
         <div class="body-copy">
-          <p>Molo’s cultural heritage is not only its landmarks and food. It is also the people who recognize and sustain those elements.</p>
-          <p>Through Project Bahandi, students and visitors take part in that process by exploring, documenting, and interpreting Molo’s cultural resources on the interactive digital map.</p>
+          <p data-i18n="def.p1">Molo’s cultural heritage is not only its landmarks and food. It is also the people who recognize and sustain those elements.</p>
+          <p data-i18n="def.p2">Through Project Bahandi, students and visitors take part in that process by exploring, documenting, and interpreting Molo’s cultural resources on the interactive digital map.</p>
         </div>
       </div>
     </section>
@@ -128,38 +152,38 @@
       <div class="folio">
         <div class="section-head">
           <div>
-            <p class="kicker">Mandate</p>
-            <h2>Project goals</h2>
+            <p class="kicker" data-i18n="mandate.kicker">Mandate</p>
+            <h2 data-i18n="mandate.title">Project goals</h2>
           </div>
         </div>
         <table class="ledger">
           <thead>
             <tr>
-              <th class="idx">No.</th>
-              <th>Aim</th>
-              <th>Scope</th>
+              <th class="idx" data-i18n="mandate.col.no">No.</th>
+              <th data-i18n="mandate.col.aim">Aim</th>
+              <th data-i18n="mandate.col.scope">Scope</th>
             </tr>
           </thead>
           <tbody>
             <tr>
               <td class="idx">01</td>
-              <th>Showcase cultural heritage</th>
-              <td>Present Molo through landmarks, traditions, culinary roots, figures, and local history on one platform.</td>
+              <th data-i18n="mandate.01.aim">Showcase cultural heritage</th>
+              <td data-i18n="mandate.01.scope">Present Molo through landmarks, traditions, culinary roots, figures, and local history on one platform.</td>
             </tr>
             <tr>
               <td class="idx">02</td>
-              <th>Preserve cultural knowledge</th>
-              <td>Document sites, oral histories, recipes, and community stories for later generations.</td>
+              <th data-i18n="mandate.02.aim">Preserve cultural knowledge</th>
+              <td data-i18n="mandate.02.scope">Document sites, oral histories, recipes, and community stories for later generations.</td>
             </tr>
             <tr>
               <td class="idx">03</td>
-              <th>Encourage student participation</th>
-              <td>Invite students into heritage work through digital tools, game elements, and community research.</td>
+              <th data-i18n="mandate.03.aim">Encourage student participation</th>
+              <td data-i18n="mandate.03.scope">Invite students into heritage work through digital tools, game elements, and community research.</td>
             </tr>
             <tr>
               <td class="idx">04</td>
-              <th>Promote heritage awareness</th>
-              <td>Show that heritage is still being shaped through shared memory, meaning, and local care.</td>
+              <th data-i18n="mandate.04.aim">Promote heritage awareness</th>
+              <td data-i18n="mandate.04.scope">Show that heritage is still being shaped through shared memory, meaning, and local care.</td>
             </tr>
           </tbody>
         </table>
@@ -169,52 +193,52 @@
     <section class="folio section">
       <div class="section-head">
         <div>
-          <p class="kicker">Credits</p>
-          <h2>Project team</h2>
+          <p class="kicker" data-i18n="credits.kicker">Credits</p>
+          <h2 data-i18n="credits.title">Project team</h2>
         </div>
-        <p class="section-note">Project proposers, INHS-STVEP</p>
+        <p class="section-note" data-i18n="credits.note">Project proposers, INHS-STVEP</p>
       </div>
       <div class="staff-grid">
         <div class="staff-row">
           <span class="init">K</span>
           <div>
             <h4>Keion Enzo C. Gendrala</h4>
-            <p class="kicker">Proposer</p>
+            <p class="kicker" data-i18n="credits.role">Proposer</p>
           </div>
         </div>
         <div class="staff-row">
           <span class="init">J</span>
           <div>
             <h4>John Paul M. Balboa</h4>
-            <p class="kicker">Proposer</p>
+            <p class="kicker" data-i18n="credits.role">Proposer</p>
           </div>
         </div>
         <div class="staff-row">
           <span class="init">C</span>
           <div>
             <h4>Cybele Faith B. Arroyo</h4>
-            <p class="kicker">Proposer</p>
+            <p class="kicker" data-i18n="credits.role">Proposer</p>
           </div>
         </div>
         <div class="staff-row">
           <span class="init">R</span>
           <div>
             <h4>Reylen Angela N. Guillano</h4>
-            <p class="kicker">Proposer</p>
+            <p class="kicker" data-i18n="credits.role">Proposer</p>
           </div>
         </div>
       </div>
       <div class="officers">
         <div>
-          <p class="lab">Adviser</p>
+          <p class="lab" data-i18n="credits.advisor">Adviser</p>
           <p>Rio G. Castanares Jr.</p>
         </div>
         <div>
-          <p class="lab">School Principal</p>
+          <p class="lab" data-i18n="credits.principal">School Principal</p>
           <p>Delorah Cecilia L. Fantillo</p>
         </div>
         <div>
-          <p class="lab">Institution</p>
+          <p class="lab" data-i18n="credits.institution">Institution</p>
           <p>Iloilo National High School - STVEP</p>
         </div>
       </div>
@@ -224,35 +248,35 @@
   <footer class="colophon" id="contact-us">
     <div class="colophon-inner">
       <div>
-        <h2>Project Bahandi</h2>
-        <p>An interactive showcase of heritage and identity of Molo, Iloilo City, Philippines. Explore landmarks, practices, local stories, and community memories through the digital map.</p>
-        <a class="btn" href="DigitalMap.html">Explore map</a>
+        <h2 data-i18n="footer.title">Project Bahandi</h2>
+        <p data-i18n="footer.descAbout">An interactive showcase of heritage and identity of Molo, Iloilo City, Philippines. Explore landmarks, practices, local stories, and community memories through the digital map.</p>
+        <a class="btn" href="DigitalMap.html" data-i18n="footer.explore">Explore map</a>
       </div>
       <div>
-        <h3>Navigation</h3>
+        <h3 data-i18n="footer.nav">Navigation</h3>
         <ul>
-          <li><a href="index.html">Home</a></li>
-          <li><a href="DigitalMap.html">Interactive Map</a></li>
-          <li><a href="about.html">About</a></li>
-          <li><a href="contact.html">Contact</a></li>
+          <li><a href="index.html" data-i18n="nav.home">Home</a></li>
+          <li><a href="DigitalMap.html" data-i18n="nav.map">Interactive Map</a></li>
+          <li><a href="about.html" data-i18n="nav.about">About</a></li>
+          <li><a href="contact.html" data-i18n="nav.contact">Contact</a></li>
         </ul>
       </div>
       <div>
-        <h3>Correspondence</h3>
+        <h3 data-i18n="footer.talk">Correspondence</h3>
         <ul>
-          <li>stvepstudentcouncil18@gmail.com</li>
-          <li>Luna St., La Paz, Iloilo City, Philippines 5000</li>
-          <li>INHS - STVEP Local Learner Government</li>
+          <li data-i18n="footer.mail">stvepstudentcouncil18@gmail.com</li>
+          <li data-i18n="footer.addr">Luna St., La Paz, Iloilo City, Philippines 5000</li>
+          <li data-i18n="footer.lg">INHS - STVEP Local Learner Government</li>
         </ul>
       </div>
     </div>
     <div class="colophon-end">
-      <p class="motto">Preserving Molo’s stories, connecting generations, and celebrating the heritage shaped by its people.</p>
+      <p class="motto" data-i18n="footer.motto">Preserving Molo’s stories, connecting generations, and celebrating the heritage shaped by its people.</p>
       <div class="seals">
-        <img src="assets/Iloilo_City.jpg" alt="Iloilo City logo" />
-        <img src="assets/Philippines.jpg" alt="Love the Philippines logo" />
+        <img src="assets/Iloilo_City.jpg" alt="Iloilo City seal" data-i18n-alt="img.iloiloSeal" />
+        <img src="assets/Philippines.jpg" alt="Love the Philippines mark" data-i18n-alt="img.lovePh" />
       </div>
-      <p class="legal">© 2026 Project Bahandi. An interactive showcase of heritage and identity of Molo, Iloilo City, Philippines. All rights reserved.</p>
+      <p class="legal" data-i18n="footer.legal">© 2026 Project Bahandi. An interactive showcase of heritage and identity of Molo, Iloilo City, Philippines. All rights reserved.</p>
     </div>
   </footer>
 

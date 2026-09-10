@@ -2,17 +2,22 @@ window.syncBlueprintPanel = function() {
     if (!window.currentSelectedSite) return;
     
     const site = window.currentSelectedSite;
+    const i18n = (window.PBH && window.PBH.i18n) ? window.PBH.i18n : null;
+    const loc = function(key, fb) { return i18n ? i18n.get(key, fb) : fb; };
     
     // Update Title & Meta
     const titleEl = document.getElementById('bp-landmark-title');
-    if (titleEl) titleEl.innerHTML = `${site.site_name || 'Landmark'} <em>Details</em>`;
+    if (titleEl) titleEl.innerHTML = `${site.site_name || 'Landmark'} <em>${loc('fd.title.suffix', 'Details')}</em>`;
     
     const refCodeEl = document.getElementById('bp-ref-code');
-    if (refCodeEl) refCodeEl.innerText = `REF · ${site.site_id || 'BHD-ML-0001'} · FULL DETAILS`;
+    if (refCodeEl) {
+        const full = loc('bp.ref', 'FULL DETAILS');
+        refCodeEl.innerText = 'REF · ' + (site.site_id || 'BHD-ML-0001') + ' · ' + full;
+    }
     
     // Update Description
     const descEl = document.getElementById('bp-landmark-desc');
-    if (descEl) descEl.innerText = site.description || site.full_history || 'No full description available.';
+    if (descEl) descEl.innerText = site.description || site.full_history || loc('fd.desc.fallback', 'No full description available.');
     
     // Update Data Sheet fields
     const builtEl = document.getElementById('bp-data-built');
