@@ -6,14 +6,13 @@
 .qr-panel {
     position: fixed;
     top: 0;
-    right: -520px; /* Hidden off-screen */
+    right: -520px;
     width: 480px;
     max-width: 90vw;
     height: 100vh;
-    background: radial-gradient(circle at 80% 20%, #0F172A 0%, #0B132B 100%);
+    background: #0f172a;
     border-left: 1px solid rgba(59, 130, 246, 0.3);
-    box-shadow: -20px 0 60px rgba(0, 0, 0, 0.8),
-                -5px 0 25px rgba(37, 99, 235, 0.15);
+    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.5);
     z-index: 2100;
     transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     display: flex;
@@ -21,6 +20,7 @@
     overflow-y: auto;
     box-sizing: border-box;
     padding: 24px 28px;
+    border-radius: 0;
 }
 
 .qr-panel.active {
@@ -38,7 +38,7 @@
 .qr-icon-box {
     width: 36px;
     height: 36px;
-    border-radius: 8px;
+    border-radius: 0;
     background: rgba(59, 130, 246, 0.12);
     border: 1px solid rgba(59, 130, 246, 0.3);
     display: flex;
@@ -57,7 +57,7 @@
     border: 1px solid rgba(148, 163, 184, 0.2);
     color: #94A3B8;
     padding: 6px 14px;
-    border-radius: 8px;
+    border-radius: 0;
     font-family: 'JetBrains Mono', monospace;
     font-size: 10.5px;
     cursor: pointer;
@@ -98,13 +98,12 @@
 .qr-card-display {
     background: rgba(15, 23, 42, 0.7);
     border: 1px solid rgba(59, 130, 246, 0.25);
-    border-radius: 16px;
+    border-radius: 0;
     padding: 28px 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.4);
     margin-bottom: 24px;
     position: relative;
 }
@@ -143,7 +142,7 @@
 .qr-spec-box {
     background: rgba(15, 23, 42, 0.5);
     border: 1px solid rgba(148, 163, 184, 0.15);
-    border-radius: 12px;
+    border-radius: 0;
     padding: 16px;
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -191,7 +190,7 @@
     color: #FFFFFF;
     border: none;
     padding: 12px 20px;
-    border-radius: 8px;
+    border-radius: 0;
     font-family: 'JetBrains Mono', monospace;
     font-size: 11px;
     font-weight: 500;
@@ -203,12 +202,10 @@
     align-items: center;
     justify-content: center;
     gap: 8px;
-    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.35);
 }
 
 .qr-action-btn:hover {
     background: #3B82F6;
-    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.55);
 }
 
 .qr-share-btn {
@@ -217,7 +214,7 @@
     color: #94A3B8;
     border: 1px solid rgba(148, 163, 184, 0.2);
     padding: 10px 20px;
-    border-radius: 8px;
+    border-radius: 0;
     font-family: 'JetBrains Mono', monospace;
     font-size: 10.5px;
     letter-spacing: 0.1em;

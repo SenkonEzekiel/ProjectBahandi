@@ -204,6 +204,9 @@
             </div>
         </div>
 
+        <!-- Sidebar Backdrop (mobile bottom-sheet overlay) -->
+        <div id="sidebar-backdrop" class="sidebar-backdrop"></div>
+
         <!-- Main Info Sidebar -->
         <div id="info-sidebar" class="sidebar collapsed">
             <div class="sidebar-header">
@@ -228,7 +231,8 @@
                     <!-- BUTTON 1: Full Details (FD) -->
                     <div class="mini-btn-wrapper">
                         <button type="button" class="mini-btn" onclick="openFrame('FD')">
-                            <img src="assets/SidebarComp/v4-FD.png" alt="Full Details" class="mini-btn-icon"> 
+                            <img src="assets/SidebarComp/v4-FD.png" alt="Full Details" class="mini-btn-icon">
+                            <span class="mini-btn-label">Details</span> 
                         </button>
                         <div class="btn-flyout">
                             <strong>Full Details</strong>
@@ -239,7 +243,8 @@
                     <!-- BUTTON 2: Fun Facts (FF) -->
                     <div class="mini-btn-wrapper">
                         <button type="button" class="mini-btn" onclick="openFrame('FF')">
-                            <img src="assets/SidebarComp/v4-FF.png" alt="Fun Facts" class="mini-btn-icon"> 
+                            <img src="assets/SidebarComp/v4-FF.png" alt="Fun Facts" class="mini-btn-icon">
+                            <span class="mini-btn-label">Facts</span> 
                         </button>
                         <div class="btn-flyout">
                             <strong>Fun Facts</strong>
@@ -250,7 +255,8 @@
                     <!-- BUTTON 3: Heritage Citation (HSC) -->
                     <div class="mini-btn-wrapper">
                         <button type="button" class="mini-btn" onclick="openFrame('HSC')">
-                            <img src="assets/SidebarComp/v4-HSC.png" alt="Heritage Citation" class="mini-btn-icon"> 
+                            <img src="assets/SidebarComp/v4-HSC.png" alt="Heritage Citation" class="mini-btn-icon">
+                            <span class="mini-btn-label">Citation</span> 
                         </button>
                         <div class="btn-flyout">
                             <strong>Heritage Citation</strong>
@@ -261,7 +267,8 @@
                     <!-- BUTTON 4: Heritage Status (HS) -->
                     <div class="mini-btn-wrapper">
                         <button type="button" class="mini-btn" onclick="openFrame('HS')">
-                            <img src="assets/SidebarComp/v4-HS.png" alt="Heritage Status" class="mini-btn-icon"> 
+                            <img src="assets/SidebarComp/v4-HS.png" alt="Heritage Status" class="mini-btn-icon">
+                            <span class="mini-btn-label">Status</span> 
                         </button>
                         <div class="btn-flyout">
                             <strong>Heritage Status</strong>
@@ -272,7 +279,8 @@
                     <!-- BUTTON 5: Play Game (PG) -->
                     <div class="mini-btn-wrapper">
                         <button type="button" class="mini-btn" onclick="openFrame('PG')">
-                            <img src="assets/SidebarComp/v4-PG.png" alt="Play Game" class="mini-btn-icon"> 
+                            <img src="assets/SidebarComp/v4-PG.png" alt="Play Game" class="mini-btn-icon">
+                            <span class="mini-btn-label">Game</span> 
                         </button>
                         <div class="btn-flyout">
                             <strong>Play Game</strong>
@@ -283,7 +291,8 @@
                     <!-- BUTTON 6: QR Code (QR) -->
                     <div class="mini-btn-wrapper">
                         <button type="button" class="mini-btn" onclick="openFrame('QR')">
-                            <img src="assets/SidebarComp/v4-QR.png" alt="QR Code" class="mini-btn-icon"> 
+                            <img src="assets/SidebarComp/v4-QR.png" alt="QR Code" class="mini-btn-icon">
+                            <span class="mini-btn-label">QR Code</span> 
                         </button>
                         <div class="btn-flyout">
                             <strong>QR Code</strong>
@@ -751,6 +760,7 @@
         // Force collapse main sidebar and blueprint
         if (sidebar) sidebar.classList.add('collapsed');
         if (blueprintPanel) blueprintPanel.classList.remove('active');
+        if (typeof window.setSidebarBackdrop === 'function') window.setSidebarBackdrop(false);
 
         // Safely close sub-panels without side effects
         if (typeof window.closeFFPopover === 'function') window.closeFFPopover();
@@ -798,6 +808,9 @@
         } else if (frameType === 'QR') {
             if (typeof window.openQRPanel === 'function') window.openQRPanel();
         }
+
+        // Keep the mobile backdrop visible while any frame/panel is open
+        if (typeof window.setSidebarBackdrop === 'function') window.setSidebarBackdrop(true);
     }
 
     // Return to main sidebar from Blueprint Panel or QR Panel

@@ -87,6 +87,10 @@ function selectLandmark(siteId) {
         sidebar.classList.remove('collapsed');
     }
 
+    if (typeof window.setSidebarBackdrop === 'function') {
+        window.setSidebarBackdrop(true);
+    }
+
     syncBlueprintPanel();
     if (typeof window.applyOverlayToggles === 'function') {
         window.applyOverlayToggles();
@@ -475,6 +479,60 @@ document.addEventListener("DOMContentLoaded", async () => {
             btn.onclick = () => openFrame(frameKeys[index]);
         }
     });
+
+    // ==================== SIDEBAR MOBILE BACKDROP ====================
+    // Show/hide the full-screen overlay behind the bottom-sheet sidebar (mobile only).
+    function setSidebarBackdrop(show) {
+        if (window.innerWidth > 1024) return;
+        const bd = document.getElementById('sidebar-backdrop');
+        if (bd) bd.classList.toggle('visible', !!show);
+    }
+    window.setSidebarBackdrop = setSidebarBackdrop;
+
+    // Tap backdrop to dismiss sidebar and all open panels.
+    const backdropEl = document.getElementById('sidebar-backdrop');
+    if (backdropEl) {
+        backdropEl.addEventListener('click', () => {
+            if (typeof window.closeSidebar === 'function') window.closeSidebar();
+            setSidebarBackdrop(false);
+        });
+    }
+
+    // Optional: swipe-down gesture on the mobile sheet to collapse it.
+    const sheetEl = document.getElementById('info-sidebar');
+    if (sheetEl) {
+        let startY = null;
+        let swipeDown = false;
+        sheetEl.addEventListener('touchstart', (e) => {
+            startY = e.touches[0].clientY;
+            swipeDown = false;
+        }, { passive: true });
+        sheetEl.addEventListener('touchmove', (e) => {
+            if (startY === null) return;
+            const dy = e.touches[0].clientY - startY;
+            if (dy > 0 && sheetEl.scrollTop <= 0) {
+                swipeDown = true;
+                e.preventDefault();
+            } else if (dy < 0) {
+                swipeDown = false;
+            }
+        }, { passive: false });
+        sheetEl.addEventListener('touchend', () => {
+            if (swipeDown && startY !== null) {
+                if (typeof window.closeSidebar === 'function') window.closeSidebar();
+                setSidebarBackdrop(false);
+            }
+            startY = null;
+            swipeDown = false;
+        });
+    }
+
+    // Re-measure map once the sheet/backdrop animations settle.
+    setTimeout(() => {
+        if (window.map && typeof window.map.invalidateSize === 'function') {
+            window.map.invalidateSize();
+        }
+    }, 400);
 
     window.dispatchEvent(new CustomEvent('bahandi-sites-ready'));
 });
