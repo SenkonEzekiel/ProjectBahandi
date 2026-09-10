@@ -19,7 +19,17 @@ function openHSCModal() {
     const heroTitle = document.getElementById('hsc-hero-title');
     const heroSub = document.getElementById('hsc-hero-sub');
 
-    if (heroImg) heroImg.src = site?.image || site?.heroImage || 'assets/MoloFront.jpg';
+    if (heroImg) {
+        if (typeof window.bindLandmarkImage === 'function') {
+            window.bindLandmarkImage(heroImg, site, site?.site_name || 'Heritage Landmark');
+        } else {
+            heroImg.onerror = function () {
+                this.onerror = null;
+                this.src = 'assets/Landmark_images/placeholder.jpeg';
+            };
+            heroImg.src = site?.localImage || site?.image || 'assets/Landmark_images/placeholder.jpeg';
+        }
+    }
     if (heroBadge) heroBadge.innerText = site?.heritage_status || site?.designation || 'NATIONAL HERITAGE SITE';
     if (heroTitle) heroTitle.innerText = site?.site_name || 'Molo Heritage Site';
     if (heroSub) heroSub.innerText = `${site?.district || 'DISTRICT OF MOLO'} · ${site?.city || 'ILOILO CITY'}`;
